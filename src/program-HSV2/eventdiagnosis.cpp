@@ -90,7 +90,7 @@ double EventDiagnosis::solveForRealTimeInterval(const State *pState, double Tdif
 	double tMax = getTMax(pPerson);
 
 	HazardFunctionDiagnosis h0(pPerson, s_baseline, s_ageFactor, s_genderFactor, s_diagPartnersFactor,
-			           s_isDiagnosedFactor, s_beta, s_HSV2factor); //Diana
+			           s_isDiagnosedFactor, s_beta, s_HSV2factor);
 	TimeLimitedHazardFunction h(h0, tMax);
 
 	return h.solveForRealTimeInterval(t0, Tdiff);
@@ -111,8 +111,9 @@ double EventDiagnosis::s_genderFactor = 0;
 double EventDiagnosis::s_diagPartnersFactor = 0;
 double EventDiagnosis::s_isDiagnosedFactor = 0;
 double EventDiagnosis::s_beta = 0;
+double EventDiagnosis::s_HSV2factor = 0;
 double EventDiagnosis::s_tMax = 0;
-double EventDiagnosis::s_HSV2factor = 0; //Diana
+
 
 void EventDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
@@ -126,7 +127,7 @@ void EventDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenera
 	    !(r = config.getKeyValue("diagnosis.beta", s_beta)) ||
 		!(r = config.getKeyValue("diagnosis.t_max", s_tMax))
 ||
-		!(r = config.getKeyValue("diagnosis.HSV2factor", s_HSV2factor)) //Diana
+		!(r = config.getKeyValue("diagnosis.HSV2factor", s_HSV2factor))
 	   )
 		abortWithMessage(r.getErrorString());
 }
@@ -142,7 +143,7 @@ void EventDiagnosis::obtainConfig(ConfigWriter &config)
 	    !(r = config.addKey("diagnosis.isdiagnosedfactor", s_isDiagnosedFactor)) ||
 	    !(r = config.addKey("diagnosis.beta", s_beta)) ||
 	    !(r = config.addKey("diagnosis.t_max", s_tMax)) ||
-		!(r = config.addKey("diagnosis.HSV2factor", s_HSV2factor)) //Diana
+		!(r = config.addKey("diagnosis.HSV2factor", s_HSV2factor))
 	   )
 		abortWithMessage(r.getErrorString());
 }
@@ -170,9 +171,9 @@ HazardFunctionDiagnosis::HazardFunctionDiagnosis(Person *pPerson, double baselin
 	double G = (pPerson->isMan())?0:1;
 	int D = pPerson->getNumberOfDiagnosedPartners();
 	int hasBeenDiagnosed = (pPerson->hiv().isDiagnosed())?1:0;
-	int HSV2 = (pPerson->hsv2().isInfected())?1:0; //Diana
+	int HSV2 = (pPerson->hsv2().isInfected())?1:0;
 
-	double A = baseline - ageFactor*tb + genderFactor*G + diagPartnersFactor*D + isDiagnosedFactor*hasBeenDiagnosed - beta*tinf + HSV2factor*HSV2; //Diana
+	double A = baseline - ageFactor*tb + genderFactor*G + diagPartnersFactor*D + isDiagnosedFactor*hasBeenDiagnosed - beta*tinf + HSV2factor*HSV2;
 	double B = ageFactor + beta;
 
 	setAB(A, B);
@@ -186,12 +187,12 @@ double HazardFunctionDiagnosis::evaluate(double t)
 	double G = (m_pPerson->isMan())?0:1;
 	int D = m_pPerson->getNumberOfDiagnosedPartners();
 	int hasBeenDiagnosed = (m_pPerson->hiv().isDiagnosed())?1:0;
-	int HSV2 = (m_pPerson->hsv2().isInfected()) ?1:0;//Diana
+	int HSV2 = (m_pPerson->hsv2().isInfected()) ?1:0;
 
 	double age = (t-tb);
 
 	return std::exp(m_baseline + m_ageFactor*age + m_genderFactor*G + m_diagPartnersFactor*D +
-			m_isDiagnosedFactor*hasBeenDiagnosed + m_beta*(t-tinf)+ m_HSV2factor*HSV2);//Diana
+			m_isDiagnosedFactor*hasBeenDiagnosed + m_beta*(t-tinf)+ m_HSV2factor*HSV2);
 }
 
 ConfigFunctions diagnosisConfigFunctions(EventDiagnosis::processConfig, EventDiagnosis::obtainConfig, "EventDiagnosis");
@@ -206,8 +207,8 @@ JSONConfig diagnosisJSONConfig(R"JSON(
                 [ "diagnosis.diagpartnersfactor", 0 ],
                 [ "diagnosis.isdiagnosedfactor", 0 ],
                 [ "diagnosis.beta", 0 ],
-                [ "diagnosis.t_max", 200 ],
-			[ "diagnosis.HSV2factor", 0 ] //Diana
+		     [ "diagnosis.HSV2factor", 0 ],
+                [ "diagnosis.t_max", 200 ]	
             ],
             "info": [
                 "When a person gets infected or drops out of treatment, a diagnosis event is ",
@@ -215,7 +216,7 @@ JSONConfig diagnosisJSONConfig(R"JSON(
                 "",
                 " h = exp(baseline + agefactor*A(t) + genderfactor*G ",
                 "         + diagpartnersfactor*ND + isdiagnosedfactor*D",
-                "         + beta*t + HSV2factor*HSV2)", //Diana
+                "         + beta*t + HSV2factor*HSV2)",
                 "",
                 "Here, A(t) is the age of the person, G is the gender (0 for a man, 1 for a",
                 "woman), ND is the number of diagnosed partners and D is a flag (0 or 1)",

@@ -14,13 +14,13 @@ class HazardFunctionDiagnosis : public HazardFunctionExp
 public:
 	HazardFunctionDiagnosis(Person *pPerson, double baseline, double ageFactor,
 				double genderFactor, double diagPartnersFactor,
-				double isDiagnosedFactor, double beta, double HSV2factor); //Diana
+				double isDiagnosedFactor, double beta, double HSV2factor); 
 
 	double evaluate(double t);
 private:
 	Person *m_pPerson;
 	const double m_baseline, m_ageFactor, m_genderFactor, m_diagPartnersFactor;
-	const double m_isDiagnosedFactor, m_beta, m_HSV2factor; //Diana
+	const double m_isDiagnosedFactor, m_beta, m_HSV2factor;
 };
 
 class EventDiagnosis : public SimpactEvent

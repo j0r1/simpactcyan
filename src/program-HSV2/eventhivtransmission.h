@@ -35,8 +35,8 @@ protected:
 	static double s_c;
 	static double s_d1;
 	static double s_d2;
-	static double s_e1; //Diana
-	static double s_e2; //Diana
+	static double s_e1;
+	static double s_e2;
 	static double s_f1;
 	static double s_f2;
 	static double s_tMaxAgeRefDiff;

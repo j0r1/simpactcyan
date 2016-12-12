@@ -47,9 +47,9 @@ protected:
 
 	static double s_tMax;
 
-	static double s_c; // Diana
+	static double s_c; 
 
-	static double s_d; // Diana
+	static double s_d; 
 };
 
 #endif // EVENTHSV2TRANSMISSION_H

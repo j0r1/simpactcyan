@@ -153,8 +153,8 @@ double EventHIVTransmission::s_b = 0;
 double EventHIVTransmission::s_c = 0;
 double EventHIVTransmission::s_d1 = 0;
 double EventHIVTransmission::s_d2 = 0;
-double EventHIVTransmission::s_e1 = 0; //Diana
-double EventHIVTransmission::s_e2 = 0; //Diana
+double EventHIVTransmission::s_e1 = 0; 
+double EventHIVTransmission::s_e2 = 0; 
 double EventHIVTransmission::s_f1 = 0;
 double EventHIVTransmission::s_f2 = 0;
 double EventHIVTransmission::s_tMaxAgeRefDiff = -1;
@@ -174,7 +174,6 @@ double EventHIVTransmission::solveForRealTimeInterval(const State *pState, doubl
 	return Tdiff/h;
 }
 
-//function getH added by Diana
 int EventHIVTransmission::getH(const Person *pPerson)
 	{
 		assert(pPerson != 0);
@@ -205,7 +204,7 @@ double EventHIVTransmission::calculateHazardFactor(const SimpactPopulation &popu
 	assert(s_b != 0);
 	assert(s_c != 0);
 
-	double logh = s_a + s_b * std::pow(V,-s_c) + s_d1*Pi + s_d2*Pj + s_e1*getH(pPerson1) + s_e2*getH(pPerson2); //Diana
+	double logh = s_a + s_b * std::pow(V,-s_c) + s_d1*Pi + s_d2*Pj + s_e1*getH(pPerson1) + s_e2*getH(pPerson2);
 
 	if (s_f1 != 0 && pPerson2->isWoman())
 	{
@@ -235,8 +234,8 @@ void EventHIVTransmission::processConfig(ConfigSettings &config, GslRandomNumber
 	    !(r = config.getKeyValue("hivtransmission.param.c", s_c)) ||
 	    !(r = config.getKeyValue("hivtransmission.param.d1", s_d1)) ||
 	    !(r = config.getKeyValue("hivtransmission.param.d2", s_d2)) ||
-		!(r = config.getKeyValue("hivtransmission.param.e1", s_e1)) || //Diana
-	    !(r = config.getKeyValue("hivtransmission.param.e2", s_e2)) || //Diana
+		!(r = config.getKeyValue("hivtransmission.param.e1", s_e1)) || 
+	    !(r = config.getKeyValue("hivtransmission.param.e2", s_e2)) || 
 
 	    !(r = config.getKeyValue("hivtransmission.param.f1", s_f1)) ||
 	    !(r = config.getKeyValue("hivtransmission.param.f2", s_f2)) ||
@@ -254,9 +253,8 @@ void EventHIVTransmission::obtainConfig(ConfigWriter &config)
 	    !(r = config.addKey("hivtransmission.param.c", s_c)) ||
 	    !(r = config.addKey("hivtransmission.param.d1", s_d1)) ||
 	    !(r = config.addKey("hivtransmission.param.d2", s_d2)) ||
-		!(r = config.addKey("hivtransmission.param.e1", s_e1)) || //Diana
-	    !(r = config.addKey("hivtransmission.param.e2", s_e2)) || //Diana
-
+		!(r = config.addKey("hivtransmission.param.e1", s_e1)) || 
+	    !(r = config.addKey("hivtransmission.param.e2", s_e2)) || 
 		!(r = config.addKey("hivtransmission.param.f1", s_f1)) ||
 		!(r = config.addKey("hivtransmission.param.f2", s_f2)) ||
 		!(r = config.addKey("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff))
@@ -277,15 +275,15 @@ JSONConfig hivTransmissionJSONConfig(R"JSON(
                 ["hivtransmission.param.c", 0.1649],
                 ["hivtransmission.param.d1", 0],
                 ["hivtransmission.param.d2", 0], 
-		     ["hivtransmission.param.e1", 0], //Diana
-             	["hivtransmission.param.e2", 0], //Diana
+		     ["hivtransmission.param.e1", 0],
+             	["hivtransmission.param.e2", 0],
                 ["hivtransmission.param.f1", 0], 
                 ["hivtransmission.param.f2", 0],
                 ["hivtransmission.maxageref.diff", 1] ],
             "info": [ 
-                "The hazard of transmission is h = exp(a + b * V^(-c) + d1*Pi + d2*Pj + e1*Hi + e2*Hj), ", //Diana
+                "The hazard of transmission is h = exp(a + b * V^(-c) + d1*Pi + d2*Pj + e1*Hi + e2*Hj), ",
                 "in case the uninfected partner is a man, or",
-                "h = exp(a + b * V^(-c) + d1*Pi + d2*Pj +e1*Hi + e2*Hj + f1*exp(f2(A(try)-Ad)))", //Diana
+                "h = exp(a + b * V^(-c) + d1*Pi + d2*Pj +e1*Hi + e2*Hj + f1*exp(f2(A(try)-Ad)))",
                 "in case the uninfected partner is a woman. The value of V is the viral",
                 "load, which is not necessarily the set-point viral load but will differ",
                 "depending on the AIDS stage."

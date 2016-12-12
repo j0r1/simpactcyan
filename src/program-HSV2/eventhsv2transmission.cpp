@@ -135,8 +135,8 @@ double EventHSV2Transmission::solveForRealTimeInterval(const State *pState, doub
 }
 
 double EventHSV2Transmission::s_tMax = 200;
-double EventHSV2Transmission::s_c = 0; //Diana
-double EventHSV2Transmission::s_d = 0; //Diana
+double EventHSV2Transmission::s_c = 0; 
+double EventHSV2Transmission::s_d = 0; 
 double EventHSV2Transmission::HazardFunctionHSV2Transmission::s_b = 0;
 
 void EventHSV2Transmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
@@ -145,10 +145,9 @@ void EventHSV2Transmission::processConfig(ConfigSettings &config, GslRandomNumbe
 
     if (!(r = config.getKeyValue("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
         !(r = 
-config.getKeyValue("hsv2transmission.hazard.c", s_c)) || //Diana
+config.getKeyValue("hsv2transmission.hazard.c", s_c)) ||
         !(r =
 config.getKeyValue("hsv2transmission.hazard.d", s_d)) ||
-//Diana
         !(r = config.getKeyValue("hsv2transmission.hazard.t_max", s_tMax))
         )
         abortWithMessage(r.getErrorString());
@@ -161,9 +160,7 @@ void EventHSV2Transmission::obtainConfig(ConfigWriter &config)
 
 	if (!(r = config.addKey("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
 		!(r = config.addKey("hsv2transmission.hazard.c", s_c))||
-//Diana
 		!(r = config.addKey("hsv2transmission.hazard.d", s_d))||
-//Diana
 		!(r = config.addKey("hsv2transmission.hazard.t_max", s_tMax))
 		)
 		abortWithMessage(r.getErrorString());
@@ -186,7 +183,6 @@ double EventHSV2Transmission::getTMax(const Person *pPerson1, const Person *pPer
     return tMax;
 }
 
-// function getM added by Diana
 int EventHSV2Transmission::getM(const Person *pPerson1)
 {
 	assert(pPerson1 != 0);
@@ -197,7 +193,6 @@ int EventHSV2Transmission::getM(const Person *pPerson1)
      return M;
 }
 
-// function getH added by Diana
 int EventHSV2Transmission::getH(const Person *pPerson1)
 {
 	assert(pPerson1 != 0);
@@ -224,7 +219,7 @@ double EventHSV2Transmission::HazardFunctionHSV2Transmission::getA(const Person 
 {
     assert(pOrigin);
     return pOrigin->hsv2().getHazardAParameter() - s_b*pOrigin->hsv2().getInfectionTime() + s_c*EventHSV2Transmission::getM(pOrigin) +
-s_d*EventHSV2Transmission::getH(pOrigin); // term in M and H added by Diana
+s_d*EventHSV2Transmission::getH(pOrigin); 
 }
 //
 ConfigFunctions hsv2TransmissionConfigFunctions(EventHSV2Transmission::processConfig, EventHSV2Transmission::obtainConfig, 
