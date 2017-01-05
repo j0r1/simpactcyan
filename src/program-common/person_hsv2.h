@@ -28,6 +28,11 @@ public:
 
 	double getHazardAParameter() const												{ return m_hazardAParam; }
 
+	double getHazardB2Parameter() const
+								{ return
+m_hazardB2Param; }
+
+
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);
 private:
@@ -37,8 +42,11 @@ private:
 	Person *m_pInfectionOrigin;
 	InfectionType m_infectionType;
 	double m_hazardAParam;
+	double m_hazardB2Param;
 
 	static ProbabilityDistribution *m_pADist;
+	static ProbabilityDistribution *m_pB2Dist;
+
 };
 
 #endif // PERSON_HSV2_H

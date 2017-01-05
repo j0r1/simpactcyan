@@ -135,7 +135,7 @@ void runHazardTests(SimpactPopulation &pop)
 		pWoman->addRelationship(pMan, 0.1);
 
 		{
-			HazardFunctionDiagnosis h0(pMan, 0.1, -0.2, 0.3, 0.4, 0.5, 0.6);
+			HazardFunctionDiagnosis h0(pMan, 0.1, -0.2, 0.3, 0.4, 0.5, 0.6, 0.7);
 			TimeLimitedHazardFunction h(h0, 120);
 			runHazardTest(h, "HazardFunctionDiagnosis", rndGen);
 		}
@@ -143,7 +143,7 @@ void runHazardTests(SimpactPopulation &pop)
 		pMan->hiv().increaseDiagnoseCount();
 
 		{
-			HazardFunctionDiagnosis h0(pWoman, 0.1, -0.2, 0.3, 0.4, 0.5, 0.6);
+			HazardFunctionDiagnosis h0(pWoman, 0.1, -0.2, 0.3, 0.4, 0.5, 0.6, 0.7);
 			TimeLimitedHazardFunction h(h0, 120);
 			runHazardTest(h, "HazardFunctionDiagnosis2", rndGen);
 		}
