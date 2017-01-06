@@ -3,7 +3,7 @@ Simpact Cyan
 
 Simpact Cyan is the C++ version of the [Simpact](http://www.simpact.org/) family 
 of programs. It is an agent based model (ABM) to study the way an infection 
-spreads and can be influenced, and is currently focused on HIV. 
+spreads and can be influenced, and is currently focused on HIV and HIV-HSV2 co-infection. 
 
 The main documentation can be found at [readthedocs](http://simpactcyan.readthedocs.io/).
 
