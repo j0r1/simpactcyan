@@ -1,0 +1,13 @@
+conception.alpha_base                                        = 0
+formation.hazard.agegap.baseline                             = 0.1
+treatment.enabled                                            = yes
+
+logsystem.filename.events                                    = logevents.csv
+logsystem.filename.persons                                   = logpersons.csv
+logsystem.filename.relations                                 = logrelations.csv
+
+population.nummen                                            = 100
+population.numwomen                                          = 100
+population.simtime                                           = 15
+population.agedistfile                                       = /home/jori/projects/simpact-hg/data/sa_2003.csv
+
