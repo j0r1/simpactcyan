@@ -354,24 +354,24 @@ parentheses), and their meaning:
 HIV and HSV2 related settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For the :ref:`HIV transmission <transmission>` hazard, person-dependent values for susceptibility for both infections and susceptibility for HIV only can be set. These values will be drawn from the distributions specified by ``person.hiv.b0.dist`` and ``person.hiv.b1.dist`` respectively, and their corresponding parameters.
+For the :ref:`HIV transmission <transmission>` hazard, person-dependent values for susceptibility for both infections and susceptibility for HIV only can be set. These values will be drawn from the distributions specified by ``person.hiv.b0.dist.type`` and ``person.hiv.b1.dist.type`` respectively, and their corresponding parameters.
 
 For the :ref:`HSV2 transmission <hsv2transmission>` hazard, a person-dependent baseline
 value can be set. This value will be drawn from the distribution specified
-by ``person.hsv2.a.dist.type`` and its corresponding parameters. Furthermore, a person-dependent value for susceptibility for HSV2 only can be set. This value will be drawn from a distribution specified by ``person.hsv2.b2.dist`` and its corresponding parameters. Furthermore, the value for susceptibility for both infections, drawn from the distribution specified by ``person.hiv.b0.dist`` will also be included in the :ref:`HSV2 transmission <hsv2transmission>` hazard.
+by ``person.hsv2.a.dist.type`` and its corresponding parameters. Furthermore, a person-dependent value for susceptibility for HSV2 only can be set. This value will be drawn from a distribution specified by ``person.hsv2.b2.dist.type`` and its corresponding parameters. Furthermore, the value for susceptibility for both infections, drawn from the distribution specified by ``person.hiv.b0.dist.type`` will also be included in the :ref:`HSV2 transmission <hsv2transmission>` hazard.
 
 Here is an overview of the relevant configuration options, their defaults (between
 parentheses), and their meaning:
 
- - ``person.hiv.b0.dist`` ('fixed' with value 0): |br|
+ - ``person.hiv.b0.dist.type`` ('fixed' with value 0): |br|
    Specifies the :ref:`one dimensional distribution <prob1d>` that is used to draw the person dependent value for susceptibility for both infections from the :ref:`HIV transmission <transmission>` and the :ref:`HSV2 transmission <hsv2transmission>` hazards.
- - ``person.hiv.b1.dist`` ('fixed' with value 0): |br|
+ - ``person.hiv.b1.dist.type`` ('fixed' with value 0): |br|
    Specifies the :ref:`one dimensional distribution <prob1d>` that is used to draw the person dependent value for susceptibility for HIV only from the :ref:`HIV transmission <transmission>` hazard.
  - ``person.hsv2.a.dist.type`` ('fixed' with value 0): |br|
    Specifies the :ref:`one dimensional distribution <prob1d>` that is used to draw
    the person dependent baseline value from for the :ref:`HSV2 transmission <hsv2transmission>`
    hazard.
- - ``person.hsv2.b2.dist`` ('fixed' with value 0): |br|
+ - ``person.hsv2.b2.dist.type`` ('fixed' with value 0): |br|
    Specifies the :ref:`one dimensional distribution <prob1d>` that is used to draw the person dependent value for susceptibility for HSV2 only for the :ref:`HSV2 transmission <hsv2transmission>` hazard.
 
 If you want to include the influence of susceptibility in your simulations, appropriate distributions for :math:`b_{\rm 0}`, :math:`b_{\rm 1}` and :math:`b_{\rm 2}` are normal distributions, so that the expected values of :math:`\exp(b_{\rm 0}+b_{\rm 1})` and :math:`\exp(b_{\rm 0}+b_{\rm 2})` are both equal to 1. For :math:`b_{\rm i} \sim\ N\left(\mu_{i},\sigma^{2}_{i}\right)`, normal probability distributions with :math:`\mu_{i}= - \sigma^{2}_{i}/2` (:math:`i=0,1,2`) fulfill these condions. For more information, see `probability_distributions.pdf <_static/probability_distributions.pdf>`_.
@@ -2242,7 +2242,7 @@ person is a woman, and 0 otherwise. By configuring the weights :math:`f_1` and :
 is becomes possible to change the susceptibility of a woman depending on her
 age. Note that this age is only specified approximately by using a reference
 time :math:`t_{\rm ry}` instead of the actual time :math:`t`. This reference time can be
-updated using the :ref:`reference year synchronization event <syncrefyear>`. :math:`{HSV2}_{\rm infected}` and :math:`{HSV2}_{\rm uninfected}` specify if the HIV-infected resp. uninfected person is infected with HSV2. The value of :math:`{HSV2}_{\rm infected}` resp. :math:`{HSV2}_{\rm uninfected}`  is 1 if the HIV-infected resp. uninfected person is infected with HSV2, and 0 otherwise. The values of :math:`b_{\rm 0j}` and :math:`b_{\rm 1j}` specify the susceptibility of the uninfected person to both diseases and HIV only respectively. Their values can be set using ``person.hiv.b0.dist`` resp. ``person.hiv.b1.dist`` from the :ref:`HIV related person settings <personhsv2opts>`.
+updated using the :ref:`reference year synchronization event <syncrefyear>`. :math:`{HSV2}_{\rm infected}` and :math:`{HSV2}_{\rm uninfected}` specify if the HIV-infected resp. uninfected person is infected with HSV2. The value of :math:`{HSV2}_{\rm infected}` resp. :math:`{HSV2}_{\rm uninfected}`  is 1 if the HIV-infected resp. uninfected person is infected with HSV2, and 0 otherwise. The values of :math:`b_{\rm 0j}` and :math:`b_{\rm 1j}` specify the susceptibility of the uninfected person to both diseases and HIV only respectively. Their values can be set using ``person.hiv.b0.dist.type`` resp. ``person.hiv.b1.dist.type`` from the :ref:`HIV related person settings <personhsv2opts>`.
 The values :math:`a`, :math:`b`, :math:`c`, :math:`d_1`, :math:`d_2`, :math:`e_1`, :math:`e_2`, :math:`f_1`, :math:`f_2`, :math:`g_1` and :math:`g_2` can be configured as specified below;
 the :math:`A_{\rm debut}` parameter is the :ref:`debut age <debut>`.
 
@@ -2307,7 +2307,7 @@ The value of :math:`a_i` can be set using ``person.hsv2.a.dist.type`` from the
 :ref:`HSV2 related person settings <personhsv2opts>`. This value is taken from
 the person that's already infected. The :math:`b` value can be configured using
 ``hsv2transmission.hazard.b``, and :math:`t_{\rm HSV2-infected}` is the time at which
-the infected person acquired the HSV2 infection. :math:`M_{\rm i}` represents the gender effect and is taken from the person that's already HSV2-infected. It's value is 1 for male and 0 for female. The value :math:`H_{\rm i}` is an indicator for the HSV2-infected person being HIV-infected. It's value is 1 for HIV-infected and 0 for HIV-uninfected. The values of :math:`b_{\rm 0j}` and :math:`b_{\rm 2j}` specify the susceptibility of the uninfected person to both diseases and HSV2 only respectively. The value of :math:`b_{\rm 0j}` can be set using ``person.hiv.b0.dist`` from the :ref:`HIV related person settings <personhsv2opts>`. The value of :math:`b_{\rm 2j}` can be set using ``person.hsv2.b2.dist`` from the :ref:`HSV2 related person settings <personhsv2opts>`.
+the infected person acquired the HSV2 infection. :math:`M_{\rm i}` represents the gender effect and is taken from the person that's already HSV2-infected. It's value is 1 for male and 0 for female. The value :math:`H_{\rm i}` is an indicator for the HSV2-infected person being HIV-infected. It's value is 1 for HIV-infected and 0 for HIV-uninfected. The values of :math:`b_{\rm 0j}` and :math:`b_{\rm 2j}` specify the susceptibility of the uninfected person to both diseases and HSV2 only respectively. The value of :math:`b_{\rm 0j}` can be set using ``person.hiv.b0.dist.type`` from the :ref:`HIV related person settings <personhsv2opts>`. The value of :math:`b_{\rm 2j}` can be set using ``person.hsv2.b2.dist.type`` from the :ref:`HSV2 related person settings <personhsv2opts>`.
 
 Here is an overview of the relevant configuration options, their defaults (between
 parentheses), and their meaning:
