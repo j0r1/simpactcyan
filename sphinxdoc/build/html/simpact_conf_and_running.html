@@ -1,0 +1,1541 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2. Configuration and running of a simulation &mdash; Simpact Cyan 0.20.1test documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Simpact Cyan 0.20.1test documentation" href="index.html"/>
+        <link rel="next" title="3. Output" href="simpact_output.html"/>
+        <link rel="prev" title="1. Introduction" href="simpact_introduction.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Simpact Cyan
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.20.1test
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="simpact_introduction.html">1. Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. Configuration and running of a simulation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-from-command-line">2.1. Running from command line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-from-within-r">2.2. Running from within R</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">2.2.1. Getting started</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-a-simulation">2.2.2. Running a simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-functions">2.2.3. Other functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#running-from-within-python">2.3. Running from within Python</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">2.3.1. Getting started</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">2.3.2. Running a simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">2.3.3. Other functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-file-and-variables">2.4. Configuration file and variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-basics">2.4.1. The basics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#config-file-variables-and-environment-variables">2.4.2. Config file variables and environment variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-environment-variables">2.4.3. Using environment variables</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-probability-distributions-and-their-parameters">2.5. Supported probability distributions and their parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#one-dimensional-distributions">2.5.1. One dimensional distributions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#beta">2.5.1.1. <code class="docutils literal"><span class="pre">beta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#discrete-csv-onecol">2.5.1.2. discrete.csv.onecol</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#discrete-csv-twocol">2.5.1.3. discrete.csv.twocol</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#discrete-inline">2.5.1.4. <code class="docutils literal"><span class="pre">discrete.inline</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#exponential">2.5.1.5. <code class="docutils literal"><span class="pre">exponential</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fixed">2.5.1.6. <code class="docutils literal"><span class="pre">fixed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#gamma">2.5.1.7. <code class="docutils literal"><span class="pre">gamma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lognormal">2.5.1.8. <code class="docutils literal"><span class="pre">lognormal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#normal">2.5.1.9. <code class="docutils literal"><span class="pre">normal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uniform">2.5.1.10. <code class="docutils literal"><span class="pre">uniform</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#two-dimensional-distributions">2.5.2. Two dimensional distributions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#binormal">2.5.2.1. <code class="docutils literal"><span class="pre">binormal</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#binormalsymm">2.5.2.2. <code class="docutils literal"><span class="pre">binormalsymm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#discrete">2.5.2.3. <code class="docutils literal"><span class="pre">discrete</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">2.5.2.4. <code class="docutils literal"><span class="pre">fixed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">2.5.2.5. <code class="docutils literal"><span class="pre">uniform</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_output.html">3. Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_simulationdetails.html">4. Simulation details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maxart.html">5. MaxART simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_references.html">6. References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Simpact Cyan</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>2. Configuration and running of a simulation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/simpact_conf_and_running.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configuration-and-running-of-a-simulation">
+<h1>2. Configuration and running of a simulation<a class="headerlink" href="#configuration-and-running-of-a-simulation" title="Permalink to this headline">¶</a></h1>
+<p>The basic Simpact Cyan program is a standalone command-line program. To be able to
+set up a simulation, you&#8217;d need to prepare a configuration file and specify this
+file as a command-line argument. Preparing the configuration file manually is
+time-consuming work, as all event properties necessary in a simulation need to
+be set.
+To make it easier to prepare and run simulations, there&#8217;s a <code class="docutils literal"><span class="pre">pysimpactcyan</span></code> module
+that you can use to control Simpact Cyan from Python, or alternatively there&#8217;s
+a <code class="docutils literal"><span class="pre">RSimpactCyan</span></code> library that you can install in R that provides a similar
+interface. The Python module is included when you install the Simpact Cyan binaries,
+the R library must be installed separately from an R session.</p>
+<p>You can also use a combined approach: first run a simulation or simply prepare a
+configuration file from R or Python, and subsequently use this configuration
+to start one or more simulations. This can be very helpful to first prepare a
+base configuration file in an easy way, and then to launch one or more simulations
+on a computer cluster for example. For this particular case, it can be very
+helpful to override e.g. a prefix on the output files as explained <a class="reference internal" href="#configfile"><span class="std std-ref">below</span></a>.</p>
+<p>In this section, we briefly look into starting the simpact cyan program on the
+command line, followed by explanations of how the <a class="reference internal" href="#startingfrompython"><span class="std std-ref">Python interface</span></a>
+or <a class="reference internal" href="#startingfromr"><span class="std std-ref">R interface</span></a> works. Some insights into the <a class="reference internal" href="#configfile"><span class="std std-ref">configuration file</span></a>
+are given next, since that is the actual input to the simulation. Typically, if
+you can specify a particular probability distribution in the configuration file,
+you can also specify others. At the end of this section we describe
+<a class="reference internal" href="#probdists"><span class="std std-ref">which distributions</span></a> are supported and what their parameters are.</p>
+<div class="section" id="running-from-command-line">
+<span id="commandline"></span><h2>2.1. Running from command line<a class="headerlink" href="#running-from-command-line" title="Permalink to this headline">¶</a></h2>
+<p>The Simpact Cyan executable that you&#8217;re likely to need is called <code class="docutils literal"><span class="pre">simpact-cyan-release</span></code>.
+There is a version with debugging information as well: this performs exactly the same calculations, but
+has more checks enabled. As a command line argument you can specify if the very basic
+mNRM (in which all event times are recalculated after triggering an event) is to be
+used, or the more advanced version (in which the program recalculates far less event
+fire times). While <code class="docutils literal"><span class="pre">simpact-cyan-release</span></code> with the advanced mNRM algorithm is the
+fastest, it may be a good idea to verify from time to time that the simple algorithm
+yields the same results (when using the same random number generator seed), as well
+as the debug versions.</p>
+<p>The program needs three additional arguments, the first of which is the path to the
+configuration file that specifies what should be simulated. The configuration file
+is just a text file containing a list of key/value pairs, a part of which could
+look like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="n">population</span><span class="o">.</span><span class="n">nummen</span>    <span class="o">=</span> <span class="mi">200</span>
+<span class="n">population</span><span class="o">.</span><span class="n">numwomen</span>  <span class="o">=</span> <span class="mi">200</span>
+<span class="n">population</span><span class="o">.</span><span class="n">simtime</span>   <span class="o">=</span> <span class="mi">40</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>You can also define variables and use environment variables of your system, <a class="reference internal" href="#configfile"><span class="std std-ref">later</span></a>
+we&#8217;ll look into this config file in more detail. All configuration options and their
+possible values are described in the section with the <a class="reference internal" href="simpact_simulationdetails.html#simdetails"><span class="std std-ref">simulation details</span></a>.
+For the configuration file itself, <em>all</em> options that are needed in the simulation
+<em>must</em> be set, no default values are assumed by the command line program. When using the
+R or Python interface however, this helper system does know about default values
+thereby severely limiting the number of options that must be specified. It will combine the
+options you specify with the defaults to produce a full configuration file that the
+command line program can use.</p>
+<p>The second argument that the <code class="docutils literal"><span class="pre">simpact-cyan-release</span></code> program needs is either 0 or 1 and
+specifies whether the single core version should be used (corresponds to <code class="docutils literal"><span class="pre">0</span></code>),
+or the version using multiple cores (corresponds to <code class="docutils literal"><span class="pre">1</span></code>). For the parallel version,
+i.e. the version using multiple cores, <a class="reference external" href="https://en.wikipedia.org/wiki/OpenMP">OpenMP</a>
+is used as the underlying technology. By default the program will try to use all
+processor cores your system has, but this can be adjusted by setting the
+<code class="docutils literal"><span class="pre">OMP_NUM_THREADS</span></code> environment variable.
+In general, it is a good idea to specify <code class="docutils literal"><span class="pre">0</span></code> for this option, selecting the single-core
+version. The parallel version currently only offers a modest speedup, and only for very
+large population sizes. Especially if you need to do several runs of a simulation, starting
+several single-core versions at once will use your computer&#8217;s power more efficiently
+than starting several parallel versions in a sequential way.</p>
+<p>With the third and final argument you can specify which mNRM algorithm to use: if you
+specify &#8216;simple&#8217;, the basic mNRM is used in which all event fire times will be
+recalculated after an event was triggered. Since this is a slow algorithm, you&#8217;ll
+probably want to specify &#8216;opt&#8217; here, to use the more advanced algorithm. In this
+case, the procedure explained above is used, where each user stores a list of
+relevant events.</p>
+<p>So, assuming we&#8217;ve created a configuration file called <code class="docutils literal"><span class="pre">myconfig.txt</span></code> that resides in
+the current directory, we could run the corresponding simulation with the following
+command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span><span class="o">-</span><span class="n">cyan</span><span class="o">-</span><span class="n">release</span> <span class="n">myconfig</span><span class="o">.</span><span class="n">txt</span> <span class="mi">0</span> <span class="n">opt</span>
+</pre></div>
+</div>
+<p>This will produce some output on screen, such as which version of the program is
+being used and which random number generator seed was set. Since the random number
+generator seed is in there, it may be a good idea to save this to a file in case
+you&#8217;d like to reproduce the exact simulation later. To save it to a file called
+<code class="docutils literal"><span class="pre">myoutput.txt</span></code>, you can run</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span><span class="o">-</span><span class="n">cyan</span><span class="o">-</span><span class="n">release</span> <span class="n">myconfig</span><span class="o">.</span><span class="n">txt</span> <span class="mi">0</span> <span class="n">opt</span> <span class="mi">2</span><span class="o">&gt;</span><span class="n">myoutput</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Note that it is not a redirection of the output using simply <code class="docutils literal"><span class="pre">&gt;</span></code>, but using <code class="docutils literal"><span class="pre">2&gt;</span></code>.
+This has to do with the fact that the information that you see on screen is actually
+sent to <a class="reference external" href="https://en.wikipedia.org/wiki/Standard_streams">stderr</a> instead of
+<code class="docutils literal"><span class="pre">stdout</span></code>.</p>
+<p>When running the Simpact Cyan program, the default behaviour is to initialize the
+random number generator with a (more or less) random seed value. For reproducibility
+it may be necessary to enforce a specific seed. To do so, set the environment variable
+<code class="docutils literal"><span class="pre">MNRM_DEBUG_SEED</span></code> to the value you want to use, and verify in the output of the
+program that the specified seed is in fact the one being used:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">for an MS-Windows system:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">MNRM_DEBUG_SEED</span><span class="o">=</span><span class="mi">12345</span>
+<span class="n">simpact</span><span class="o">-</span><span class="n">cyan</span><span class="o">-</span><span class="n">release</span> <span class="n">myconfig</span><span class="o">.</span><span class="n">txt</span> <span class="mi">0</span> <span class="n">opt</span>
+</pre></div>
+</div>
+<p>Note that value of <code class="docutils literal"><span class="pre">MNRM_DEBUG_SEED</span></code> is still set, which is important when running
+additional simulations. To clear it, either exit the current command prompt, or
+execute</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">set</span> <span class="n">MNRM_DEBUG_SEED</span><span class="o">=</span>
+</pre></div>
+</div>
+<p>(nothing may be specified after the <code class="docutils literal"><span class="pre">=</span></code> sign, not even a space)</p>
+</li>
+<li><p class="first">for a Linux or OS X system:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MNRM_DEBUG_SEED</span><span class="o">=</span><span class="mi">12345</span>
+<span class="n">simpact</span><span class="o">-</span><span class="n">cyan</span><span class="o">-</span><span class="n">release</span> <span class="n">myconfig</span><span class="o">.</span><span class="n">txt</span> <span class="mi">0</span> <span class="n">opt</span>
+</pre></div>
+</div>
+<p>Note that value of <code class="docutils literal"><span class="pre">MNRM_DEBUG_SEED</span></code> is still set, which is important when running
+additional simulations. To clear it, either exit the current terminal window, or
+execute</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">unset</span> <span class="n">MNRM_DEBUG_SEED</span>
+</pre></div>
+</div>
+<p>On one of these operating systems, it is also possible to specify everything in
+one line:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">MNRM_DEBUG_SEED</span><span class="o">=</span><span class="mi">12345</span> <span class="n">simpact</span><span class="o">-</span><span class="n">cyan</span><span class="o">-</span><span class="n">release</span> <span class="n">myconfig</span><span class="o">.</span><span class="n">txt</span> <span class="mi">0</span> <span class="n">opt</span>
+</pre></div>
+</div>
+<p>In this case, the value of <code class="docutils literal"><span class="pre">MNRM_DEBUG_SEED</span></code> will be visible to the program,
+but will no longer be set once the program finishes. It will therefore not
+affect other programs that are started.</p>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="running-from-within-r">
+<span id="startingfromr"></span><h2>2.2. Running from within R<a class="headerlink" href="#running-from-within-r" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="getting-started">
+<h3>2.2.1. Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h3>
+<p>The R interface to Simpact Cyan will underneath still execute one of the
+Simpact Cyan programs, e.g. <code class="docutils literal"><span class="pre">simpact-cyan-release</span></code>, so the <a class="reference internal" href="index.html#programs"><span class="std std-ref">program</span></a>
+relevant to your operating system must be installed first. Note that if
+you&#8217;re using MS-Windows, you&#8217;ll also need to install the
+<a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=48145">Visual Studio 2015 redistributable package</a>
+(use the <strong>x86</strong> version).</p>
+<p>The R module actually contains Python code so to be able to use this, you&#8217;ll
+need to have a working Python installation. On Linux or OS X, this is usually
+already available, but if you&#8217;re using MS-Windows you may need to install this
+separately. In this case, it is best to install it in the default directory,
+e.g. <code class="docutils literal"><span class="pre">C:\Python27</span></code> or <code class="docutils literal"><span class="pre">C:\Python34</span></code>, so that the R package will be able to
+locate it easily.</p>
+<p>Before being able to use the <code class="docutils literal"><span class="pre">RSimpactCyan</span></code> module, you need to make sure that other
+libraries are available:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;RJSONIO&quot;</span><span class="p">)</span>
+<span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;findpython&quot;</span><span class="p">)</span>
+<span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;rPithon&quot;</span><span class="p">,</span> <span class="n">repos</span><span class="o">=</span><span class="s2">&quot;http://research.edm.uhasselt.be/jori&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once these are installed, you can install the <code class="docutils literal"><span class="pre">RSimpactCyan</span></code> library which
+contains the R interface to the Simpact Cyan program:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="s2">&quot;RSimpactCyan&quot;</span><span class="p">,</span> <span class="n">repos</span><span class="o">=</span><span class="s2">&quot;http://research.edm.uhasselt.be/jori&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, you can load the library with the command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="s2">&quot;RSimpactCyan&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-a-simulation">
+<h3>2.2.2. Running a simulation<a class="headerlink" href="#running-a-simulation" title="Permalink to this headline">¶</a></h3>
+<p>To configure a simulation, you need to specify the options for which you want
+to use a value other than the default. This is done using a list, for example</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">&lt;-</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.nummen&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="mi">200</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.numwomen&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="mi">200</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.simtime&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="mi">40</span>
+</pre></div>
+</div>
+<p>All values that are entered this way are converted to character strings when
+creating a configuration file for the simulation. This means that instead of
+a numeric value, you could also use a string that corresponds to the same
+number, for example</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.nummen&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s2">&quot;200&quot;</span>
+</pre></div>
+</div>
+<p>Together with the defaults for other options, these settings will be combined into
+a configuration file that the real Simpact Cyan program can understand. Taking
+a look at the full configuration file will show you what other values are in use;
+to see this configuration file, run</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span><span class="o">.</span><span class="n">showconfig</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Lines that start with a <code class="docutils literal"><span class="pre">#</span></code> sign are ignored when the configuration file is read.
+They may contain comments about certain options, or show which options are not
+in use currently. In case you&#8217;d want to use a simulation using all defaults, you can either use an
+empty list, or specify <code class="docutils literal"><span class="pre">NULL</span></code>.</p>
+<p>If you&#8217;ve got the configuration you&#8217;d like to use,
+you can start the simulation from within R with the command <code class="docutils literal"><span class="pre">simpact.run</span></code>. Two
+parameters <em>must</em> be specified: the first is the settings to use (the <code class="docutils literal"><span class="pre">cfg</span></code> list
+in our example) and the second is a directory where generated files and results
+can be stored. The R module will attempt to create this directory if it does not
+exist yet. To use the directory <code class="docutils literal"><span class="pre">/tmp/simpacttest</span></code>, the command would become</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">&lt;-</span> <span class="n">simpact</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="s2">&quot;/tmp/simpacttest&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The other parameters are:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">agedist</span></code>: With this parameter, you can specify the age distribution that should be used
+when generating an initial population. The default is the age distribution of
+South Africa from 2003. In R, you can specify an alternative age distribution
+in two ways.</p>
+<p>The first way to do this, is to specify the age distribution as an R data frame
+or list, which contains columns named <code class="docutils literal"><span class="pre">Age</span></code>, <code class="docutils literal"><span class="pre">Percent.Male</span></code> and <code class="docutils literal"><span class="pre">Percent.Female</span></code>.
+The <code class="docutils literal"><span class="pre">Age</span></code> column should be increasing, and the other columns specify the
+probability of selecting each gender between the corresponding age and the next. Before
+the first specified age, this probability is zero, and the last mentioned
+age should have zeroes as the corresponding probabilities. The term probability
+here is not strictly correct: it can be any positive number since the resulting
+distribution will be normed. As an example</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ad</span> <span class="o">&lt;-</span> <span class="nb">list</span><span class="p">(</span><span class="n">Age</span><span class="o">=</span><span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">100</span><span class="p">),</span> <span class="n">Percent</span><span class="o">.</span><span class="n">Male</span><span class="o">=</span><span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">Percent</span><span class="o">.</span><span class="n">Female</span><span class="o">=</span><span class="n">c</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>will correspond to an age distribution which limits the age to 100 for everyone.
+Furthermore, there will be twice as many men over 50 than under 50, while for the
+women it&#8217;s the other way around.</p>
+<p>The other way an age distribution can be specified, is as a CSV file with (at
+least) three columns. The header of this CSV file will not be taken into account,
+instead the first column is assumed to hold the <code class="docutils literal"><span class="pre">Age</span></code> column, the second is
+interpreted as the <code class="docutils literal"><span class="pre">Percent.Male</span></code> column and the third as <code class="docutils literal"><span class="pre">Percent.Female</span></code>.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">intervention</span></code>: With this simulation intervention setting it is possible to change configuration
+options that are being used at specific times during the simulation. More information
+about how this can be used can be found in the explanation of the
+<a class="reference internal" href="simpact_simulationdetails.html#simulationintervention"><span class="std std-ref">simulation intervention event</span></a>.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">release</span></code>, <code class="docutils literal"><span class="pre">slowalg</span></code>, <code class="docutils literal"><span class="pre">parallel</span></code>: These flags specify which precise version of the
+simulation program will be used, and whether the single-core or multi-core version
+is used. The <code class="docutils literal"><span class="pre">release</span></code> parameter is <code class="docutils literal"><span class="pre">TRUE</span></code> by default, yielding the fastest version
+of the selected algorithm. If set to <code class="docutils literal"><span class="pre">FALSE</span></code>, many extra checks are performed, all
+of which should pass if the algorithm works as expected.</p>
+<p>By default, <code class="docutils literal"><span class="pre">slowalg</span></code> is <code class="docutils literal"><span class="pre">FALSE</span></code> which selects the population-based
+procedure described above. In case this is set to <code class="docutils literal"><span class="pre">TRUE</span></code>, the very basic mNRM algorithm is
+used, where all event fire times are recalculated after each event is executed.
+If all works as expected, the two algorithms should produce the same results for
+the same seed (although very small differences are possible due to limited
+numeric precision). The basic algorithm is very slow, keep this in mind if you
+use it.</p>
+<p>The <code class="docutils literal"><span class="pre">parallel</span></code> parameter is <code class="docutils literal"><span class="pre">FALSE</span></code> by default, selecting the version of the
+algorithm that only uses a single processor core. To use the parallel version,
+i.e. to use several processor cores at the same time, this can be set to <code class="docutils literal"><span class="pre">TRUE</span></code>.
+The parallel version currently only offers a modest speedup, and only for very
+large population sizes. Especially if you need to do several runs of a simulation, starting
+several single-core versions at once will use your computer&#8217;s power more efficiently
+than starting several parallel versions in a sequential way.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">seed</span></code>: By default, a more or less random seed value will be used to initialize
+the random number generator that&#8217;s being using in the simulation. In case you&#8217;d like
+to use a specific value for the seed, for example to reproduce results found earlier,
+you can set it here.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">dryrun</span></code>: If this is set to <code class="docutils literal"><span class="pre">TRUE</span></code>, the necessary configuration files will be
+generated, but the actual simulation is <em>not</em> performed. This can come in handy
+to prepare a simulation&#8217;s settings on your local machine and run one or more
+actual simulations on another machine, e.g. on a computer cluster. In case you&#8217;d
+like to perform several runs with the same configuration file, overriding the
+output prefix can be very helpful, as is described in the section on the
+<a class="reference internal" href="#configfile"><span class="std std-ref">configuration file</span></a>. If you&#8217;d like to perform a run that has been
+prepared this way from within R, you can use the <code class="docutils literal"><span class="pre">simpact.run.direct</span></code> function.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">identifierFormat</span></code>: Files that are created by the simulation will all start with the
+same identifier. The identifierFormat parameter specifies what this identifier should be.
+Special properties start with a percent (<code class="docutils literal"><span class="pre">%</span></code>) sign, other things are just copied. An
+overview of these special properties:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">%T</span></code>: will expand to the simulation type, e.g. <code class="docutils literal"><span class="pre">simpact-cyan</span></code></li>
+<li><code class="docutils literal"><span class="pre">%y</span></code>: the current year</li>
+<li><code class="docutils literal"><span class="pre">%m</span></code>: the current month (number)</li>
+<li><code class="docutils literal"><span class="pre">%d</span></code>: the current day of the month</li>
+<li><code class="docutils literal"><span class="pre">%H</span></code>: the current hour</li>
+<li><code class="docutils literal"><span class="pre">%M</span></code>: the current minute</li>
+<li><code class="docutils literal"><span class="pre">%S</span></code>: the current second</li>
+<li><code class="docutils literal"><span class="pre">%p</span></code>: the process ID of the process starting the simulation</li>
+<li><code class="docutils literal"><span class="pre">%r</span></code>: a random character</li>
+</ul>
+</div></blockquote>
+<p>The default identifier format <code class="docutils literal"><span class="pre">%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r-</span></code> would lead to
+an identifier like <code class="docutils literal"><span class="pre">simpact-cyan-2015-01-15-08-28-10_2425_q85z7m1G-</span></code>.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">dataFiles</span></code>: if specified, this should be a list where each named entry contains a
+matrix. These matrices will be written to CSV files, which can be referred to in the
+configuration entries. For example, we could to something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">myMatrix</span> <span class="o">&lt;-</span> <span class="n">matrix</span><span class="p">(</span><span class="n">c</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">&lt;-</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">data</span><span class="p">[[</span><span class="s2">&quot;csvMatrix&quot;</span><span class="p">]]</span> <span class="o">&lt;-</span> <span class="n">myMatrix</span>
+</pre></div>
+</div>
+<p>To refer to this csv file in the configuration settings, we can use the <code class="docutils literal"><span class="pre">data:</span></code>
+prefix, e.g.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">&lt;-</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;person.geo.dist2d.type&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s2">&quot;discrete&quot;</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;person.geo.dist2d.discrete.densfile&quot;</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="s2">&quot;data:csvMatrix&quot;</span>
+</pre></div>
+</div>
+<p>The simulation would then be started as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="s2">&quot;/tmp/simpacttest&quot;</span><span class="p">,</span> <span class="n">dataFiles</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>The return value of the <code class="docutils literal"><span class="pre">simpact.run</span></code> function contains the paths to generated files
+and output files, or in case the <code class="docutils literal"><span class="pre">dryrun</span></code> option was used, of files that will be written
+to. The <a class="reference internal" href="simpact_output.html#outputfiles"><span class="std std-ref">output files</span></a> that are produced are described in the corresponding
+section.</p>
+</div>
+<div class="section" id="other-functions">
+<h3>2.2.3. Other functions<a class="headerlink" href="#other-functions" title="Permalink to this headline">¶</a></h3>
+<p>Apart from <code class="docutils literal"><span class="pre">simpact.showconfig</span></code> and <code class="docutils literal"><span class="pre">simpact.run</span></code>, some other functions exist in the
+<code class="docutils literal"><span class="pre">RSimpactCyan</span></code> library as well:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">simpact.available</span></code> <br/>
+This function returns a boolean value, that indicates if the <code class="docutils literal"><span class="pre">RSimpactCyan</span></code> library
+is able to find and use the Simpact Cyan simulation <a class="reference internal" href="index.html#programs"><span class="std std-ref">program</span></a>.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">simpact.getconfig</span></code> <br/>
+This takes a list with config values as input, similar to <code class="docutils literal"><span class="pre">simpact.showconfig</span></code>,
+merges it with default settings, and returns the extended configuration list.
+If the second parameter (<code class="docutils literal"><span class="pre">show</span></code>) is set to <code class="docutils literal"><span class="pre">TRUE</span></code>, then the full configuration
+file will be shown on-screen as well.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">simpact.run.direct</span></code> <br/>
+This function allows you to start a simulation based on a previously created
+(e.g. using the <code class="docutils literal"><span class="pre">dryrun</span></code> setting of <code class="docutils literal"><span class="pre">simpact.run</span></code>) configuration file. This
+config file must be set as the first argument, and is always required. Other
+arguments are optional:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">outputFile</span></code>: If set to <code class="docutils literal"><span class="pre">NULL</span></code>, the output of the Simpact Cyan simulation
+(containing information about the version of the program and the random
+number generator seed) will just appear on screen. If a filename is
+specified here, the output will be written to that file as well.</li>
+<li><code class="docutils literal"><span class="pre">release</span></code>, <code class="docutils literal"><span class="pre">slowalg</span></code>, <code class="docutils literal"><span class="pre">parallel</span></code>, <code class="docutils literal"><span class="pre">seed</span></code>: Same meaning as in the <code class="docutils literal"><span class="pre">simpact.run</span></code>
+function</li>
+<li><code class="docutils literal"><span class="pre">destDir</span></code>: By default, the simulation will be run in the directory that
+contains the config file. This is important if the config file itself
+specifies files without an <em>absolute</em> path name since the directory
+of the config file will then be used as a starting point. If you don&#8217;t
+want this behaviour and need to select another directory, this parameter
+can be used to set it.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">simpact.set.datadir</span></code> <br/>
+The <code class="docutils literal"><span class="pre">RSimpactCyan</span></code> library will try to figure out where the Simpact Cyan
+data files are located. If you want to specify another location, this
+function can be used to do so.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">simpact.set.simulation</span></code> <br/>
+The Simpact Cyan package is actually meant to support alternative simulations
+as well. To use such an alternative simulation, this function can be used.
+For example, if <code class="docutils literal"><span class="pre">maxart</span></code> is specified here, instead of running e.g.
+<code class="docutils literal"><span class="pre">simpact-cyan-release</span></code> as underlying program, <code class="docutils literal"><span class="pre">maxart-release</span></code> would be executed
+instead.</p>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="running-from-within-python">
+<span id="startingfrompython"></span><h2>2.3. Running from within Python<a class="headerlink" href="#running-from-within-python" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>2.3.1. Getting started<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">pysimpactcyan</span></code> module to control Simpact Cyan from within Python, is
+automatically available once you&#8217;ve installed the <a class="reference internal" href="index.html#programs"><span class="std std-ref">program</span></a>. Note that if
+you&#8217;re using MS-Windows, you&#8217;ll also need to install the
+<a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=48145">Visual Studio 2015 redistributable package</a>
+(use the <strong>x86</strong> version).
+To load the Simpact Cyan module in a Python script or interactive session, just execute</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pysimpactcyan</span>
+</pre></div>
+</div>
+<p>This allows you to create an instance of the <code class="docutils literal"><span class="pre">PySimpactCyan</span></code> class that&#8217;s defined in this
+module, let&#8217;s call it <code class="docutils literal"><span class="pre">simpact</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span> <span class="o">=</span> <span class="n">pysimpactcyan</span><span class="o">.</span><span class="n">PySimpactCyan</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>2.3.2. Running a simulation<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>To configure a simulation, you need to specify the options for which you want
+to use a value other than the default. This is done using a dictionary, for example</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span> <span class="p">}</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.nummen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.numwomen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.simtime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">40</span>
+</pre></div>
+</div>
+<p>All values that are entered this way are converted to character strings when
+creating a configuration file for the simulation. This means that instead of
+a numeric value, you could also use a string that corresponds to the same
+number, for example</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.nummen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;200&quot;</span>
+</pre></div>
+</div>
+<p>Together with the defaults for other options, these settings will be combined into
+a configuration file that the real Simpact Cyan program can understand. Taking
+a look at the full configuration file will show you what other values are in use;
+to see this configuration file, run</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span><span class="o">.</span><span class="n">showConfiguration</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Lines that start with a <code class="docutils literal"><span class="pre">#</span></code> sign are ignored when the configuration file is read.
+They may contain comments about certain options, or show which options are not
+in use currently. In case you&#8217;d want to use a simulation using all defaults, you can either use an
+empty dictionary, or specify <code class="docutils literal"><span class="pre">None</span></code>.</p>
+<p>If you&#8217;ve got the configuration you&#8217;d like to use,
+you can start the simulation from within Python using the <code class="docutils literal"><span class="pre">run</span></code> method of the
+Simpact Cyan object you&#8217;re using. Two
+parameters <em>must</em> be specified: the first is the settings to use (the <code class="docutils literal"><span class="pre">cfg</span></code> dictionary
+in our example) and the second is a directory where generated files and results
+can be stored. The Python module will attempt to create this directory if it does not
+exist yet. To use the directory <code class="docutils literal"><span class="pre">/tmp/simpacttest</span></code>, the command would become</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">simpact</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="s2">&quot;/tmp/simpacttest&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The other parameters are:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">agedist</span></code>: With this parameter, you can specify the age distribution that should be used
+when generating an initial population. The default is the age distribution of
+South Africa from 2003. In Python, you can specify an alternative age distribution
+in two ways.</p>
+<p>The first way to do this, is to specify the age distribution as a dictionary
+which contains lists of numbers named <code class="docutils literal"><span class="pre">Age</span></code>, <code class="docutils literal"><span class="pre">Percent.Male</span></code> and <code class="docutils literal"><span class="pre">Percent.Female</span></code>.
+The <code class="docutils literal"><span class="pre">Age</span></code> list should be increasing, and the other lists specify the
+probability of selecting each gender between the corresponding age and the next. Before
+the first specified age, this probability is zero, and the last mentioned
+age should have zeroes as the corresponding probabilities. The term probability
+here is not strictly correct: it can be any positive number since the resulting
+distribution will be normed. As an example</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ad</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;Age&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="s2">&quot;Percent.Male&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;Percent.Female&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>will correspond to an age distribution which limits the age to 100 for everyone.
+Furthermore, there will be twice as many men over 50 than under 50, while for the
+women it&#8217;s the other way around.</p>
+<p>The other way an age distribution can be specified, is as a CSV file with (at
+least) three columns. The header of this CSV file will not be taken into account,
+instead the first column is assumed to hold the <code class="docutils literal"><span class="pre">Age</span></code> column, the second is
+interpreted as the <code class="docutils literal"><span class="pre">Percent.Male</span></code> column and the third as <code class="docutils literal"><span class="pre">Percent.Female</span></code>.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">parallel</span></code>, <code class="docutils literal"><span class="pre">opt</span></code>, <code class="docutils literal"><span class="pre">release</span></code>: These flags specify which precise version of the
+simulation program will be used, and whether the single-core or multi-core version
+is used. The <code class="docutils literal"><span class="pre">release</span></code> parameter is <code class="docutils literal"><span class="pre">True</span></code> by default, yielding the fastest version
+of the selected algorithm. If set to <code class="docutils literal"><span class="pre">False</span></code>, many extra checks are performed, all
+of which should pass if the algorithm works as expected.</p>
+<p>By default, <code class="docutils literal"><span class="pre">opt</span></code> is <code class="docutils literal"><span class="pre">True</span></code> which selects the population-based
+procedure described above. In case this is set to <code class="docutils literal"><span class="pre">False</span></code>, the very basic mNRM algorithm is
+used, where all event fire times are recalculated after each event is executed.
+If all works as expected, the two algorithms should produce the same results for
+the same seed (although very small differences are possible due to limited
+numeric precision). The basic algorithm is very slow, keep this in mind if you
+use it.</p>
+<p>The <code class="docutils literal"><span class="pre">parallel</span></code> parameter is <code class="docutils literal"><span class="pre">False</span></code> by default, selecting the version of the
+algorithm that only uses a single processor core. To use the parallel version,
+i.e. to use several processor cores at the same time, this can be set to <code class="docutils literal"><span class="pre">True</span></code>.
+The parallel version currently only offers a modest speedup, and only for very
+large population sizes. Especially if you need to do several runs of a simulation, starting
+several single-core versions at once will use your computer&#8217;s power more efficiently
+than starting several parallel versions in a sequential way.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">seed</span></code>: By default, a more or less random seed value will be used to initialize
+the random number generator that&#8217;s being using in the simulation. In case you&#8217;d like
+to use a specific value for the seed, for example to reproduce results found earlier,
+you can set it here.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">interventionConfig</span></code>: With this simulation intervention setting it is possible to change configuration
+options that are being used at specific times during the simulation. More information
+about how this can be used can be found in the explanation of the
+<a class="reference internal" href="simpact_simulationdetails.html#simulationintervention"><span class="std std-ref">simulation intervention event</span></a>.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">dryRun</span></code>: If this is set to <code class="docutils literal"><span class="pre">True</span></code>, the necessary configuration files will be
+generated, but the actual simulation is _not_ performed. This can come in handy
+to prepare a simulation&#8217;s settings on your local machine and run one or more
+actual simulations on another machine, e.g. on a computer cluster. In case you&#8217;d
+like to perform several runs with the same configuration file, overriding the
+output prefix can be very helpful, as is described in the section on the
+<a class="reference internal" href="#configfile"><span class="std std-ref">configuration file</span></a>. If you&#8217;d like to perform a run that has been
+prepared this way from within Python, you can use the <code class="docutils literal"><span class="pre">runDirect</span></code> method of
+the <code class="docutils literal"><span class="pre">PySimpactCyan</span></code> class.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">identifierFormat</span></code>: Files that are created by the simulation will all start with the
+same identifier. The identifierFormat parameter specifies what this identifier should be.
+Special properties start with a percent (<code class="docutils literal"><span class="pre">%</span></code>) sign, other things are just copied. An
+overview of these special properties:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">%T</span></code>: will expand to the simulation type, e.g. <code class="docutils literal"><span class="pre">simpact-cyan</span></code></li>
+<li><code class="docutils literal"><span class="pre">%y</span></code>: the current year</li>
+<li><code class="docutils literal"><span class="pre">%m</span></code>: the current month (number)</li>
+<li><code class="docutils literal"><span class="pre">%d</span></code>: the current day of the month</li>
+<li><code class="docutils literal"><span class="pre">%H</span></code>: the current hour</li>
+<li><code class="docutils literal"><span class="pre">%M</span></code>: the current minute</li>
+<li><code class="docutils literal"><span class="pre">%S</span></code>: the current second</li>
+<li><code class="docutils literal"><span class="pre">%p</span></code>: the process ID of the process starting the simulation</li>
+<li><code class="docutils literal"><span class="pre">%r</span></code>: a random character</li>
+</ul>
+</div></blockquote>
+<p>The default identifier format <code class="docutils literal"><span class="pre">%T-%y-%m-%d-%H-%M-%S_%p_%r%r%r%r%r%r%r%r-</span></code> would lead to
+an identifier like <code class="docutils literal"><span class="pre">simpact-cyan-2015-01-15-08-28-10_2425_q85z7m1G-</span></code>.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">dataFiles</span></code>: if specified, this should be a dictionary where each named entry contains a
+an array of arrays or a Pandas DataFrame. These matrices will be written to CSV files,
+which can be referred to in the configuration entries. For example, we could to
+something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">myMatrix</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span> <span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span> <span class="p">}</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;csvMatrix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">myMatrix</span>
+</pre></div>
+</div>
+<p>To refer to this csv file in the configuration settings, we can use the <code class="docutils literal"><span class="pre">data:</span></code>
+prefix, e.g.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span> <span class="p">}</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;person.geo.dist2d.type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;discrete&quot;</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;person.geo.dist2d.discrete.densfile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;data:csvMatrix&quot;</span>
+</pre></div>
+</div>
+<p>The simulation would then be started as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="s2">&quot;/tmp/simpacttest&quot;</span><span class="p">,</span> <span class="n">dataFiles</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+<p>The return value of the <code class="docutils literal"><span class="pre">run</span></code> method contains the paths to generated files
+and output files, or in case the <code class="docutils literal"><span class="pre">dryRun</span></code> option was used, of files that will be written
+to. The <a class="reference internal" href="simpact_output.html#outputfiles"><span class="std std-ref">output files</span></a> that are produced are described in the corresponding
+section.</p>
+</div>
+<div class="section" id="id4">
+<h3>2.3.3. Other functions<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Apart from the  <code class="docutils literal"><span class="pre">PySimpactCyan</span></code> methods <code class="docutils literal"><span class="pre">showConfiguration</span></code> and <code class="docutils literal"><span class="pre">run</span></code>, some other methods
+exist in this Python class as well:</p>
+<blockquote>
+<div><ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">getConfiguration</span></code> <br/>
+This takes a dictionary with config values as input, similar to <code class="docutils literal"><span class="pre">showConfiguration</span></code>,
+merges it with default settings, and returns the extended configuration dictionary.
+If the second parameter (<code class="docutils literal"><span class="pre">show</span></code>) is set to <code class="docutils literal"><span class="pre">True</span></code>, then the full configuration
+file will be shown on-screen as well.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">runDirect</span></code> <br/>
+This function allows you to start a simulation based on a previously created
+(e.g. using the <code class="docutils literal"><span class="pre">dryRun</span></code> setting of <code class="docutils literal"><span class="pre">run</span></code>) configuration file. This
+config file must be set as the first argument, and is always required. Other
+arguments are optional:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">outputFile</span></code>: If set to <code class="docutils literal"><span class="pre">None</span></code>, the output of the Simpact Cyan simulation
+(containing information about the version of the program and the random
+number generator seed) will just appear on screen. If a filename is
+specified here, the output will be written to that file as well.</li>
+<li><code class="docutils literal"><span class="pre">release</span></code>, <code class="docutils literal"><span class="pre">opt</span></code>, <code class="docutils literal"><span class="pre">parallel</span></code>, <code class="docutils literal"><span class="pre">seed</span></code>: Same meaning as in the <code class="docutils literal"><span class="pre">run</span></code>
+method.</li>
+<li><code class="docutils literal"><span class="pre">destDir</span></code>: By default, the simulation will be run in the directory that
+contains the config file. This is important if the config file itself
+specifies files without an <em>absolute</em> path name since the directory
+of the config file will then be used as a starting point. If you don&#8217;t
+want this behaviour and need to select another directory, this parameter
+can be used to set it.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">setSimpactDataDirectory</span></code> <br/>
+The <code class="docutils literal"><span class="pre">pysimpactcyan</span></code> module will try to figure out where the Simpact Cyan
+data files are located. If you want to specify another location, this
+function can be used to do so.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">setSimpactDirectory</span></code> <br/>
+In case you want to specify that the Simpact Cyan executables are located
+in a specific directory, you can use this function.</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">setSimulationPrefix</span></code> <br/>
+The Simpact Cyan package is actually meant to support alternative simulations
+as well. To use such an alternative simulation, this function can be used.
+For example, if <code class="docutils literal"><span class="pre">maxart</span></code> is specified here, instead of running e.g.
+<code class="docutils literal"><span class="pre">simpact-cyan-release</span></code> as underlying program, <code class="docutils literal"><span class="pre">maxart-release</span></code> would be executed
+instead.</p>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="configuration-file-and-variables">
+<span id="configfile"></span><h2>2.4. Configuration file and variables<a class="headerlink" href="#configuration-file-and-variables" title="Permalink to this headline">¶</a></h2>
+<p>The actual program that executes the simulation reads its settings from a certain
+configuration file. This is also the case when running from R or Python, where
+the R or Python interface prepares the configuration file and executes the
+simulation program. While this approach makes it much easier to configure and
+run simulations, some knowledge of the way the configuration file works can
+be helpful.</p>
+<div class="section" id="the-basics">
+<h3>2.4.1. The basics<a class="headerlink" href="#the-basics" title="Permalink to this headline">¶</a></h3>
+<p>In essence, the configuration file is just a text file containing key/value pairs.
+For example, the line</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">population</span><span class="o">.</span><span class="n">simtime</span> <span class="o">=</span> <span class="mi">100</span>
+</pre></div>
+</div>
+<p>assigns the value 100 to the simulation setting <code class="docutils literal"><span class="pre">population.simtime</span></code>, indicating
+that the simulation should run for 100 years. Lines that start with a hash sign (<code class="docutils literal"><span class="pre">#</span></code>)
+are not processed, they can be used for comments. In the config file itself, mathematical
+operations are not possible, but if you&#8217;re using R or Python, you can perform the
+operation there, and only let the result appear in the config file. For example, if
+you&#8217;d do</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">library</span><span class="p">(</span><span class="s2">&quot;RSimpactCyan&quot;</span><span class="p">)</span>
+<span class="n">cfg</span> <span class="o">&lt;-</span> <span class="nb">list</span><span class="p">()</span>
+<span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.simtime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="o">/</span><span class="mi">4</span>
+<span class="n">simpact</span><span class="o">.</span><span class="n">showconfig</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>in an R session, you&#8217;d find</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">population</span><span class="o">.</span><span class="n">simtime</span> <span class="o">=</span> <span class="mi">25</span>
+</pre></div>
+</div>
+<p>in the configuration file. We could force &#8216;100/4&#8217; to appear in the configuration file by
+changing the line to</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;population.simtime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;100/4&quot;</span>
+</pre></div>
+</div>
+<p>(so we added quotes), but when trying to run the simulation this would lead to the
+following error:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">FATAL</span> <span class="n">ERROR</span><span class="p">:</span>
+<span class="n">Can</span><span class="s1">&#39;t interpret value for key &#39;</span><span class="n">population</span><span class="o">.</span><span class="n">simtime</span><span class="s1">&#39; as a floating point number</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="config-file-variables-and-environment-variables">
+<h3>2.4.2. Config file variables and environment variables<a class="headerlink" href="#config-file-variables-and-environment-variables" title="Permalink to this headline">¶</a></h3>
+<p>Keys that start with a dollar sign (<code class="docutils literal"><span class="pre">$</span></code>) are treated in a special way: they define
+a variable that can be used further on in the configuration file. To use a variable&#8217;s
+contents in the value part of a config line, the variable&#8217;s name
+should be placed between <code class="docutils literal"><span class="pre">${</span></code> and <code class="docutils literal"><span class="pre">}</span></code>. For example, we could first have set</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$SIMTIME = 100
+</pre></div>
+</div>
+<p>thereby assigning <code class="docutils literal"><span class="pre">100</span></code> to the variable with name <code class="docutils literal"><span class="pre">SIMTIME</span></code>. This could then later be
+used as follows:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>population.simtime = ${SIMTIME}
+</pre></div>
+</div>
+<p>You don&#8217;t even need to define the variable inside the configuration file: if you
+define an environment variable, you can use its contents in the same way as before.
+For example, if the <code class="docutils literal"><span class="pre">HOME</span></code> environment variable has been set to <code class="docutils literal"><span class="pre">/Users/JohnDoe/</span></code>,
+then the lines</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>periodiclogging.interval            = 2
+periodiclogging.outfile.logperiodic = ${HOME}periodiclog.csv
+</pre></div>
+</div>
+<p>would enable the <a class="reference internal" href="simpact_simulationdetails.html#periodiclogging"><span class="std std-ref">periodic logging event</span></a> and write its output
+every other year to <code class="docutils literal"><span class="pre">/Users/JohnDoe/periodiclog.csv</span></code>.</p>
+<p>One very important thing to remember is that if an environment variable with the same
+name as a config file variable exists, <strong>the environment variable will always take
+precedence over config file variables</strong>. While this might seem a bit odd, it actually
+allows you to more easily use config files prepared on one system, on another system.
+Furthermore, it allows you to use a single config file multiple times, which can be
+very handy if you need to perform many runs using the same settings (but different
+output files).</p>
+</div>
+<div class="section" id="using-environment-variables">
+<h3>2.4.3. Using environment variables<a class="headerlink" href="#using-environment-variables" title="Permalink to this headline">¶</a></h3>
+<p>When you let the R or Python interface prepare a configuration file, this file
+will start by defining two config file variables, for example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$SIMPACT_OUTPUT_PREFIX = simpact-cyan-2015-05-27-08-28-13_27090_8Al7O6mD-
+$SIMPACT_DATA_DIR = /usr/local/share/simpact-cyan/
+</pre></div>
+</div>
+<p>The first variable is used in the config file when specifying which files to
+write output to. As an example, you&#8217;d also find the line</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>logsystem.outfile.logevents = ${SIMPACT_OUTPUT_PREFIX}eventlog.csv
+</pre></div>
+</div>
+<p>in that file, so the full output file name would be</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span><span class="o">-</span><span class="n">cyan</span><span class="o">-</span><span class="mi">2015</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">28</span><span class="o">-</span><span class="mi">13</span><span class="n">_27090_8Al7O6mD</span><span class="o">-</span><span class="n">eventlog</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+<p>The second variable specifies the location that R or Python thinks
+the Simpact Cyan data files are stored in, and is used in the line that specifies
+which age distribution to use when initializing the population:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>population.agedistfile = ${SIMPACT_DATA_DIR}sa_2003.csv
+</pre></div>
+</div>
+<p>In this case, the file <code class="docutils literal"><span class="pre">/usr/local/share/simpact-cyan/sa_2003.csv</span></code> would be
+used to read the initial age distribution from.</p>
+<p>Because those config variables are defined inside the configuration file, such
+a file can be used on its own. If you&#8217;d first prepared the config file using the
+&#8216;dryrun&#8217; setting, you could still use the created config file to start the
+simulation, either directly on the command line, using <code class="docutils literal"><span class="pre">simpact.run.direct</span></code> from R,
+or using the <code class="docutils literal"><span class="pre">PySimpactCyan</span></code> method <code class="docutils literal"><span class="pre">runDirect</span></code> in Python.</p>
+<p>If you&#8217;re running from the <a class="reference internal" href="#commandline"><span class="std std-ref">command line</span></a>, it&#8217;s very easy
+to reuse the same configuration file for multiple runs. Normally if you&#8217;d
+try this, you&#8217;d see an error message like</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">FATAL</span> <span class="n">ERROR</span><span class="p">:</span>
+<span class="n">Unable</span> <span class="n">to</span> <span class="nb">open</span> <span class="n">event</span> <span class="n">log</span> <span class="n">file</span><span class="p">:</span>
+<span class="n">Specified</span> <span class="n">log</span> <span class="n">file</span> <span class="n">simpact</span><span class="o">-</span><span class="n">cyan</span><span class="o">-</span><span class="mi">2015</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">27</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">28</span><span class="o">-</span><span class="mi">13</span><span class="n">_27090_8Al7O6mD</span><span class="o">-</span><span class="n">eventlog</span><span class="o">.</span><span class="n">csv</span> <span class="n">already</span> <span class="n">exists</span>
+</pre></div>
+</div>
+<p>To make sure that you don&#8217;t lose data from simulations you&#8217;ve already performed,
+the simulation will not start if it needs to overwrite an output file, which is
+what causes this message.</p>
+<p>However, because we can easily override the value of
+<code class="docutils literal"><span class="pre">SIMPACT_OUTPUT_PREFIX</span></code> from the command line by using an environment variable
+with the same name, it becomes possible to reuse the configuration file multiple
+times. For example, assuming that our config file is called <code class="docutils literal"><span class="pre">myconfig.txt</span></code>,
+the simple <a class="reference external" href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)">bash</a> script</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>for i in 1 2 3 4 5 ; do
+    SIMPACT_OUTPUT_PREFIX=newprefix_${i}- simpact-cyan-release myconfig.txt 0 opt
+done
+</pre></div>
+</div>
+<p>would produce output files like <code class="docutils literal"><span class="pre">newprefix_1-eventlog.csv</span></code> and <code class="docutils literal"><span class="pre">newprefix_5-eventlog.csv</span></code>.</p>
+<p>In a similar way, setting an environment variable called <code class="docutils literal"><span class="pre">SIMPACT_DATA_DIR</span></code>
+can be helpful when preparing simulations on one system and running them on
+another. For example, you could prepare the simulations on your laptop, using the
+&#8216;dryrun&#8217; option to prevent the simulation from actually running, and execute
+them on e.g. a computer cluster where you set the <code class="docutils literal"><span class="pre">SIMPACT_DATA_DIR</span></code> environment
+variable to make sure that the necessary data files can still be found.</p>
+</div>
+</div>
+<div class="section" id="supported-probability-distributions-and-their-parameters">
+<span id="probdists"></span><h2>2.5. Supported probability distributions and their parameters<a class="headerlink" href="#supported-probability-distributions-and-their-parameters" title="Permalink to this headline">¶</a></h2>
+<p>If a configuration option ends with <code class="docutils literal"><span class="pre">.dist.type</span></code> or <code class="docutils literal"><span class="pre">.dist2d.type</span></code>, for example
+option <code class="docutils literal"><span class="pre">birth.pregnancyduration.dist.type</span></code> of the <a class="reference internal" href="simpact_simulationdetails.html#birth"><span class="std std-ref">birth event</span></a>, you can
+specify a number of probability distributions there. By choosing a specific
+type of probability distribution, you also activate a number of other options
+to configure the parameters of this probability distribution.</p>
+<p>For example, if <code class="docutils literal"><span class="pre">birth.pregnancyduration.dist.type</span></code> is set to <code class="docutils literal"><span class="pre">normal</span></code>, then
+parameters of the <a class="reference internal" href="#normal1d"><span class="std std-ref">one dimensional normal distribution</span></a> need to be
+configured. For example, we could set <code class="docutils literal"><span class="pre">birth.pregnancyduration.dist.normal.mu</span></code>
+to 0.7342 and <code class="docutils literal"><span class="pre">birth.pregnancyduration.normal.sigma</span></code> to 0.0191, and we&#8217;d get
+a birth event that on average takes place after 0.7342 years (is 268 days),
+with a standard deviation of roughly one week (0.0191 years).</p>
+<p>Below you can find an overview of the currently supported <a class="reference internal" href="#prob1d"><span class="std std-ref">one</span></a> and
+<a class="reference internal" href="#prob2d"><span class="std std-ref">two dimensional</span></a> distributions and their parameters.</p>
+<div class="section" id="one-dimensional-distributions">
+<span id="prob1d"></span><h3>2.5.1. One dimensional distributions<a class="headerlink" href="#one-dimensional-distributions" title="Permalink to this headline">¶</a></h3>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.type</span></code>: (&#8216;fixed&#8217;): <br/>
+With such an option, you specify which specific distribution to choose. Allowed
+values are <code class="docutils literal"><span class="pre">beta</span></code>, <code class="docutils literal"><span class="pre">discrete.csv.onecol</span></code>, <code class="docutils literal"><span class="pre">discrete.csv.twocol</span></code>, <code class="docutils literal"><span class="pre">discrete.inline</span></code>,
+<code class="docutils literal"><span class="pre">exponential</span></code>, <code class="docutils literal"><span class="pre">fixed</span></code>, <code class="docutils literal"><span class="pre">gamma</span></code>, <code class="docutils literal"><span class="pre">lognormal</span></code>, <code class="docutils literal"><span class="pre">normal</span></code>, <code class="docutils literal"><span class="pre">uniform</span></code>,
+and the corresponding parameters are given in the subsections below. Unless otherwise
+specified, the default here is a <code class="docutils literal"><span class="pre">fixed</span></code> distribution, which is not really a
+distribution but just causes a fixed value to be used.</li>
+</ul>
+</div></blockquote>
+<div class="section" id="beta">
+<h4>2.5.1.1. <code class="docutils literal"><span class="pre">beta</span></code><a class="headerlink" href="#beta" title="Permalink to this headline">¶</a></h4>
+<p>If this distribution is chosen, the (scaled) beta distribution with the following
+probability density is used:</p>
+<div class="math">
+\[{\rm prob}(x) = \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)} \left(\frac{x-x_{\rm min}}{x_{\rm max}-x_{\rm min}}\right)^{a-1}
+               \left(1-\frac{x-x_{\rm min}}{x_{\rm max}-x_{\rm min}}\right)^{b-1} \frac{1}{x_{\rm max}-x_{\rm min}}\]</div>
+<p>This corresponds to a <a class="reference external" href="https://en.wikipedia.org/wiki/Beta_distribution">beta distribution</a> that,
+instead of being non-zero between 0 and 1, is now scaled and translated to be defined between
+<span class="math">\(x_{\rm min}\)</span> and <span class="math">\(x_{\rm max}\)</span>.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.beta.a</span></code> (no default): <br/>
+Corresponds to the value of <span class="math">\(a\)</span> in the formula for the probability density above.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.beta.b</span></code> (no default): <br/>
+Corresponds to the value of <span class="math">\(b\)</span> in the formula for the probability density above.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.beta.max</span></code> (no default): <br/>
+Corresponds to the value of <span class="math">\(x_{\rm min}\)</span> in the formula for the probability density above.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.beta.min</span></code> (no default): <br/>
+Corresponds to the value of <span class="math">\(x_{\rm max}\)</span> in the formula for the probability density above.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="discrete-csv-onecol">
+<h4>2.5.1.2. discrete.csv.onecol<a class="headerlink" href="#discrete-csv-onecol" title="Permalink to this headline">¶</a></h4>
+<p>This distribution allows you to draw random numbers based on the values in a
+single column (<code class="docutils literal"><span class="pre">ycolumn</span></code>) of a CSV file (<code class="docutils literal"><span class="pre">file</span></code>). The distribution will return
+values between <code class="docutils literal"><span class="pre">xmin</span></code> and <code class="docutils literal"><span class="pre">xmax</span></code>, with probabilities according to the entries
+in the column of the CSV file. If <code class="docutils literal"><span class="pre">floor</span></code> is set to <code class="docutils literal"><span class="pre">no</span></code>, then any value that
+lies within the bin is possible; if <code class="docutils literal"><span class="pre">yes</span></code>, then only start values of each bin
+can be returned.</p>
+<p>For example, suppose we have a CSV file that corresponds to this table:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="100%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Prob</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>10</td>
+</tr>
+<tr class="row-odd"><td>30</td>
+</tr>
+</tbody>
+</table>
+<p>If we specify <code class="docutils literal"><span class="pre">xmin</span></code> to be 0 and <code class="docutils literal"><span class="pre">xmax</span></code> to be 2, then there&#8217;s 25% chance that
+the generated random number will lie between 0 and 1, and 75% chance that
+it will lie between 1 and 2. If we set <code class="docutils literal"><span class="pre">floor</span></code> to <code class="docutils literal"><span class="pre">yes</span></code>, then 25% of the generated
+random numbers will be 0, while 75% will be 1.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.csv.onecol.file</span></code> (no default): <br/>
+This is the filename of the CSV file containing the column to use for the
+probability density.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.csv.onecol.floor</span></code> (&#8216;no&#8217;): <br/>
+By default, any value within a bin is allowed. If set to <code class="docutils literal"><span class="pre">yes</span></code>, then only
+the bin start values can be generated.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.csv.onecol.xmin</span></code> (0): <br/>
+The minimum value that&#8217;s possibly generated by the distribution. Maps to
+the start of the CSV column.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.csv.onecol.xmax</span></code> (1): <br/>
+The maximum value that&#8217;s possibly generated by the distribution. Maps to
+the end of the CSV column.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.csv.onecol.ycolumn</span></code> (1): <br/>
+The number of the column to use from the CSV file.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="discrete-csv-twocol">
+<h4>2.5.1.3. discrete.csv.twocol<a class="headerlink" href="#discrete-csv-twocol" title="Permalink to this headline">¶</a></h4>
+<p>This distribution allows you to generate random numbers based on the values
+in two columns (<code class="docutils literal"><span class="pre">xcolumn</span></code> and <code class="docutils literal"><span class="pre">ycolumn</span></code>) of a CSV file (<code class="docutils literal"><span class="pre">file</span></code>). The <code class="docutils literal"><span class="pre">xcolumn</span></code>
+of the CSV file specifies the start of each bin, the <code class="docutils literal"><span class="pre">ycolumn</span></code> corresponds to
+the probability of generating a random number in that bin. To be able to
+determine when the last bin ends, the last entry in the <code class="docutils literal"><span class="pre">ycolumn</span></code> must be
+zero. If <code class="docutils literal"><span class="pre">floor</span></code> is set to <code class="docutils literal"><span class="pre">no</span></code>, then any value that
+lies within the bin is possible; if <code class="docutils literal"><span class="pre">yes</span></code>, then only start values of each bin
+can be returned.</p>
+<p>For example, support we have a CSV file that corresponds to the table below,
+and we&#8217;ve set <code class="docutils literal"><span class="pre">xcolumn</span></code> to 1 and <code class="docutils literal"><span class="pre">ycolumn</span></code> to 2. In this case, 25% of the
+generated random numbers will have a value between 0 and 3, while 75% of the
+random numbers will lie between 3 and 4. If <code class="docutils literal"><span class="pre">floor</span></code> is set to <code class="docutils literal"><span class="pre">yes</span></code>, then 25%
+of the random numbers will be 0, and 75% will be 3.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">X</th>
+<th class="head">Prob</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>10</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>30</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.csv.twocol.file</span></code> (no default): <br/>
+This is the filename of the CSV file containing the columns to use for the
+probability density.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.csv.twocol.floor</span></code> (&#8216;no&#8217;): <br/>
+By default, any value within a bin is allowed. If set to <code class="docutils literal"><span class="pre">yes</span></code>, then only
+the bin start values can be generated.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.csv.twocol.xcolumn</span></code> (1): <br/>
+The number of the column to use from the CSV file that contains the bin
+start values.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.csv.twocol.ycolumn</span></code> (2): <br/>
+The number of the column to use from the CSV file that contains the probabilities.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="discrete-inline">
+<h4>2.5.1.4. <code class="docutils literal"><span class="pre">discrete.inline</span></code><a class="headerlink" href="#discrete-inline" title="Permalink to this headline">¶</a></h4>
+<p>This distribution allows you to generate random numbers based on the values
+in two lists (<code class="docutils literal"><span class="pre">xvalues</span></code> and <code class="docutils literal"><span class="pre">yvalues</span></code>). The <code class="docutils literal"><span class="pre">xvalues</span></code> list specifies the start
+of each bin, the <code class="docutils literal"><span class="pre">yvalues</span></code> entries correspond to the probability of generating
+a random number in that bin. To be able to
+determine when the last bin ends, the last entry in <code class="docutils literal"><span class="pre">yvalues</span></code> must be
+zero. If <code class="docutils literal"><span class="pre">floor</span></code> is set to <code class="docutils literal"><span class="pre">no</span></code>, then any value that
+lies within the bin is possible; if <code class="docutils literal"><span class="pre">yes</span></code>, then only start values of each bin
+can be returned.</p>
+<p>For example, support we have a the following settings:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">xvalues</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span>
+<span class="n">yvalues</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">0</span>
+</pre></div>
+</div>
+<p>In this case, 25% of the generated random numbers will have a value between 0 and 3,
+while 75% of the random numbers will lie between 3 and 4. If <code class="docutils literal"><span class="pre">floor</span></code> is set to <code class="docutils literal"><span class="pre">yes</span></code>,
+then 25% of the random numbers will be 0, and 75% will be 3.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.inline.floor</span></code> (&#8216;no&#8217;): <br/>
+By default, any value within a bin is allowed. If set to <code class="docutils literal"><span class="pre">yes</span></code>, then only
+the bin start values can be generated.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.inline.xvalues</span></code> (no default): <br/>
+A list of increasing values corresponding to the bin start values.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.discrete.inline.yvalues</span></code> (no default): <br/>
+A list of equal length as <code class="docutils literal"><span class="pre">xvalues</span></code>, specifying the probability of
+generating a random number in the corresponding bin. The last value
+must be zero.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="exponential">
+<h4>2.5.1.5. <code class="docutils literal"><span class="pre">exponential</span></code><a class="headerlink" href="#exponential" title="Permalink to this headline">¶</a></h4>
+<p>If the exponential distribution is selected, the probability density for a negative value is
+zero, while the probability density for positive values is given by:</p>
+<div class="math">
+\[{\rm prob}(x) = \lambda \exp(-\lambda x)\]</div>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.exponential.lambda</span></code> (no default): <br/>
+This specifies the value of <span class="math">\(\lambda\)</span> in the expression of the probability density
+above.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="fixed">
+<h4>2.5.1.6. <code class="docutils literal"><span class="pre">fixed</span></code><a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h4>
+<p>This does not really correspond to a distribution, instead a predefined value is
+always used.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.fixed.value</span></code> (0): <br/>
+When a number is chosen from this &#8216;distribution&#8217;, this value is always returned.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="gamma">
+<h4>2.5.1.7. <code class="docutils literal"><span class="pre">gamma</span></code><a class="headerlink" href="#gamma" title="Permalink to this headline">¶</a></h4>
+<p>In this case, the <a class="reference external" href="https://en.wikipedia.org/wiki/Gamma_distribution">gamma distribution</a>
+will be used to choose random numbers. The probability density is</p>
+<div class="math">
+\[{\rm prob}(x) = \frac{x^{a-1} \exp\left(-\frac{x}{b}\right)}{b^a \Gamma(a)}\]</div>
+<p>for positive numbers, and zero for negative ones.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.gamma.a</span></code> (no default): <br/>
+This corresponds to the value of <span class="math">\(a\)</span> in the expression of the probability
+distribution.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.gamma.b</span></code> (no default): <br/>
+This corresponds to the value of <span class="math">\(b\)</span> in the expression of the probability
+distribution.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="lognormal">
+<h4>2.5.1.8. <code class="docutils literal"><span class="pre">lognormal</span></code><a class="headerlink" href="#lognormal" title="Permalink to this headline">¶</a></h4>
+<p>If this <a class="reference external" href="https://en.wikipedia.org/wiki/Log-normal_distribution">log-normal distribution</a>
+is chosen, the probability density for negative numbers is zero,
+while for positive numbers it is:</p>
+<div class="math">
+\[{\rm prob}(x) = \frac{1}{x \sigma \sqrt{2\pi}} \exp\left(-\frac{(\log{x}-\zeta)^2}{2\sigma^2}\right)\]</div>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.lognormal.sigma</span></code> (no default): <br/>
+This corresponds to the value of <span class="math">\(\sigma\)</span> in the formula for the probability
+distribution.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.lognormal.zeta</span></code> (no default): <br/>
+This corresponds to the value of <span class="math">\(\zeta\)</span> in the formula for the probability
+distribution.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="normal">
+<span id="normal1d"></span><h4>2.5.1.9. <code class="docutils literal"><span class="pre">normal</span></code><a class="headerlink" href="#normal" title="Permalink to this headline">¶</a></h4>
+<p>The base probability distribution used when the <a class="reference external" href="https://en.wikipedia.org/wiki/Normal_distribution">normal distribution</a>
+is selected is the following:</p>
+<div class="math">
+\[{\rm prob}(x) = \frac{1}{\sigma\sqrt{2\pi}} \exp\left(- \frac{(x-\mu)^2}{2\sigma^2}\right)\]</div>
+<p>It is possible to specify a minimum and maximum value as well, which causes the probability
+density to be zero outside of these bounds, and somewhat higher in between. A very straightforward
+<a class="reference external" href="https://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a> method is used for
+this at the moment, so it is best not to use this to sample from a narrow interval (or
+in general an interval with a low probability) since this can require many iterations.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.normal.max</span></code> (+infinity): <br/>
+This can be used to specify the maximum value beyond which the probability density
+is zero. By default no truncation is used, and this maximum is set to positive
+infinity.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.normal.min</span></code> (-infinity): <br/>
+This can be used to specify the minimum value below which the probability density
+is zero. By default no trunctation is used, and this minimum is set to negative
+infinity.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.normal.mu</span></code> (no default): <br/>
+This corresponds to the value of <span class="math">\(\mu\)</span> in the expression of the probability
+density above.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.normal.sigma</span></code> (no default): <br/>
+This corresponds to the value of <span class="math">\(\sigma\)</span> in the expression of the probability
+density above.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="uniform">
+<h4>2.5.1.10. <code class="docutils literal"><span class="pre">uniform</span></code><a class="headerlink" href="#uniform" title="Permalink to this headline">¶</a></h4>
+<p>When this probability density is selected, each number has an equal probability
+density between a certain minimum and maximum value. Outside of these bounds,
+the probability density is zero.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist.uniform.min</span></code> (0): <br/>
+This specifies the start of the interval with the same, constant probability
+density.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist.uniform.max</span></code> (1): <br/>
+This specifies the end of the interval with the same, constant probability
+density.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="two-dimensional-distributions">
+<span id="prob2d"></span><h3>2.5.2. Two dimensional distributions<a class="headerlink" href="#two-dimensional-distributions" title="Permalink to this headline">¶</a></h3>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.type</span></code> (&#8216;fixed&#8217;): <br/>
+<code class="docutils literal"><span class="pre">binormal</span></code>, <code class="docutils literal"><span class="pre">binormalsymm</span></code>, <code class="docutils literal"><span class="pre">discrete</span></code>, <code class="docutils literal"><span class="pre">fixed</span></code>, <code class="docutils literal"><span class="pre">uniform</span></code></li>
+</ul>
+</div></blockquote>
+<div class="section" id="binormal">
+<h4>2.5.2.1. <code class="docutils literal"><span class="pre">binormal</span></code><a class="headerlink" href="#binormal" title="Permalink to this headline">¶</a></h4>
+<p>This corresponds to the two dimensional <a class="reference external" href="https://en.wikipedia.org/wiki/Multivariate_normal_distribution">multivariate normal distribution</a>,
+which has the following probability density:</p>
+<div class="math">
+\[{\rm prob}(x,y) = \frac{1}{2\pi\sigma_x\sigma_y\sqrt{1-\rho^2}}
+                 \exp\left[-\frac{
+                             \frac{(x-\mu_x)^2}{\sigma_x^2}
+                           + \frac{(y-\mu_y)^2}{\sigma_y^2}
+                           - \frac{2\rho (x-\mu_x)(y-\mu_y)}{\sigma_x\sigma_y}
+                           }{2(1-\rho^2)}
+                 \right]\]</div>
+<p>If desired, this probability density can be truncated to specific bounds, by
+setting the <code class="docutils literal"><span class="pre">minx</span></code>, <code class="docutils literal"><span class="pre">maxx</span></code>, <code class="docutils literal"><span class="pre">miny</span></code> and <code class="docutils literal"><span class="pre">maxy</span></code> parameters. These default to
+negative and positive infinity causing truncation to be disabled. To enforce
+these bounds a straightforward <a class="reference external" href="https://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a>
+method is used, so to avoid a large number of iterations to find a valid
+random number, it is best not to restrict the acceptable region to one with
+a low probability.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormal.meanx</span></code> (0): <br/>
+Corresponds to <span class="math">\(\mu_x\)</span> in the expression for the probability density above.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormal.meany</span></code> (0): <br/>
+Corresponds to <span class="math">\(\mu_y\)</span> in the expression for the probability density above.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormal.rho</span></code> (0): <br/>
+Corresponds to <span class="math">\(\rho\)</span> in the expression for the probability density above.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormal.sigmax</span></code> (1): <br/>
+Corresponds to <span class="math">\(\sigma_x\)</span> in the expression for the probability density above.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormal.sigmay</span></code> (1): <br/>
+Corresponds to <span class="math">\(\sigma_y\)</span> in the expression for the probability density above.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormal.minx</span></code> (-infinity): <br/>
+This can be used to truncate the probability distribution in the x-direction.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormal.maxx</span></code> (+infinity): <br/>
+This can be used to truncate the probability distribution in the x-direction.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormal.miny</span></code> (-infinity): <br/>
+This can be used to truncate the probability distribution in the y-direction.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormal.maxy</span></code> (+infinity): <br/>
+This can be used to truncate the probability distribution in the y-direction.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="binormalsymm">
+<h4>2.5.2.2. <code class="docutils literal"><span class="pre">binormalsymm</span></code><a class="headerlink" href="#binormalsymm" title="Permalink to this headline">¶</a></h4>
+<p>This is similar to the <code class="docutils literal"><span class="pre">binormal</span></code> distribution above, but using the same parameters
+for the x-direction as for the y-direction. This means it is also a two dimensional
+<a class="reference external" href="https://en.wikipedia.org/wiki/Multivariate_normal_distribution">multivariate normal distribution</a>,
+but with a less general probability distribution:</p>
+<div class="math">
+\[{\rm prob}(x,y) = \frac{1}{2\pi\sigma^2\sqrt{1-\rho^2}}
+                 \exp\left[-\frac{(x-\mu)^2 + (y-\mu)^2 - 2\rho (x-\mu)(y-\mu)}{2\sigma^2 (1-\rho^2)}\right]\]</div>
+<p>If desired, this probability density can be truncated to specific bounds, by
+setting the <code class="docutils literal"><span class="pre">min</span></code> and <code class="docutils literal"><span class="pre">max</span></code> parameters. These default to
+negative and positive infinity causing truncation to be disabled. To enforce
+these bounds a straightforward <a class="reference external" href="https://en.wikipedia.org/wiki/Rejection_sampling">rejection sampling</a>
+method is used, so to avoid a large number of iterations to find a valid
+random number, it is best not to restrict the acceptable region to one with
+a low probability.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormalsymm.mean</span></code> (0): <br/>
+This corresponds to the value of <span class="math">\(\mu\)</span> in the formula for the probability density.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormalsymm.rho</span></code> (0: <br/>
+This corresponds to the value of <span class="math">\(\rho\)</span> in the formula for the probability density.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormalsymm.sigma</span></code> (1): <br/>
+This corresponds to the value of <span class="math">\(\sigma\)</span> in the formula for the probability density.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormalsymm.max</span></code> (+infinity): <br/>
+This can be used to truncate the probability density, to set a maximum in both the
+x- and y-directions.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.binormalsymm.min</span></code> (-infinity): <br/>
+This can be used to truncate the probability density, to set a minimum in both the
+x- and y-directions.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="discrete">
+<span id="prob2ddiscrete"></span><h4>2.5.2.3. <code class="docutils literal"><span class="pre">discrete</span></code><a class="headerlink" href="#discrete" title="Permalink to this headline">¶</a></h4>
+<p>With the <code class="docutils literal"><span class="pre">discrete</span></code> distribution, you can use a <a class="reference external" href="https://en.wikipedia.org/wiki/Tagged_Image_File_Format">TIFF image file</a>
+or a CSV file to specify a probability distribution. This can come in handy if you&#8217;d like to
+use population density data for example. The TIFF file format is very general,
+and can support several sample representations and color channels. Since the
+specified file will be used for a probability distribution, only one value per
+pixel is allowed (as opposed to separate values for red, green and blue for
+example), and a 32-bit or 64-bit floating point representation should be used.
+Negative values are set to zero, while positive values will be normalized and
+used for the probability distribution.
+Instead of reading the probabilities for each pixel/bin from a TIFF file,
+they can also be read from a CSV file. Again, negative values will be clipped
+to zero, while positive values will be used for the probability distribution.</p>
+<p>If desired, a &#8216;mask file&#8217; can be specified as well (using <code class="docutils literal"><span class="pre">maskfile</span></code>). Such a file should also be
+a TIFF or CSV file, with the same number of entries in each dimension. If the value of
+a certain pixel in the mask file is zero or negative, the value read from the
+real input file (<code class="docutils literal"><span class="pre">densfile</span></code>) will be set to zero, otherwise the value from the
+real input file is left unmodified. This can be used to easily restrict the
+original file to a certain region.</p>
+<p>Suppose we have a 320x240 image that we&#8217;d like to use to base a probability
+density on. In the TIFF file format, as with many other image formats, the
+upper-left pixel is the (0, 0) pixel, while the bottom-right pixel will be
+(319, 239). Usually, we&#8217;d like the y-axis to point up however, which is why the default
+value of the <code class="docutils literal"><span class="pre">flipy</span></code> parameter is set to <code class="docutils literal"><span class="pre">yes</span></code>. To illustrate, suppose we use
+the <a class="reference external" href="_static/up32.tiff">up32.tiff</a> file, which corresponds to the following image.
+If we use this as a discrete probability density, a histogram of the samples
+should show the text &#8216;UP&#8217;.</p>
+<img alt="_images/up.png" class="align-center" src="_images/up.png" />
+<p>In the <a class="reference external" href="_static/discretedistribution.ipynb">discretedistribution.ipynb</a> example, we
+abuse the setting of the population density to sample from this distribution:
+each person will have a location that is sampled from this discrete distribution.
+In case the <code class="docutils literal"><span class="pre">flipy</span></code> parameter is <code class="docutils literal"><span class="pre">yes</span></code> (the default), we obtain the following
+histogram, which is probably what we&#8217;d expect.</p>
+<img alt="_images/up_dist_flipy_yes.png" class="align-center" src="_images/up_dist_flipy_yes.png" />
+<p>On the other hand, if we explicitly set the <code class="docutils literal"><span class="pre">flipy</span></code> parameter to <code class="docutils literal"><span class="pre">no</span></code>, the
+mismatch between the y-axes becomes apparent:</p>
+<img alt="_images/up_dist_flipy_no.png" class="align-center" src="_images/up_dist_flipy_no.png" />
+<p>The same reasoning applies for the CSV file: because the row number increases
+each time a line is read from the CSV file, the y-axis of the file points
+down. If the <code class="docutils literal"><span class="pre">flipy</span></code> parameter is set to <code class="docutils literal"><span class="pre">yes</span></code> (the default), this axis is
+inverted. So for example, suppose you have the following CSV file</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;C1&quot;</span><span class="p">,</span><span class="s2">&quot;C2&quot;</span><span class="p">,</span><span class="s2">&quot;C3&quot;</span>
+<span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span>
+<span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span>
+</pre></div>
+</div>
+<p>which corresponds to the following table:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">C1</th>
+<th class="head">C2</th>
+<th class="head">C3</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr class="row-odd"><td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<p>In this case, with <code class="docutils literal"><span class="pre">flipy</span></code> set to <code class="docutils literal"><span class="pre">yes</span></code>, this would correspond to the following
+2D distribution:</p>
+<a class="reference internal image-reference" href="_images/csvdiscrete.png"><img alt="_images/csvdiscrete.png" class="align-center" src="_images/csvdiscrete.png" style="width: 30%;" /></a>
+<p>The image file itself just specifies the shape of the probability distribution.
+The actual size and position in the x-y plane can be set using the <code class="docutils literal"><span class="pre">width</span></code>, <code class="docutils literal"><span class="pre">height</span></code>,
+<code class="docutils literal"><span class="pre">xoffset</span></code> and <code class="docutils literal"><span class="pre">yoffset</span></code> parameters.</p>
+<p>There&#8217;s also a <code class="docutils literal"><span class="pre">floor</span></code> parameter, which defaults to <code class="docutils literal"><span class="pre">no</span></code>. If this is the case, then
+in each pixel/bin a constant probability is assumed, making it possible for the
+2D probability distribution to generate any value pair within the bin. If however, the
+value of the parameter is set to <code class="docutils literal"><span class="pre">yes</span></code>, then only the bin corner values can be
+returned, nothing in between. This is useful if you&#8217;d like a distribution to
+generate only a fixed set of values. The following notebook illustrates this:
+<a class="reference external" href="_static/discretedistfloor.ipynb">discretedistfloor.ipynb</a></p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.discrete.densfile</span></code> (no default): <br/>
+This should be used to specify the TIFF or CSV file that contains the discrete
+probability density to be used.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.discrete.maskfile</span></code> (no default): <br/>
+As explained above, a TIFF or CSV mask file can be used to restrict the previous
+file to a certain region. Set to an empty string in case you don&#8217;t need this.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.discrete.flipy</span></code> (&#8216;yes&#8217;): <br/>
+By default, the image will be flipped in the y-direction. This has to do with
+the y-axis in images being different from what we&#8217;d expect (see explanation
+above).</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.discrete.floor</span></code> (&#8216;no&#8217;): <br/>
+By default, any value inside a bin/pixel is possible. If set to &#8216;yes&#8217;, the
+2D distribution will only generate values that correspond to the corner of
+a bin.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.discrete.width</span></code> (1): <br/>
+The TIFF or CSV file itself just specifies the shape of the distribution. With this
+parameter you can set the actual width (scale in x-direction) in the x-y plane.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.discrete.height</span></code> (1): <br/>
+The TIFF or CSV file itself just specifies the shape of the distribution. With this
+parameter you can set the actual height (scale in y-direction) in the x-y plane.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.discrete.xoffset</span></code> (0): <br/>
+The TIFF or CSV file itself just specifies the shape of the distribution. With this
+parameter you can set the x-offset in the x-y plane.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.discrete.yoffset</span></code> (0): <br/>
+The TIFF or CSV file itself just specifies the shape of the distribution. With this
+parameter you can set the y-offset in the x-y plane.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id8">
+<h4>2.5.2.4. <code class="docutils literal"><span class="pre">fixed</span></code><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<p>This does not really correspond to a distribution, instead a predefined (x, y) value is
+always used.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.fixed.xvalue</span></code> (0): <br/>
+The x-value of the (x, y) coordinate that is always returned.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.fixed.yvalue</span></code> (0): <br/>
+The y-value of the (x, y) coordinate that is always returned.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id9">
+<h4>2.5.2.5. <code class="docutils literal"><span class="pre">uniform</span></code><a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<p>By specifying this probability density, a point shall be chosen from a rectangular
+region in the x-y plane. All points within this region have an equal probability
+density, while points outside the region have a probably density of zero.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.uniform.xmin</span></code> (0): <br/>
+This specifies the start of the region along the x-axis.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.uniform.xmax</span></code> (1): <br/>
+This specifies the end of the region along the x-axis.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.uniform.ymin</span></code> (0): <br/>
+This specifies the start of the region along the y-axis.</li>
+<li><code class="docutils literal"><span class="pre">some.option.dist2d.uniform.ymax</span></code> (1): <br/>
+This specifies the end of the region along the y-axis.</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="simpact_output.html" class="btn btn-neutral float-right" title="3. Output" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="simpact_introduction.html" class="btn btn-neutral" title="1. Introduction" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.20.1test',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="_static/js/inspectlinks.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

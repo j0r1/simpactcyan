@@ -1,0 +1,63 @@
+\documentclass[a4paper]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{here}
+\usepackage{nccmath}
+\usepackage{color}
+
+\begin{document}
+\title{Influence of susceptibility - probability distributions}
+\author{Diana Hendrickx}
+\maketitle
+If $Z \sim\ N\left(\mu, \sigma^{2}\right)$ then $E\left(e^{z}\right) = \int^{+\infty}_{-\infty} e^{z} \varphi\left(z\right) dz$ with $\varphi\left(z\right) = \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}}}$.
+\begin{eqnarray}
+E\left(e^{z}\right) &=& \int^{+\infty}_{-\infty} e^{z} \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}}} dz \nonumber \\
+&=& \frac{1}{\sqrt{2\pi}\sigma} \int^{+\infty}_{-\infty} e^{z} e^{-\frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}}} dz \label{eq:eq1}
+\end{eqnarray} 
+\begin{eqnarray}
+z - \frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}} & = & \frac{1}{2}\left(\frac{-\left(z-\mu\right)^{2}}{\sigma^{2}} + 2z\right) \nonumber \\
+&=& \frac{1}{2}\left(\frac{-\left(z-\mu\right)^{2}}{\sigma^{2}} + 2\left(z-\mu\right)-\sigma^2\right) + \mu + \frac{\sigma^2}{2} \nonumber \\
+&=& \frac{-1}{2}\left(\frac{z-\mu}{\sigma} - \sigma\right)^{2} \nonumber
+\end{eqnarray}
+\begin{eqnarray}
+\left(\ref{eq:eq1}\right) &=& \frac{1}{\sqrt{2\pi}\sigma} \int^{+\infty}_{-\infty} e^{-\frac{1}{2}\left(\frac{z-\mu}{\sigma} - \sigma\right)^{2}} e^{\mu + \frac{\sigma^2}{2}} dz \nonumber \\
+&=& \frac{1}{\sqrt{2\pi}\sigma} e^{\mu + \frac{\sigma^2}{2}} \int^{+\infty}_{-\infty} e^{-\frac{1}{2}\left(\frac{z-\mu}{\sigma} - \sigma\right)^{2}} dz \label{eq:eq2}
+\end{eqnarray}
+Put $w = \frac{z-\mu}{\sigma} - \sigma \Rightarrow dw = \frac{1}{\sigma} dz \Rightarrow dz = \sigma dw$.
+\begin{eqnarray}
+\left(\ref{eq:eq2}\right) &=& \frac{1}{\sqrt{2\pi}\sigma} e^{\mu + \frac{\sigma^2}{2}} \int^{+\infty}_{-\infty} e^{\frac{-w^{2}}{2}} \sigma dw \nonumber \\
+&=& \frac{1}{\sqrt{2\pi}}e^{\mu + \frac{\sigma^2}{2}} \int^{+\infty}_{-\infty} e^{\frac{-w^{2}}{2}} dw \nonumber \\
+&=& \frac{1}{\sqrt{2\pi}}e^{\mu + \frac{\sigma^2}{2}} \sqrt{2\pi} \nonumber \\
+&=& e^{\mu + \frac{\sigma^2}{2}} \nonumber
+\end{eqnarray}
+$Var\left(e^{z}\right) = E\left[e^{2z}\right] - \left(E\left[e^{z}\right]\right)^2$
+\begin{eqnarray}
+E\left[e^{2z}\right] &=& \int^{+\infty}_{-\infty} e^{2z} \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}}} dz \nonumber \\
+&=& \frac{1}{\sqrt{2\pi}\sigma} \int^{+\infty}_{-\infty} e^{2z - \frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}}} dz \label{eq:eq3}
+\end{eqnarray}
+\begin{eqnarray}
+2z - \frac{\left(z-\mu\right)^{2}}{2 \sigma^{2}} &=& \frac{1}{2}\left(\frac{\left(z-\mu\right)^{2}}{\sigma^{2}} + 4z\right) \nonumber \\
+&=& \frac{1}{2}\left(-\frac{\left(z-\mu\right)^{2}}{\sigma^{2}} + 4\left(z-\mu\right) - 4 \sigma^2\right) + 2 \mu + 2 \sigma^2 \nonumber \\
+&=& \frac{-1}{2}\left(\frac{z-\mu}{\sigma} - 2 \sigma\right)^{2} + 2 \mu + 2 \sigma^{2} \nonumber
+\end{eqnarray}
+\begin{eqnarray}
+\left(\ref{eq:eq3}\right) = \frac{1}{\sqrt{2\pi}\sigma} e^{2 \mu + 2 \sigma^{2}} \int^{+\infty}_{-\infty} e^{-\frac{1}{2}\left(\frac{z - \mu}{\sigma} - 2 \sigma\right)^2} dz \label{eq:eq4}
+\end{eqnarray}
+Put $w = \frac{z - \mu}{\sigma} - 2 \sigma \Rightarrow dw = \frac{dz}{\sigma} \Rightarrow dz = \sigma dw$.
+\begin{eqnarray}
+\left(\ref{eq:eq4}\right) &=& \frac{1}{\sqrt{2\pi}\sigma} e^{2 \left(\mu + \sigma^{2}\right)} \int^{+\infty}_{-\infty} e^{\frac{-w^{2}}{2}} \sigma dw \nonumber \\
+&=& \frac{1}{\sqrt{2\pi}} e^{2 \left(\mu + \sigma^{2}\right)} \int^{+\infty}_{-\infty} e^{\frac{-w^{2}}{2}} dw \nonumber \\
+&=& \frac{1}{\sqrt{2\pi}} e^{2 \left(\mu + \sigma^{2}\right)} \sqrt{2\pi} \nonumber \\
+&=& e^{2 \left(\mu + \sigma^{2}\right)} \nonumber
+\end{eqnarray}
+\begin{eqnarray}
+Var\left(e^{z}\right) &=& e^{2 \left(\mu + \sigma^{2}\right)} - e^{2 \mu + \sigma^{2}} \nonumber \\
+&=& \left(e^{\sigma^{2}}-1\right)e^{2 \mu + \sigma^{2}} \nonumber
+\end{eqnarray}
+$E\left(e^{z}\right)=1 \Leftrightarrow \mu = -\frac{\sigma^{2}}{2}$\\
+$b_{0} \sim\ N\left(\mu_{0}, \sigma^{2}_{0}\right)$ and $b_{1} \sim\ N\left(\mu_{1}, \sigma^{1}_{0}\right)$ \\
+The following conditions have to be fulfilled:\\
+$E\left(e^{b_{0}+b_{1}}\right) = e^{\mu_{0} + \mu_{1} + \frac{\left(\sigma^{2}_{0}+\sigma^{2}_{1}\right)}{2}}=1$\\
+$E\left(e^{b_{0}+b_{2}}\right) = e^{\mu_{0} + \mu_{2} + \frac{\left(\sigma^{2}_{0}+\sigma^{2}_{2}\right)}{2}}=1$\\
+This is a.o. the case if $\mu_{0} = -\frac{\sigma_{0}^2}{2}$, $\mu_{1} = -\frac{\sigma_{1}^2}{2}$ and $\mu_{2} = -\frac{\sigma_{2}^2}{2}$
+\end{document}

@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>1. Introduction &mdash; Simpact Cyan 0.20.1test documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Simpact Cyan 0.20.1test documentation" href="index.html"/>
+        <link rel="next" title="2. Configuration and running of a simulation" href="simpact_conf_and_running.html"/>
+        <link rel="prev" title="Simpact Cyan - 0.20.1test" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Simpact Cyan
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.20.1test
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#modified-next-reaction-method-mnrm-hazards">1.1. Modified Next Reaction Method (mNRM) &amp; hazards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#population-based-simulation">1.2. Population based simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#time-limited-hazards">1.3. &#8216;Time limited&#8217; hazards</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_conf_and_running.html">2. Configuration and running of a simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_output.html">3. Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_simulationdetails.html">4. Simulation details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maxart.html">5. MaxART simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_references.html">6. References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Simpact Cyan</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>1. Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/simpact_introduction.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="introduction">
+<h1>1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>Like other members of the Simpact family, Simpact Cyan is an
+<a class="reference external" href="http://en.wikipedia.org/wiki/Agent-based_model">agent based model (ABM)</a> to
+study the way an infection spreads and can be influenced, and is currently
+focused on HIV.
+The program models each individual in a population of a specified
+initial size. Things that can happen are represented by <em>events</em>, which
+can have a certain risk of being executed at a certain moment. Time advances
+by iteratively finding the next event that will take place, updating the time
+to the corresponding value and executing event-specific code.
+The way this is implemented, is using the <em>Modified Next Reaction
+Method</em> <a class="reference internal" href="simpact_references.html#ref-anderson"><span class="std std-ref">[Anderson]</span></a>.</p>
+<p>Note that event times and time-related properties that can be configured
+are expressed in units of years, unless stated otherwise.</p>
+<div class="section" id="modified-next-reaction-method-mnrm-hazards">
+<h2>1.1. Modified Next Reaction Method (mNRM) &amp; hazards<a class="headerlink" href="#modified-next-reaction-method-mnrm-hazards" title="Permalink to this headline">¶</a></h2>
+<p>In the mNRM algorithm, there is a core distinction between <em>internal event times</em>
+and <em>real-world event times</em>. The internal event times determine when an event
+will go off according to some notion of an internal clock. Let&#8217;s call the
+<em>internal</em> time interval until a specific event fires <span class="math">\(\Delta T\)</span>. Such internal
+time intervals are chosen using a simple method, typically as random numbers picked
+from an exponential distribution:</p>
+<div class="math">
+\[{\rm prob}(x)dx = \exp(-x)dx\]</div>
+<p>Events in the simulation will not just use such internal times, they need to be
+executed at a certain real-world time. Calling <span class="math">\(\Delta t\)</span> the real-world time interval
+that corresponds to the internal time interval <span class="math">\(\Delta T\)</span>, this mapping is done
+using the notion of a <em>hazard</em> (called <em>propensity function</em> in the mNRM article) <span class="math">\(h\)</span>:</p>
+<div class="math">
+\[\Delta T = \int_{t_{\rm prev}}^{t_{\rm prev}+\Delta t} h(X(t'), t') dt'\]</div>
+<p>It is this hazard that can depend on the state <span class="math">\(X\)</span> of the simulation, and perhaps
+also explicitly on time. The state of the simulation in our case, can be thought of
+as the population: who has relationships with whom, who is infected, how many people
+are there etc. This state <span class="math">\(X(t)\)</span> does <em>not</em> continuously depend on time: the state
+only changes when events get fired, which is when their internal time interval passes.
+Note that the formula above is for a single event, and while <span class="math">\(\Delta T\)</span> itself is
+not affected by other events, the mapping into <span class="math">\(\Delta t\)</span> certainly can be: other
+events can change the state, and the hazard depends on this state.</p>
+<p>The figure below illustrates the main idea: internal time intervals are chosen from
+a certain distribution, and they get mapped onto real-world time intervals through
+hazards. Because hazards can depend both on the state (so the time until an event
+fires can be influenced by other events that manipulate this state), and can have an
+explicit time dependency, this mapping can be quite complex:</p>
+<a class="reference internal image-reference" href="_images/timeline1.png"><img alt="_images/timeline1.png" class="align-center" src="_images/timeline1.png" style="width: 75%;" /></a>
+<p>The hazard can cause complex behaviour, but of course this is not necessarily the case. If
+one uses a constant hazard, this simply causes a scaling between internal time <span class="math">\(\Delta T\)</span>
+and real-world time <span class="math">\(\Delta t\)</span>:</p>
+<div class="math">
+\[\Delta T = h \Delta t \quad \text{(for a constant hazard)}\]</div>
+<p>This also illustrates that the higher the hazard, the earlier the event will fire, i.e.
+the real-world time interval will be smaller.</p>
+<p>As an example, let&#8217;s consider <a class="reference internal" href="simpact_simulationdetails.html#formation"><span class="std std-ref">formation events</span></a>. At a certain time in
+the simulation, many formation events will be scheduled, one event for each man/woman
+pair that can possibly form a relationship. The internal time interval for each of
+these events will simply be picked from the simple exponential distribution that was
+mentioned above. The mapping to a real-world time at which the event will fire, is
+calculated using the hazard-based method, and this hazard depends on many things
+(the state): how many relationships does the man have at a certain time, how many relationships
+does the woman have, what is the preferred age difference etc. One can also imagine
+that there can be an explicit time dependency in the hazard: perhaps the hazard of
+forming a relationship increases if the time since the relationship became possible
+goes up.</p>
+<p>Using an exponential distribution to generate an internal time interval is how the
+method is described in the <a class="reference internal" href="simpact_references.html#ref-anderson"><span class="std std-ref">[Anderson]</span></a> article. It is of course not absolutely necessary
+to do this, and other ways to generate an internal time are used as well. The simplest
+example, is if one wants to have an event that fires at a specific time. In that case,
+<span class="math">\(\Delta T\)</span> can simply be set to the actual real-world time until the event needs to fire,
+and the hazard can be set to <span class="math">\(h=1\)</span>, so that internal and real-world time intervals match.
+Among others, this is done in the <a class="reference internal" href="simpact_simulationdetails.html#hivseeding"><span class="std std-ref">HIV seeding</span></a> event which, when triggered, starts the
+epidemic by marking a certain amount of people as infected.</p>
+</div>
+<div class="section" id="population-based-simulation">
+<h2>1.2. Population based simulation<a class="headerlink" href="#population-based-simulation" title="Permalink to this headline">¶</a></h2>
+<p>Each time an event is triggered, the state of the simulation is allowed to change. Because
+the hazard of any event can depend on this state, in the most general version of the mNRM
+algorithm, one would recalculate the real-world event fire times of all remaining events
+each time a particular event gets triggered. This ensures that the possibly changed state
+is taken into account.
+Recalculating all event fire times all the time, is of course very inefficient: although
+the state may have been changed somewhat, this change may not be relevant for many of
+the event hazards in use. As a result, the calculated real-world fire times would be mostly the
+same as before.</p>
+<p>In the Simpact model, the state can be thought of as the population that is being simulated,
+where the population consists of persons. Each person is linked to a list of events
+that involve him or her, and if an event is relevant to more than one person it will be
+present in the lists of more than one person. For example, a <a class="reference internal" href="simpact_simulationdetails.html#mortality"><span class="std std-ref">mortality event</span></a>
+would be present in the list of only one person, while a <a class="reference internal" href="simpact_simulationdetails.html#formation"><span class="std std-ref">relationship formation event</span></a>
+is about two distinct people and would therefore be present in two such lists. The figure
+below illustrates this idea:</p>
+<a class="reference internal image-reference" href="_images/populationalg.png"><img alt="_images/populationalg.png" class="align-center" src="_images/populationalg.png" style="width: 75%;" /></a>
+<p>When an event fires, it is assumed that only the properties of a very limited set of people
+have changed, and that one only needs to recalculate the fire times of the events in those
+people&#8217;s lists. For example, if <code class="docutils literal"><span class="pre">Event</span> <span class="pre">2</span></code> from the figure above fires, then the real-world
+fire times for the events in the lists of <code class="docutils literal"><span class="pre">Person</span> <span class="pre">A</span></code> and <code class="docutils literal"><span class="pre">Person</span> <span class="pre">B</span></code> will be automatically
+recalculated. Apart from affecting the people in whose lists an event appears, an event can
+also indicate that other people are affected. As an example, a <a class="reference internal" href="simpact_simulationdetails.html#birth"><span class="std std-ref">birth event</span></a> will only
+appear in the list of the woman who&#8217;s pregnant. However, when triggered this event indicates
+that the father is also an affected person (in case the amount of children someone has is used
+in a hazard). In general, this number of other affected people will be very small compared to
+the size of the population, causing only a fraction of the event fire times to be recalculated.
+This allows this <em>population-based algorithm</em> to run much faster than the very basic algorithm
+that always recalculates all event times.</p>
+<p>Besides these types of events, there are also &#8216;global&#8217; events. These events do not refer
+to a particular person and will modify the state in a very general way. In general, when
+such a global event is triggered, this causes <em>all</em> other event fire times to be recalculated.</p>
+</div>
+<div class="section" id="time-limited-hazards">
+<span id="timelimited"></span><h2>1.3. &#8216;Time limited&#8217; hazards<a class="headerlink" href="#time-limited-hazards" title="Permalink to this headline">¶</a></h2>
+<p>In the mNRM algorithm, time advances in steps, from one event fire time to the next. In general,
+these event fire times are calculated by mapping a generated <em>internal</em> time interval <span class="math">\(\Delta T\)</span>
+onto a <em>real-world</em> time interval <span class="math">\(\Delta t\)</span> using the formula</p>
+<div class="math">
+\[\Delta T = \int_{t_{\rm prev}}^{t_{\rm prev}+\Delta t} h(X(t'), t') dt'\]</div>
+<p>where <span class="math">\(h\)</span> is the hazard that can have an explicit time dependency and a dependency on the
+simulation state. While the simulation state can change over time, it can only change at discrete
+points, when other events change the state.</p>
+<p>The form of the hazard determines how fast this mapping between internal times and real-world times
+can be calculated. To keep the simulation as fast as possible, hazards for which the integral has an
+analytic solution are certainly most interesting. Furthermore, because the mapping between internal
+and real-world times needs to be done in each direction, the resulting equation for <span class="math">\(\Delta T\)</span>
+needs to be invertible as well.</p>
+<p>The hazards that we use in the Simpact events are often of the form</p>
+<div class="math">
+\[{\rm hazard} = \exp(A+Bt)\]</div>
+<p>This is a time dependent hazard where <span class="math">\(A\)</span> and <span class="math">\(B\)</span> are determined by other values in the simulation
+state. The nice feature of such a hazard is that it is always positive, as a hazard should be (otherwise
+the mapping could result in simulation time going backwards). Unfortunately, this form also has a
+flaw: consider the example where <span class="math">\(A = 0\)</span>, <span class="math">\(B = -1\)</span> and <span class="math">\(t_{\rm prev} = 0\)</span>
+for conciseness. The mapping between times then becomes</p>
+<div class="math">
+\[\Delta T = \int_0^{\Delta t} \exp(-t') dt' = 1 - \exp(-\Delta t)\]</div>
+<p>When we need to map a specific <span class="math">\(\Delta t\)</span> onto an internal <span class="math">\(\Delta T\)</span>,
+this expression can be used to do this very efficiently. When we need the reverse, rewriting
+this equation gives:</p>
+<div class="math">
+\[\Delta t = -\log(1-\Delta T)\]</div>
+<p>From this it is clear that it is only possible if <span class="math">\(\Delta T\)</span> is smaller than one, which may not
+be the case since <span class="math">\(\Delta T\)</span> is picked from an exponential probability distribution in general. The
+core problem is that the integral in our expression is bounded, suggesting an upper limit on <span class="math">\(\Delta T\)</span>,
+but on the other hand that <span class="math">\(\Delta T\)</span> needs to be able to have any positive value since it is
+picked from an exponential distribution which does not have an upper limit.</p>
+<p>To work around this, we use a slightly different hazard, one that becomes constant after a certain
+time <span class="math">\(t_{\rm max}\)</span>, as is illustrated in the figure below. This has the effect that the integral
+will no longer have an upper bound, and the mapping from <span class="math">\(\Delta T\)</span> to <span class="math">\(\Delta t\)</span> will always be
+possible.</p>
+<a class="reference internal image-reference" href="_images/exp.png"><img alt="_images/exp.png" class="align-center" src="_images/exp.png" style="width: 75%;" /></a>
+<p>We are calculating a different hazard than before of course, so you may wonder whether this is
+really a good idea. In this respect, it is important to note that we&#8217;re simulating individuals
+that will not live forever, but have a limited lifespan. So if we set <span class="math">\(t_{\rm max}\)</span>
+to the time at which the relevant person would be 200 years old (for example), we can be very
+sure that our choice for <span class="math">\(t_{\rm max}\)</span> will not affect the simulation. It only helps to keep
+the calculations feasible.</p>
+<p>Above, the basic problem and solution are illustrated using a simple time dependent exponential
+hazard, but it should be clear that the problem occurs for other hazards as well: one only needs
+a hazard for which the integral above is bounded, and since choosing <span class="math">\(\Delta T\)</span> from an exponential
+probability distribution can yield any value, problems will occur. The solution in the general case
+is the same: set the hazard to a constant value after a <span class="math">\(t_{\rm max}\)</span> value which exceeds the
+lifetime of a person. The detailed calculations for this procedure can be found in this document:
+<a class="reference external" href="_static/hazard_tmax.pdf">hazard_tmax.pdf</a>.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="simpact_conf_and_running.html" class="btn btn-neutral float-right" title="2. Configuration and running of a simulation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Simpact Cyan - 0.20.1test" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.20.1test',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="_static/js/inspectlinks.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

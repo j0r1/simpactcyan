@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Simpact Cyan - 0.20.1test &mdash; Simpact Cyan 0.20.1test documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Simpact Cyan 0.20.1test documentation" href="#"/>
+        <link rel="next" title="1. Introduction" href="simpact_introduction.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> Simpact Cyan
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.20.1test
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="simpact_introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_conf_and_running.html">2. Configuration and running of a simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_output.html">3. Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_simulationdetails.html">4. Simulation details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maxart.html">5. MaxART simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_references.html">6. References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="#">Simpact Cyan</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="#">Docs</a> &raquo;</li>
+      
+    <li>Simpact Cyan - 0.20.1test</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <a class="reference internal image-reference" href="_images/SimpactCyan_cropped.png" id="simpactcyan"><img alt="_images/SimpactCyan_cropped.png" class="align-right" id="simpactcyan" src="_images/SimpactCyan_cropped.png" style="width: 10%;" /></a>
+<div class="section" id="simpact-cyan-version">
+<h1>Simpact Cyan - 0.20.1test<a class="headerlink" href="#simpact-cyan-version" title="Permalink to this headline">¶</a></h1>
+<p>This document is the reference documentation for the Simpact Cyan
+program, the C++ version of the <a class="reference external" href="http://www.simpact.org">Simpact</a>
+family of programs.
+The program is most easily controlled through either the Python or
+R bindings, using the <code class="docutils literal"><span class="pre">pysimpactcyan</span></code> module and <code class="docutils literal"><span class="pre">RSimpactCyan</span></code>
+package respectively; the way to use them is described below.
+The Python bindings are included in the Simpact Cyan package, the R
+bindings need to be installed separately from within R.</p>
+<p>Apart from this document, there exists some additional documentation
+as well:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Documentation of the program code itself can be found here:
+<a class="reference external" href="documentation/index.html">code documentation</a>.</li>
+<li>A tutorial for using the R bindings: <a class="reference external" href="http://rpubs.com/wdelva/agemixing">Age-mixing tutorial Bruges 2015</a></li>
+<li>R versions of the iPython notebook examples:
+<a class="reference external" href="https://github.com/dmhendrickx/R-code-examples-SIMPACT-documentation">available on GitHub</a></li>
+</ul>
+</div></blockquote>
+<p id="programs">The development source code can be found on <a class="reference external" href="https://github.com/j0r1/simpactcyan">GitHub</a>.
+The Simpact Cyan installers, as well as source code packages for the
+program, can be found in the <a class="reference external" href="http://research.edm.uhasselt.be/jori/simpact/programs/">&#8216;programs&#8217;</a>.
+directory. If you&#8217;re using MS-Windows, you&#8217;ll need to install the
+<a class="reference external" href="https://www.microsoft.com/en-us/download/details.aspx?id=48145">Visual Studio 2015 redistributable package</a>
+as well (use the <strong>x86</strong> version) to be able to use the installed version.</p>
+<p>In case you&#8217;re interested in <a class="reference internal" href="simpact_conf_and_running.html#startingfromr"><span class="std std-ref">running simulations from R</span></a>,
+you&#8217;ll need to have a working
+Python version installed as well. For MS-Windows this is typically not
+installed by default; when installing this it&#8217;s best to use the default
+directory (e.g. <code class="docutils literal"><span class="pre">C:\Python27</span></code> or <code class="docutils literal"><span class="pre">C:\Python34</span></code>).</p>
+<div class="section" id="maxart-documentation">
+<h2>MaxART documentation<a class="headerlink" href="#maxart-documentation" title="Permalink to this headline">¶</a></h2>
+<p>The configuration for running MaxART specific simulations is very similar
+to the core Simpact Cyan features. The things that are
+different are described in the <a class="reference internal" href="maxart.html#maxart"><span class="std std-ref">MaxART documentation</span></a>.</p>
+</div>
+<div class="section" id="documentation-contents">
+<h2>Documentation contents<a class="headerlink" href="#documentation-contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="simpact_introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_conf_and_running.html">2. Configuration and running of a simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_output.html">3. Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_simulationdetails.html">4. Simulation details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maxart.html">5. MaxART simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_references.html">6. References</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="simpact_introduction.html" class="btn btn-neutral float-right" title="1. Introduction" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.20.1test',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="_static/js/inspectlinks.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

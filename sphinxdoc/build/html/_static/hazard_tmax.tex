@@ -1,0 +1,118 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{graphicx}
+\usepackage[english]{babel}
+\usepackage{subfigure}
+\usepackage{hyperref}
+
+\setlength{\hoffset}{-1.0in}
+
+\addtolength{\hoffset}{1.5cm}
+%\addtolength{\hoffset}{2.0cm}
+
+\setlength{\textwidth}{15.5cm}
+\setlength{\voffset}{-1.0in}
+\addtolength{\voffset}{0.75cm}
+\setlength{\textheight}{24.0cm}
+\setlength{\topmargin}{0.5cm}
+\setlength{\footskip}{1.5cm}
+
+% Goed om zelf eens af te printen: zet alles wat hoger
+% \addtolength{\voffset}{-1.5cm}
+
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.2cm}
+
+\newcommand{\ud}{\mathrm{d}}
+\newcommand{\grad}{\vec{\nabla}}
+\newcommand{\mpt}{\mathrm{.}}
+\newcommand{\mcm}{\mathrm{,}}
+
+\begin{document}
+	\title{\bf Constant hazard after $t_{max}$}
+	\maketitle
+
+	\section{Motivation}
+
+		In the mNRM, a function $h$ is used to map internal time intervals $\Delta T$ (typically
+		sampled from an exponential distribution) to real-world time intervals $\Delta t$:
+	
+		\[ \Delta T = \int_{t_0}^{t_0+\Delta t} h(s) \ud s \]
+	
+		This function $h$ is typically called the propensity function or the {\em hazard}. If a
+		primitive function for $h$ is known, evaluating $\Delta T$ for a given $\Delta t$ is
+		straightforward. To calculate $\Delta t$ from a specific value of $\Delta T$, the inverse
+		of this primitive function would then be needed.
+	
+		For some hazards, calculating $\Delta T$ from $\Delta t$ is possible, but calculating
+		$\Delta t$ for a given $\Delta T$ is not. This is the case if the integral itself has
+		an upper bound: because $\Delta T$ can be any positive number, mapping it to a finite
+		value of $\Delta t$ cannot be done.
+	
+		Simulations that we are interested in involve people, which are not expected to live
+		indefinitely. For this reason it is possible to define a particular $t_{max}$ after which
+		the hazard just stays constant. If $t_{max}$ is chosen so that the person involved
+		would be 200 years old at that point, it will not make a difference for the simulation
+		outcome as the person will be deceased long before this $t_{max}$. The major benefit 
+		however is that the integral will no longer have a fixed upper limit, and therefore a 
+		mapping from $\Delta T$ to $\Delta t$ should always be possible.
+
+	\section{Using the modified hazard}
+
+		So instead of performing calculations with the function $h$ that we really want to use,
+		we'll be working with a function $g$ defined as follows:
+		\[ g(t) = \left\{
+			\begin{array}{ll}
+				h(t) & {\rm if\ } t < t_{max} \\
+				h(t_{max}) & {\rm if\ } t \ge t_{max} 
+			\end{array}
+			\right.
+		\]
+
+		The mapping between $\Delta T$ and $\Delta t$ is then done using this modified function $g$:
+
+		\[ \Delta T = \int_{t_0}^{t_0+\Delta t} g(s) \ud s \]
+
+		We always know the value of $t_0$, so if $t_{max} < t_0$ we know that we're in the regime where
+		we're basically using a constant hazard:
+
+		\[ \Delta T = \int_{t_0}^{t_0+\Delta t} h(t_{max}) \ud s = h(t_{max}) \Delta t \mcm \]
+
+		allowing a very straightforward mapping between the two time measures.
+		If, on the other hand, $t_{max} > t_0$, we have to take care to use the modified hazard correctly.
+
+		\subsection{Mapping $\Delta t$ to $\Delta T$}
+
+			We already know that $t_{max} > t_0$, and in this direction, we also have $t_0 + \Delta t$ as
+			an input. If $t_0 + \Delta t < t_{max}$, then we simply need to calculate the same thing we
+			would have calculated using the unmodified hazard:
+			\[ \Delta T = \int_{t_0}^{t_0+\Delta t} g(s) \ud s 
+			            = \int_{t_0}^{t_0+\Delta t} h(s) \ud s \]
+
+			On the other hand, if $t_0 + \Delta t > t_{max}$, we need to split the calculation in two:
+			\[ \Delta T = \int_{t_0}^{t_0+\Delta t} g(s) \ud s 
+			            = \int_{t_0}^{t_{max}} h(s) \ud s + \int_{t_{max}}^{t_0 + \Delta t} h(t_{max}) \ud s \]
+			\[ \Leftrightarrow \Delta T = \int_{t_0}^{t_{max}} h(s) \ud s + h(t_{max}) ( t_0 + \Delta t - t_{max} ) 
+			                            = \Delta T_{max} + h(t_{max}) ( t_0 + \Delta t - t_{max} ) \]
+
+		\subsection{Mapping $\Delta T$ to $\Delta t$}
+
+			In this case we have $\Delta T$ as input and we know $t_0$, but we don't know yet if $t_{max}$
+			is larger or smaller than $t_0 + \Delta t$. However we can calculate the value of the internal time
+			interval that corresponds precisely to $t_{max}$, and this is in fact $\Delta T_{max}$ from
+			before:
+			
+			\[ \Delta T_{max} = \int_{t_0}^{t_{max}} h(s) \ud s \]
+
+			If this value is larger than the input value $\Delta T$, then we've actually not yet reached $t_{max}$
+			and simply need to invert 
+			\[ \Delta T = \int_{t_0}^{t_0+\Delta t} h(s) \ud s \mpt \]
+
+			On the other hand, if this value is smaller than $\Delta T$, the relevant equation again is
+			\[ \Delta T = \int_{t_0}^{t_{max}} h(s) \ud s + h(t_{max}) ( t_0 + \Delta t - t_{max} ) 
+			            = \Delta T_{max} + h(t_{max}) ( t_0 + \Delta t - t_{max} ) \mcm \]
+			which can be solved for $\Delta t$:
+			\[ \Delta t = \frac{\Delta T - \Delta T_{max}}{h(t_{max})} + t_{max} - t_0 \]
+
+
+\end{document}

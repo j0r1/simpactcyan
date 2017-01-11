@@ -1,0 +1,537 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5. MaxART simulation &mdash; Simpact Cyan 0.20.1test documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/css/theme-mod.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Simpact Cyan 0.20.1test documentation" href="index.html"/>
+        <link rel="next" title="6. References" href="simpact_references.html"/>
+        <link rel="prev" title="4. Simulation details" href="simpact_simulationdetails.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Simpact Cyan
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.20.1test
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="simpact_introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_conf_and_running.html">2. Configuration and running of a simulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_output.html">3. Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_simulationdetails.html">4. Simulation details</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. MaxART simulation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">5.1. Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#selecting-the-maxart-specific-simulation">5.2. Selecting the MaxART-specific simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output">5.3. Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#simulation-details">5.4. Simulation details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#person-settings">5.4.1. Person settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#participating-health-care-facilities">5.4.2. Participating health care facilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#events">5.4.3. Events</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hiv-infection-monitoring-event">5.4.3.1. HIV infection monitoring event</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#start-of-study-event">5.4.3.2. Start of study event</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#time-step-within-study">5.4.3.3. Time step within study</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#end-of-study-event">5.4.3.4. End of study event</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simpact_references.html">6. References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Simpact Cyan</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>5. MaxART simulation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/maxart.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <a class="reference internal image-reference" href="_images/MaxART-Simpact.jpg" id="maxart"><img alt="_images/MaxART-Simpact.jpg" class="align-right" id="maxart" src="_images/MaxART-Simpact.jpg" style="width: 15%;" /></a>
+<div class="section" id="maxart-simulation">
+<h1>5. MaxART simulation<a class="headerlink" href="#maxart-simulation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>5.1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="index.html#simpactcyan"><span class="std std-ref">Simpact Cyan</span></a> simulation framework also has extensions for simulations in
+the context of the MaxART study. For the most part, the usage and settings are
+the same as in the main Simpact Cyan program, and the reader is therefore
+strongly suggested to consult the core Simpact Cyan <a class="reference internal" href="index.html#simpactcyan"><span class="std std-ref">reference documentation</span></a>.
+This document will only contain information regarding to settings that deviate
+from the ones specified in the core documentation.</p>
+<p>Notes regarding the installation are also the same as in the core documentation.
+The necessary MaxART-specific software is automatically included when the
+relevant <a class="reference internal" href="index.html#programs"><span class="std std-ref">Simpact Cyan program</span></a> is installed.</p>
+</div>
+<div class="section" id="selecting-the-maxart-specific-simulation">
+<h2>5.2. Selecting the MaxART-specific simulation<a class="headerlink" href="#selecting-the-maxart-specific-simulation" title="Permalink to this headline">¶</a></h2>
+<p>When <a class="reference internal" href="simpact_conf_and_running.html#commandline"><span class="std std-ref">running from the command line</span></a>, instead of
+using the executables <code class="docutils literal"><span class="pre">simpact-cyan-release</span></code> or <code class="docutils literal"><span class="pre">simpact-cyan-debug</span></code>, you should
+use <code class="docutils literal"><span class="pre">maxart-release</span></code> or <code class="docutils literal"><span class="pre">maxart-debug</span></code>.</p>
+<p>It is however usually far more convenient to <a class="reference internal" href="simpact_conf_and_running.html#startingfromr"><span class="std std-ref">run the simulation from R</span></a>
+or to <a class="reference internal" href="simpact_conf_and_running.html#startingfrompython"><span class="std std-ref">run from Python</span></a>. In case the
+R environment is used, the user must specify that MaxART related simulations
+are to be performed by setting the simulation prefix to <code class="docutils literal"><span class="pre">maxart</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span><span class="o">.</span><span class="n">set</span><span class="o">.</span><span class="n">simulation</span><span class="p">(</span><span class="s2">&quot;maxart&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When the Python method is used, the function <code class="docutils literal"><span class="pre">setSimulationPrefix</span></code> must be called.
+For example, if the simulation object has the name <code class="docutils literal"><span class="pre">simpact</span></code>, the call would be:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">simpact</span><span class="o">.</span><span class="n">setSimulationPrefix</span><span class="p">(</span><span class="s2">&quot;maxart&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="output">
+<h2>5.3. Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h2>
+<p>In addition to the <a class="reference internal" href="simpact_output.html#outputfiles"><span class="std std-ref">output files</span></a> of the general simulation, there
+is one additional MaxART-specific output file possible, specified by the
+<code class="docutils literal"><span class="pre">maxart.outfile.logsteps</span></code> option. This output file will contain a table with
+the different <a class="reference internal" href="#maxartfacilities"><span class="std std-ref">health care facilities</span></a>, the time at which
+a study step took place, and an indication of the stage that the facility was in
+during a specific step. This can be one of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">C</span></code> for the control stage</li>
+<li><code class="docutils literal"><span class="pre">T</span></code> for the transitioning stage</li>
+<li><code class="docutils literal"><span class="pre">I</span></code> for the intervention stage</li>
+<li><code class="docutils literal"><span class="pre">Post</span></code> for when the study has ended</li>
+</ul>
+</div></blockquote>
+<p>An example can be seen in the following notebook: <a class="reference external" href="_static/maxart-facilitysteps.ipynb">maxart-facilitysteps.ipynb</a></p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">maxart.outfile.logsteps</span></code> (&#8216;${SIMPACT_OUTPUT_PREFIX}maxartsteplog.csv&#8217;): <br/>
+The name of the CSV file that will contain information about which facility was
+in which stage of the study during the simulation.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="simulation-details">
+<h2>5.4. Simulation details<a class="headerlink" href="#simulation-details" title="Permalink to this headline">¶</a></h2>
+<p>The simulation proceeds in largely the same fashion as described in <a class="reference internal" href="simpact_simulationdetails.html#generalflow"><span class="std std-ref">the core documentation</span></a>,
+but there are a few alterations for the MaxART context. The study is specific
+to the Hhohho region of Swaziland, and the <a class="reference internal" href="#maxartperson"><span class="std std-ref">person settings</span></a> have been
+set up so that the location of a person is based on the population density in
+the Hhohho region. The <a class="reference internal" href="#maxartfacilities"><span class="std std-ref">health care facilities</span></a> can be described
+by various settings, including their names and locations and their randomization
+used in the MaxART trial. For testing purposes, it has been made straightforward
+to avoid using the true randomization settings used in the study.</p>
+<p>The start of the MaxART study in the simulation, can be specified using the
+<a class="reference internal" href="#maxartstartstudy"><span class="std std-ref">start of study</span></a> event. Once the study has been started, the first
+<a class="reference internal" href="#maxartstepstudy"><span class="std std-ref">step event</span></a> is scheduled to take place a specific amount of time
+later. Until that time, all health care facilities are marked as being in the &#8216;control&#8217;, or
+&#8216;standard of care&#8217; phase. When the first step event fires, two facilities [*] are marked as being in
+a &#8216;transition period&#8217;, and a new step event is scheduled with the same interval.
+If available, the firing of a step event will also advance the facilities that
+previously were in the &#8216;transition period&#8217; to the &#8216;treatment for all&#8217; phase.
+When no more facilities are available, the <a class="reference internal" href="#maxartendstudy"><span class="std std-ref">end of study</span></a> event is
+scheduled to take place a specific time interval later.</p>
+<p>Deciding if an HIV infected person may be treated, is done in the <a class="reference internal" href="#maxartmonitoring"><span class="std std-ref">HIV infection monitoring</span></a>
+event. This is again <a class="reference internal" href="simpact_simulationdetails.html#monitoring"><span class="std std-ref">similar</span></a> as in the core program,
+but the CD4 threshold to decide if a person is eligible for treatment, can be set
+differently for the various study stages. The default settings are counts of 350
+unless in the transition period or treatment for all period, in which case there&#8217;s
+no specific threshold anymore.</p>
+<p>[*] The number of facilities actually depends on the information in the randomization
+file, but the default is two.</p>
+<div class="section" id="person-settings">
+<span id="maxartperson"></span><h3>5.4.1. Person settings<a class="headerlink" href="#person-settings" title="Permalink to this headline">¶</a></h3>
+<p>The configurable person settings are the same as in the <a class="reference internal" href="simpact_simulationdetails.html#person"><span class="std std-ref">main program</span></a>,
+except for the geographical location of a person. In this case, the defaults are
+set up in such a way that a person&#8217;s location is chosen based on the population
+density of the Hhohho region of Swaziland. The following iPython notebook illustrates
+this: <a class="reference external" href="_static/maxart-popdens.ipynb">maxart-popdens.ipynb</a></p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">person.geo.dist2d.type</span></code> (&#8216;discrete&#8217; with settings for the Hhohho region of Swaziland): <br/>
+This <a class="reference internal" href="simpact_conf_and_running.html#prob2d"><span class="std std-ref">two dimensional distribution</span></a> is used to assign a geographic
+location to each person. The <code class="docutils literal"><span class="pre">densfile</span></code> parameter is set to <code class="docutils literal"><span class="pre">SWZ10adjv4.tif</span></code>, which contains
+information about the population density in Swaziland. To limit the geographical distribution
+to the one from the Hhohho region, the mask file <code class="docutils literal"><span class="pre">hhohho_mask.tiff</span></code> is used.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="participating-health-care-facilities">
+<span id="maxartfacilities"></span><h3>5.4.2. Participating health care facilities<a class="headerlink" href="#participating-health-care-facilities" title="Permalink to this headline">¶</a></h3>
+<p>The health care facilities that participate in the MaxART study are specified
+in a CSV file (<code class="docutils literal"><span class="pre">facilities.geo.coords</span></code>) that lists the name, the longitude and
+the latitude of each facility. Because the person coordinates use an X and Y
+distance relative to some corner of a map of Swaziland, these geographic
+coordinates of the facilities cannot be used directly. Instead, they will be
+transformed to X and Y positions based on the <code class="docutils literal"><span class="pre">facilities.geo.start.latitude</span></code>,
+<code class="docutils literal"><span class="pre">facilities.geo.start.longitude</span></code> and <code class="docutils literal"><span class="pre">facilities.geo.start.corner</span></code> settings.
+If <code class="docutils literal"><span class="pre">facilities.outfile.facilityxypos</span></code> is specified, the resulting X and Y
+values will be written to a CSV file, so that they can be compared to the
+person locations. This is illustrated in the following iPython notebook:
+<a class="reference external" href="_static/maxart-popdens.ipynb">maxart-popdens.ipynb</a></p>
+<p>The order in which the facilities are used in the study, is specified in the
+CSV file in the <code class="docutils literal"><span class="pre">facilities.randomization</span></code> setting.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">facilities.geo.coords</span></code> (&#8216;maxart-facilities.csv&#8217; from the data directory): <br/>
+This is the name of the CSV file that specifies the names of the facilities
+in the study, together with their GPS coordinates. These coordinates must
+be transformed to X and Y values so that they can be related to the location
+of each person, and the values needed for this transformation are specified
+in the following three options.</li>
+<li><code class="docutils literal"><span class="pre">facilities.geo.start.latitude</span></code> (-25.7172): <br/>
+Together with <code class="docutils literal"><span class="pre">facilities.geo.start.longitude</span></code>, this specifies the origin
+of the X-Y coordinate system that should be used to relate the facility locations
+to the person locations.</li>
+<li><code class="docutils literal"><span class="pre">facilities.geo.start.longitude</span></code> (30.7901): <br/>
+Together with <code class="docutils literal"><span class="pre">facilities.geo.start.latitude</span></code>, this specifies the origin
+of the X-Y coordinate system that should be used to relate the facility locations
+to the person locations.</li>
+<li><code class="docutils literal"><span class="pre">facilities.geo.start.corner</span></code> (&#8216;top&#8217;): <br/>
+This value can be &#8220;top&#8221; or &#8220;bottom&#8221;, and specifies if Y distances should
+be positive if the location of a facility is more south (for &#8216;top&#8217;) than the latitude
+in <code class="docutils literal"><span class="pre">facilities.geo.start.latitude</span></code>, or when more north (for &#8216;bottom&#8217;).</li>
+<li><code class="docutils literal"><span class="pre">facilities.outfile.facilityxypos</span></code> (not written by default): <br/>
+If specified, the coordinates resulting from the transformation above, will
+be writted to this CSV file.</li>
+</ul>
+</div></blockquote>
+<blockquote id="maxartrandomization">
+<div><ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">facilities.randomization</span></code> (&#8216;maxart-randomization.csv&#8217; from the data directory): <br/>
+This specifies the randomization of the health care facilities to be used in the
+simulation. For testing purposes, some fake randomization files can be
+downloaded here:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="_static/maxart-randomization-fake_1.csv">maxart-randomization-fake_1.csv</a></li>
+<li><a class="reference external" href="_static/maxart-randomization-fake_2.csv">maxart-randomization-fake_2.csv</a></li>
+<li><a class="reference external" href="_static/maxart-randomization-fake_3.csv">maxart-randomization-fake_3.csv</a></li>
+<li><a class="reference external" href="_static/maxart-randomization-fake_4.csv">maxart-randomization-fake_4.csv</a></li>
+<li><a class="reference external" href="_static/maxart-randomization-fake_5.csv">maxart-randomization-fake_5.csv</a></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="events">
+<h3>5.4.3. Events<a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h3>
+<p>All of the events described in the <a class="reference internal" href="simpact_simulationdetails.html#events"><span class="std std-ref">main documentation</span></a> are still
+available. Below, only the events that have been altered or added will be described.</p>
+<div class="section" id="hiv-infection-monitoring-event">
+<span id="maxartmonitoring"></span><h4>5.4.3.1. HIV infection monitoring event<a class="headerlink" href="#hiv-infection-monitoring-event" title="Permalink to this headline">¶</a></h4>
+<p>When a person has been <a class="reference internal" href="simpact_simulationdetails.html#diagnosis"><span class="std std-ref">diagnosed</span></a> as being infected with HIV,
+monitoring events are scheduled to follow up on the progress of the disease
+by inspecting the <a class="reference internal" href="simpact_simulationdetails.html#cd4count"><span class="std std-ref">person&#8217;s CD4 count</span></a>. If this CD4 count is
+below a certain configurable threshold, the person will be
+offered antiretroviral treatment. Depending on the person&#8217;s
+<a class="reference internal" href="simpact_simulationdetails.html#artacceptthreshold"><span class="std std-ref">willingness to accept</span></a> treatment, treatment will
+then be started.</p>
+<p>The threshold can be set differently depending on the stage a facility
+is in. Different values can be set before the study starts and after it ends
+(<code class="docutils literal"><span class="pre">monitoring.cd4.threshold.prestudy</span></code> and <code class="docutils literal"><span class="pre">monitoring.cd4.threshold.poststudy</span></code>),
+and during the MaxART study it can be set differently for the control stage,
+the transition stage and the intervention stage (the treatment for all period)
+(<code class="docutils literal"><span class="pre">monitoring.cd4.threshold.instudy.controlstage</span></code>, <code class="docutils literal"><span class="pre">monitoring.cd4.threshold.instudy.transitionstage</span></code>
+and <code class="docutils literal"><span class="pre">monitoring.cd4.threshold.instudy.interventionstage</span></code>).</p>
+<p>Note that it is currently assumed that a person will receive such monitoring
+at the health care facility that is geographically the closest one. This is
+illustrated in the following iPython notebook: <a class="reference external" href="_static/maxart-monitoringfacilities.ipynb">maxart-monitoringfacilities.ipynb</a></p>
+<p>If treatment is started, the person&#8217;s set-point viral load value will be
+lowered according to the setting in <code class="docutils literal"><span class="pre">monitoring.fraction.log_viralload</span></code>.
+In this case no further monitoring events will be scheduled, but instead
+the person will be at risk of <a class="reference internal" href="simpact_simulationdetails.html#dropout"><span class="std std-ref">dropping out</span></a> of treatment and
+the corresponding event will be scheduled.</p>
+<p>On the other hand, if the person&#8217;s CD4 count was not below the threshold
+or the person was not willing to start treatment,
+a new monitoring event will be scheduled a while later. The precise interval
+being used here, depends on the person&#8217;s CD4 count and the configuration
+settings. In <code class="docutils literal"><span class="pre">monitoring.interval.piecewise.cd4s</span></code> and <code class="docutils literal"><span class="pre">monitoring.interval.piecewise.times</span></code>
+you can specify comma separated lists of (increasing) CD4 values and their corresponding
+intervals. If the CD4 value lies in between specified values, linear interpolation
+will be used. If the CD4 count is less than the left-most value in this series,
+the interval specified in <code class="docutils literal"><span class="pre">monitoring.interval.piecewise.left</span></code> will be used.
+If it is larger than the right-most CD4 value, the interval from
+<code class="docutils literal"><span class="pre">monitoring.interval.piecewise.right</span></code> is used instead.</p>
+<p>After dropping out of treatment, a new <a class="reference internal" href="simpact_simulationdetails.html#diagnosis"><span class="std std-ref">diagnosis</span></a> event will
+be scheduled which then leads to new monitoring events. If this is the case,
+the person will always be eligible for treatment, i.e. once a person has
+received treatment he&#8217;s always a candidate to start treatment again. Only
+the person&#8217;s willingness still matters then.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">monitoring.cd4.threshold.prestudy</span></code> (350): <br/>
+This is the threshold value for a person&#8217;s CD4 count, _before_ the <a class="reference internal" href="#maxartstartstudy"><span class="std std-ref">start of the study</span></a>:
+if the count is below this value, treatment will be offered.</li>
+<li><code class="docutils literal"><span class="pre">monitoring.cd4.threshold.poststudy</span></code> (350): <br/>
+This is the threshold value for a person&#8217;s CD4 count, _after_ the <a class="reference internal" href="#maxartendstudy"><span class="std std-ref">end of the study</span></a>:
+if the count is below this value, treatment will be offered.</li>
+<li><code class="docutils literal"><span class="pre">monitoring.cd4.threshold.instudy.controlstage</span></code> (350): <br/>
+This is the threshold value for a person&#8217;s CD4 count, during the MaxART study, when the
+person is at a facility in the control stage. If the count is below this value, treatment will be offered.</li>
+<li><code class="docutils literal"><span class="pre">monitoring.cd4.threshold.instudy.transitionstage</span></code> (&#8216;inf&#8217;): <br/>
+This is the threshold value for a person&#8217;s CD4 count, during the MaxART study, when the
+person is at a facility in the transition stage. If the count is below this value, treatment will be offered.</li>
+<li><code class="docutils literal"><span class="pre">monitoring.cd4.threshold.instudy.interventionstage</span></code> (&#8216;inf&#8217;): <br/>
+This is the threshold value for a person&#8217;s CD4 count, during the MaxART study, when the
+person is at a facility in the intervention stage. If the count is below this value, treatment will be offered.</li>
+<li><code class="docutils literal"><span class="pre">monitoring.fraction.log_viralload</span></code> (0.7): <br/>
+If the person is eligible and willing to start treatment, ART will be started. The
+effect of this is that the person&#8217;s set-point viral load will be lowered by this
+fraction on a logarithmic scale. Calling this fraction <span class="math">\(f\)</span>, this corresponds to
+<span class="math">\(V_{\rm sp,new} = (V_{\rm sp})^f\)</span>.</li>
+<li><code class="docutils literal"><span class="pre">monitoring.interval.piecewise.cd4s</span></code> (&#8216;200,350&#8217;): <br/>
+This is a comma separated list of increasing CD4 values, and is used when looking
+up the monitoring interval for a certain CD4 count.</li>
+<li><code class="docutils literal"><span class="pre">monitoring.interval.piecewise.times</span></code> (&#8216;0.25,0.25&#8217;): <br/>
+This is a comma separated list of monitoring time intervals that correspond to the
+CD4 values specified in <code class="docutils literal"><span class="pre">monitoring.interval.piecewise.cd4s</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">monitoring.interval.piecewise.left</span></code> (0.16666): <br/>
+If the CD4 count is less than the left-most value specified in <code class="docutils literal"><span class="pre">monitoring.interval.piecewise.cd4s</span></code>,
+then this interval is used (defaults to two months).</li>
+<li><code class="docutils literal"><span class="pre">monitoring.interval.piecewise.right</span></code> (0.5): <br/>
+If the CD4 count is more than the right-most value specified in <code class="docutils literal"><span class="pre">monitoring.interval.piecewise.cd4s</span></code>,
+then this interval is used (defaults to six months).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="start-of-study-event">
+<span id="maxartstartstudy"></span><h4>5.4.3.2. Start of study event<a class="headerlink" href="#start-of-study-event" title="Permalink to this headline">¶</a></h4>
+<p>To mark the start of the MaxART study in the simulation, this event can be triggered at
+a specific time (<code class="docutils literal"><span class="pre">maxart.starttime</span></code>). This has an effect on the threshold that will be
+used in the <a class="reference internal" href="#maxartmonitoring"><span class="std std-ref">HIV monitoring</span></a> event: until this start of study event has
+been fired, the &#8216;pre-study&#8217; threshold will be used.</p>
+<p>When this event has been fired, the participating health care facilities are all marked as
+being in the control stage. A <a class="reference internal" href="#maxartstepstudy"><span class="std std-ref">study step</span></a> event will be scheduled
+a specific time later, to advance a number of facilities (depending on the <a class="reference internal" href="#maxartrandomization"><span class="std std-ref">randomization</span></a>)
+to the transition stage.</p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">maxart.starttime</span></code> (5): <br/>
+This is the simulation time at which this event will be fired, indicating the start
+of the MaxART study. To disable this, set to a negative value.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="time-step-within-study">
+<span id="maxartstepstudy"></span><h4>5.4.3.3. Time step within study<a class="headerlink" href="#time-step-within-study" title="Permalink to this headline">¶</a></h4>
+<p>When this event fires for the first time, a number of health care facilities
+(depending on the <a class="reference internal" href="#maxartrandomization"><span class="std std-ref">randomization</span></a>) are advanced from the control stage
+to the transition stage. At this point, a new time step event is scheduled to take
+place, which will advance these facilities to the intervention stage, and will
+place other facilities (again depending on the randomization) in the transition
+stage. When no more facilities can be placed in the transition stage, an
+<a class="reference internal" href="#maxartendstudy"><span class="std std-ref">end of study</span></a> event will be scheduled.</p>
+<p>The interval between the start of the study, the first time step event and
+subsequent time step events, and between the last time step event and the
+end of study event, is configured using the <code class="docutils literal"><span class="pre">maxart.stepinterval</span></code> option.</p>
+<p>The following iPython notebook shows these steps for one of the fake randomizations
+provided in the <a class="reference internal" href="#maxartfacilities"><span class="std std-ref">health care facilities</span></a> section:
+<a class="reference external" href="_static/maxart-facilitysteps.ipynb">maxart-facilitysteps.ipynb</a></p>
+<p>Here is an overview of the relevant configuration options, their defaults (between
+parentheses), and their meaning:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">maxart.stepinterval</span></code> (0.33333): <br/>
+This is the interval that will be used in between the time steps of the study
+(defaults to four months).
+This same interval will be used between the <a class="reference internal" href="#maxartstartstudy"><span class="std std-ref">start of the study</span></a> and the first
+step event, and between the last step event and <a class="reference internal" href="#maxartendstudy"><span class="std std-ref">end of study event</span></a>.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="end-of-study-event">
+<span id="maxartendstudy"></span><h4>5.4.3.4. End of study event<a class="headerlink" href="#end-of-study-event" title="Permalink to this headline">¶</a></h4>
+<p>When a <a class="reference internal" href="#maxartstepstudy"><span class="std std-ref">time step event</span></a> fires, and no more health care facilities can
+be advanced from the control stage to the transition stage, this indicates the the
+study is almost done, and an end of study event will be scheduled. This event
+will fire the same amount of time later as the interval between the steps.</p>
+<p>There are no configurable options for this event, it only serves to mark the end
+of the MaxART study in the simulation. Once the study is done, the &#8216;post-study&#8217;
+CD4 threshold will be used as configured in the <a class="reference internal" href="#maxartmonitoring"><span class="std std-ref">HIV monitoring</span></a>
+event.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="simpact_references.html" class="btn btn-neutral float-right" title="6. References" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="simpact_simulationdetails.html" class="btn btn-neutral" title="4. Simulation details" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.20.1test',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="_static/js/inspectlinks.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
