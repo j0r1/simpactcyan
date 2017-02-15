@@ -27,9 +27,9 @@ public:
 	double getInfectionTime() const													{ assert(isInfected()); return m_infectionTime; }
 	Person *getInfectionOrigin() const												{ assert(isInfected()); return m_pInfectionOrigin; }
 	InfectionStage getInfectionStage() const										{ return m_infectionStage; }
-	void setInChronicStage(double tNow);
-	void setInAIDSStage(double tNow);
-	void setInFinalAIDSStage(double tNow);
+	void setInChronicStage()														{ assert(m_infectionStage == Acute); m_infectionStage = Chronic; }
+	void setInAIDSStage()															{ assert(m_infectionStage == Chronic); m_infectionStage = AIDS; }
+	void setInFinalAIDSStage()														{ assert(m_infectionStage == AIDS); m_infectionStage = AIDSFinal; }
 	double getAIDSMortalityTime() const												{ return m_aidsTodUtil.getTimeOfDeath(); }
 
 	bool isDiagnosed() const														{ return (m_diagnoseCount > 0); }
@@ -56,8 +56,12 @@ public:
 
 	// This is a per person value
 	double getSurvivalTimeLog10Offset() const										{ return m_log10SurvTimeOffset; }
-
-	void writeToViralLoadLog(double tNow, const std::string &description) const;
+	double getHazardB0Parameter() const
+							{ return
+m_hazardB0Param; }
+	double getHazardB1Parameter() const
+							{ return
+m_hazardB1Param; }
 
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);
@@ -76,6 +80,8 @@ private:
 	int m_diagnoseCount;
 	bool m_aidsDeath;
 	double m_log10SurvTimeOffset;
+	double m_hazardB0Param;
+	double m_hazardB1Param;
 
 	double m_Vsp, m_VspOriginal;
 	bool m_VspLowered;
@@ -94,6 +100,7 @@ private:
 	static double m_acuteFromSetPointParamX;
 	static double m_aidsFromSetPointParamX;
 	static double m_finalAidsFromSetPointParamX;
+	static double m_maxValue;
 	static double m_maxViralLoad;
 
 	static VspModel *m_pVspModel;
@@ -102,6 +109,9 @@ private:
 	static ProbabilityDistribution *m_pCD4EndDistribution;
 	static ProbabilityDistribution *m_pARTAcceptDistribution;
 	static ProbabilityDistribution *m_pLogSurvTimeOffsetDistribution;
+	static ProbabilityDistribution *m_pB0Dist;
+	static ProbabilityDistribution *m_pB1Dist;
+
 };
 
 inline double Person_HIV::getViralLoad() const
@@ -118,27 +128,6 @@ inline double Person_HIV::getViralLoad() const
 	
 	abortWithMessage("Unknown stage in Person::getViralLoad");
 	return -1;
-}
-
-inline void Person_HIV::setInChronicStage(double tNow)
-{ 
-	assert(m_infectionStage == Acute); 
-	m_infectionStage = Chronic; 
-	writeToViralLoadLog(tNow, "Chronic stage"); 
-}
-
-inline void Person_HIV::setInAIDSStage(double tNow)
-{ 
-	assert(m_infectionStage == Chronic); 
-	m_infectionStage = AIDS; 
-	writeToViralLoadLog(tNow, "AIDS stage"); 
-}
-
-inline void Person_HIV::setInFinalAIDSStage(double tNow)
-{ 
-	assert(m_infectionStage == AIDS); 
-	m_infectionStage = AIDSFinal; 
-	writeToViralLoadLog(tNow, "Final AIDS stage");
 }
 
 #endif // PERSON_HIV_H

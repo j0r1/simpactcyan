@@ -7,9 +7,7 @@
 #include "eventhivtransmission.h"
 #include "configfunctions.h"
 #include "jsonconfig.h"
-#include "logsystem.h"
 #include <vector>
-#include <cmath>
 
 using namespace std;
 
@@ -40,6 +38,8 @@ Person_HIV::Person_HIV(Person *pSelf) : m_pSelf(pSelf)
 
 	assert(m_pLogSurvTimeOffsetDistribution);
 	m_log10SurvTimeOffset = m_pLogSurvTimeOffsetDistribution->pickNumber();
+	m_hazardB0Param = m_pB0Dist->pickNumber();
+	m_hazardB1Param = m_pB1Dist->pickNumber();
 }
 
 Person_HIV::~Person_HIV()
@@ -59,19 +59,15 @@ void Person_HIV::setInfected(double t, Person *pOrigin, InfectionType iType)
 	// Always start in the acute stage
 	m_infectionStage = Acute;
 
-	string logDescription;
-
 	if (iType == Seed) // We need to initialize the set-point viral load
 	{
 		m_Vsp = pickSeedSetPointViralLoad();
 		m_VspOriginal = m_Vsp;
-		logDescription = "Infection by seeding";
 	}
 	else if (iType == Partner)
 	{
 		m_Vsp = pickInheritedSetPointViralLoad(pOrigin);
 		m_VspOriginal = m_Vsp;
-		logDescription = "Infection by transmission";
 	}
 	else
 	{
@@ -87,9 +83,6 @@ void Person_HIV::setInfected(double t, Person *pOrigin, InfectionType iType)
 	m_aidsTodUtil.changeTimeOfDeath(t, m_pSelf);
 
 	initializeCD4Counts();
-
-	assert(logDescription.length() > 0);
-	writeToViralLoadLog(t, logDescription);
 }
 
 void Person_HIV::lowerViralLoad(double fractionOnLogscale, double treatmentTime)
@@ -114,8 +107,6 @@ void Person_HIV::lowerViralLoad(double fractionOnLogscale, double treatmentTime)
 	m_aidsTodUtil.changeTimeOfDeath(treatmentTime, m_pSelf);
 
 	m_treatmentCount++;
-
-	writeToViralLoadLog(treatmentTime, "Started ART");
 }
 
 void Person_HIV::resetViralLoad(double dropoutTime)
@@ -130,8 +121,6 @@ void Person_HIV::resetViralLoad(double dropoutTime)
 
 	// This has changed the time of death
 	m_aidsTodUtil.changeTimeOfDeath(dropoutTime, m_pSelf);
-
-	writeToViralLoadLog(dropoutTime, "Dropped out of ART");
 }
 
 double Person_HIV::getCD4Count(double t) const
@@ -165,18 +154,21 @@ double Person_HIV::getViralLoadFromSetPointViralLoad(double x) const
 	double part = std::log(x)/b + std::pow(m_Vsp,-c);
 
 	assert(m_maxViralLoad > 0);
-	double maxValue = std::pow(m_maxViralLoad, -c);
-	assert(maxValue > 0);
+	if (m_maxValue < 0) // we still need to calculate it
+	{
+		m_maxValue = std::pow(m_maxViralLoad, -c);
+		assert(m_maxValue > 0);
+	}
 
 	if (c > 0)
 	{
-		if (part < maxValue)
-			part = maxValue;
+		if (part < m_maxValue)
+			part = m_maxValue;
 	}
 	else
 	{
-		if (part > maxValue)
-			part = maxValue;
+		if (part > m_maxValue)
+			part = m_maxValue;
 	}
 
 	double Vacute = std::pow(part,-1.0/c);
@@ -210,19 +202,6 @@ double Person_HIV::pickInheritedSetPointViralLoad(const Person *pOrigin)
 	return m_pVspModel->inheritSetPointViralLoad(Vsp0);
 }
 
-void Person_HIV::writeToViralLoadLog(double tNow, const string &description) const
-{
-	assert(m_pSelf);
-
-	int id = (int)m_pSelf->getPersonID();
-	double currentVl = getViralLoad();
-
-	assert(m_Vsp > 0);
-
-	LogViralLoadHIV.print("%10.10f,%d,%s,%10.10f,%10.10f", tNow, id, description.c_str(),
-	                      log10(m_Vsp), log10(currentVl));
-}
-
 double Person_HIV::m_hivSeedWeibullShape = -1;
 double Person_HIV::m_hivSeedWeibullScale = -1;
 double Person_HIV::m_VspHeritabilitySigmaFraction = -1;
@@ -232,6 +211,7 @@ double Person_HIV::m_aidsFromSetPointParamX = -1;
 double Person_HIV::m_finalAidsFromSetPointParamX = -1;
 
 double Person_HIV::m_maxViralLoad = -1; // this one is read from the config file
+double Person_HIV::m_maxValue = -1; // this will be calculated using the value of 'c'
 
 VspModel *Person_HIV::m_pVspModel = 0;
 ProbabilityDistribution *Person_HIV::m_pCD4StartDistribution = 0;
@@ -239,6 +219,8 @@ ProbabilityDistribution *Person_HIV::m_pCD4EndDistribution = 0;
 ProbabilityDistribution *Person_HIV::m_pARTAcceptDistribution = 0;
 
 ProbabilityDistribution *Person_HIV::m_pLogSurvTimeOffsetDistribution = 0;
+ProbabilityDistribution *Person_HIV::m_pB0Dist = 0;
+ProbabilityDistribution *Person_HIV::m_pB1Dist = 0;
 
 void Person_HIV::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
@@ -319,6 +301,13 @@ void Person_HIV::processConfig(ConfigSettings &config, GslRandomNumberGenerator 
 
 	delete m_pLogSurvTimeOffsetDistribution;
 	m_pLogSurvTimeOffsetDistribution = getDistributionFromConfig(config, pRndGen, "person.survtime.logoffset");
+
+	delete m_pB0Dist;
+	delete m_pB1Dist;
+m_pB0Dist = getDistributionFromConfig(config, pRndGen, "person.hiv.b0");
+m_pB1Dist = getDistributionFromConfig(config, pRndGen, "person.hiv.b1");
+
+
 }
 
 void Person_HIV::obtainConfig(ConfigWriter &config)
@@ -335,6 +324,9 @@ void Person_HIV::obtainConfig(ConfigWriter &config)
 	addDistributionToConfig(m_pCD4EndDistribution, config, "person.cd4.end");
 	addDistributionToConfig(m_pARTAcceptDistribution, config, "person.art.accept.threshold");
 	addDistributionToConfig(m_pLogSurvTimeOffsetDistribution, config, "person.survtime.logoffset");
+	addDistributionToConfig(m_pB0Dist, config, "person.hiv.b0");
+	addDistributionToConfig(m_pB1Dist, config, "person.hiv.b1");
+
 
 	{
 		VspModelLogWeibullWithRandomNoise *pDist = 0;
@@ -381,6 +373,20 @@ void Person_HIV::obtainConfig(ConfigWriter &config)
 ConfigFunctions personHIVConfigFunctions(Person_HIV::processConfig, Person_HIV::obtainConfig, "Person_HIV");
 
 JSONConfig personHIVJSONConfig(R"JSON(
+	"PersonHIV": {
+            "depends": null,
+            "params": [ 
+				[ "person.hiv.b0.dist", "distTypes", [ "fixed", [ [ "value", 0 ]   ] ] ],
+				[ "person.hiv.b1.dist", "distTypes", [ "fixed", [ [ "value", 0 ]   ] ] ]],
+            "info": [
+				"The 'b0' parameter in the HIV transmission hazard is chosen from this",
+				"distribution, allowing transmission to",
+"depend more on susceptibility for both infections",
+				"The 'b1' parameter in the HIV transmission hazard is chosen from this",
+				"distribution, allowing transmission to",
+"depend more on susceptibility for HIV only."
+            ]
+        },
         "PersonVspAcute": { 
             "depends": null,
             "params": [ 
