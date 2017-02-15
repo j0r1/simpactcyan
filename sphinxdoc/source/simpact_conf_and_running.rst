@@ -170,39 +170,16 @@ separately. In this case, it is best to install it in the default directory,
 e.g. ``C:\Python27`` or ``C:\Python34``, so that the R package will be able to
 locate it easily.
 
-Before being able to use the ``RSimpactCyan`` module, the library which
-contains the R interface to the Simpact Cyan program, you need to make sure that other
-libraries are available. The most straightforward way is to run ::
-
-    source("https://raw.githubusercontent.com/j0r1/RSimpactCyanBootstrap/master/initsimpact.R")
-
-which runs a script from `RSimpactCyanBootstrap <https://github.com/j0r1/RSimpactCyanBootstrap>`_ 
-that downloads the required packages. 
-
-If you prefer not to run a script this way you can also add, either temporarily 
-in your current R session or more permanently in your ``.Rprofile`` file, the 
-following lines which add the package repository containing the Simpact Cyan library::
-
-    local({ x <- options()$repos
-            if (!is.element("CRAN", x)) { 
-                x["CRAN"] = "@CRAN@" 
-            }
-            x["SimpactCyan"] <- "http://research.edm.uhasselt.be/jori"
-            options(repos = x) })
-
-Then, you simply have to run ::
-
-    install.packages("RSimpactCyan")
-
-and packages on which ``RSimpactCyan`` depends will be downloaded and installed
-automatically.
-
-Without modifiying the list of repositories, you can also install the dependencies first
-manually, followed by the ``RSimpactCyan`` library::
+Before being able to use the ``RSimpactCyan`` module, you need to make sure that other
+libraries are available::
 
     install.packages("RJSONIO")
     install.packages("findpython")
     install.packages("rPithon", repos="http://research.edm.uhasselt.be/jori")
+
+Once these are installed, you can install the ``RSimpactCyan`` library which
+contains the R interface to the Simpact Cyan program::
+
     install.packages("RSimpactCyan", repos="http://research.edm.uhasselt.be/jori")
 
 Finally, you can load the library with the command::
