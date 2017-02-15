@@ -34,10 +34,6 @@ parentheses), and their meaning:
    This file records information regarding treatments. See the section about the
    :ref:`configuration file <configfile>` for additional information regarding
    the ``SIMPACT_OUTPUT_PREFIX`` variable.
- - ``logsystem.outfile.logviralloadhiv`` ('${SIMPACT_OUTPUT_PREFIX}hivviralloadlog.csv'): |br|
-   In this file the HIV viral load changes can be seen for different individuals.
-   See the section about the :ref:`configuration file <configfile>` for additional 
-   information regarding the ``SIMPACT_OUTPUT_PREFIX`` variable.
  - ``logsystem.outfile.logsettings`` ('${SIMPACT_OUTPUT_PREFIX}settingslog.csv'): |br|
    This file records the settings that were used at the start of the program
    and after each :ref:`simulation intervention <simulationintervention>`.
@@ -179,40 +175,6 @@ or dying). The file currently has five columns:
      Otherwise it will be 0.
   6. ``CD4atARTstart``: The value of the CD4 count of this person right before the treatment
      started.
-
-HIV Viral load log
-^^^^^^^^^^^^^^^^^^
-
-This CSV log file describes the changes in the HIV viral load of different individuals.
-As described in the section about :ref:`HIV viral load related options <viralload>`, each
-person has a set-point viral load, which is the observed viral load in the chronic stage 
-(see also the section about the :ref:`general flow of the simulation <generalflow>`). In 
-the acute stage and AIDS stages, the observed viral load is derived from this set-point 
-value.
-
-The file currently has five columns: 
-
- 1. ``Time``: the time at which the viral load for a person was changed
- 2. ``ID``: the ID of the person for whom the viral load was changed
- 3. ``Desc``: a description of the cause of the change, which can be one of the following:
-
-     - ``Infection by seeding``: a person became infected due to the :ref:`HIV seeding event<hivseeding>`.
-     - ``Infection by transmission``: a person became infected by :ref:`transmission <transmission>`
-       of the virus.
-     - ``Chronic stage``: a person entered the :ref:`chronic stage <chronicstage>`.
-     - ``AIDS stage``: an :ref:`AIDS stage event <aidsstage>` got triggered, advancing the person
-       from the chronic stage to the AIDS stage.
-     - ``Final AIDS stage``: an :ref:`AIDS stage event <aidsstage>` got triggered, advancing
-       the person from the AIDS stage to the final AIDS stage.
-     - ``Started ART``: the viral load was lowered thanks to starting ART during a
-       :ref:`monitoring event <monitoring>`.
-     - ``Dropped out of ART``: the viral load was increased because the person 
-       :ref:`dropped out <dropout>` of treatment.
-
- 4. ``Log10SPVL``: this is the set-point viral load of the person, on a logarithmic scale.
-    This value is the base value that's used to calculate the actual, observed viral load
-    from.
- 5. ``Log10VL``: the observed viral load of the person, on a logarithmic scale.
 
 Settings log
 ^^^^^^^^^^^^

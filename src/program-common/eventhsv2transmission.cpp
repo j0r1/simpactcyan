@@ -135,6 +135,10 @@ double EventHSV2Transmission::solveForRealTimeInterval(const State *pState, doub
 }
 
 double EventHSV2Transmission::s_tMax = 200;
+double EventHSV2Transmission::s_c = 0; 
+double EventHSV2Transmission::s_d = 0; 
+double EventHSV2Transmission::s_e1 = 0;
+double EventHSV2Transmission::s_e2 = 0;
 double EventHSV2Transmission::HazardFunctionHSV2Transmission::s_b = 0;
 
 void EventHSV2Transmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
@@ -142,6 +146,14 @@ void EventHSV2Transmission::processConfig(ConfigSettings &config, GslRandomNumbe
 	bool_t r;
 
     if (!(r = config.getKeyValue("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
+        !(r = 
+config.getKeyValue("hsv2transmission.hazard.c", s_c)) ||
+        !(r =
+config.getKeyValue("hsv2transmission.hazard.d", s_d)) ||
+	   !(r =
+config.getKeyValue("hsv2transmission.hazard.e1", s_e1)) ||
+	   !(r =
+config.getKeyValue("hsv2transmission.hazard.e2", s_e2)) ||
         !(r = config.getKeyValue("hsv2transmission.hazard.t_max", s_tMax))
         )
         abortWithMessage(r.getErrorString());
@@ -153,6 +165,10 @@ void EventHSV2Transmission::obtainConfig(ConfigWriter &config)
 	bool_t r;
 
 	if (!(r = config.addKey("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
+		!(r = config.addKey("hsv2transmission.hazard.c", s_c))||
+		!(r = config.addKey("hsv2transmission.hazard.d", s_d))||
+		!(r = config.addKey("hsv2transmission.hazard.e1", s_e1))||
+		!(r = config.addKey("hsv2transmission.hazard.e2", s_e2))||
 		!(r = config.addKey("hsv2transmission.hazard.t_max", s_tMax))
 		)
 		abortWithMessage(r.getErrorString());
@@ -175,6 +191,28 @@ double EventHSV2Transmission::getTMax(const Person *pPerson1, const Person *pPer
     return tMax;
 }
 
+int EventHSV2Transmission::getM(const Person *pPerson1)
+{
+	assert(pPerson1 != 0);
+	bool M1 = pPerson1->isMan();
+     int M = 0; 
+     if (M1 == true)
+         M = 1;
+     return M;
+}
+
+int EventHSV2Transmission::getH(const Person *pPerson1)
+{
+	assert(pPerson1 != 0);
+      
+     bool H1 = pPerson1->hiv().isInfected();
+
+     int H = 0;
+     if (H1 == true)
+         H = 1;
+     return H;
+} 
+
 EventHSV2Transmission::HazardFunctionHSV2Transmission::HazardFunctionHSV2Transmission(const Person *pPerson1, 
                                                                                       const Person *pPerson2)
     : HazardFunctionExp(getA(pPerson1, pPerson2), s_b)
@@ -188,9 +226,13 @@ EventHSV2Transmission::HazardFunctionHSV2Transmission::~HazardFunctionHSV2Transm
 double EventHSV2Transmission::HazardFunctionHSV2Transmission::getA(const Person *pOrigin, const Person *pTarget)
 {
     assert(pOrigin);
-    return pOrigin->hsv2().getHazardAParameter() - s_b*pOrigin->hsv2().getInfectionTime();
+    assert(pTarget);
+    return pOrigin->hsv2().getHazardAParameter() - s_b*pOrigin->hsv2().getInfectionTime() + s_c*EventHSV2Transmission::getM(pOrigin) +
+s_d*EventHSV2Transmission::getH(pOrigin) +
+s_e1*pTarget->hiv().getHazardB0Parameter() +
+s_e2*pTarget->hsv2().getHazardB2Parameter(); 
 }
-
+//
 ConfigFunctions hsv2TransmissionConfigFunctions(EventHSV2Transmission::processConfig, EventHSV2Transmission::obtainConfig, 
 		                                        "EventHSV2Transmission");
 
@@ -199,12 +241,20 @@ JSONConfig hsv2TransmissionJSONConfig(R"JSON(
             "depends": null,
             "params": [ 
 				[ "hsv2transmission.hazard.b", 0 ],
+				[ "hsv2transmission.hazard.c", 0 ],
+				[ "hsv2transmission.hazard.d", 0 ],
+				[ "hsv2transmission.hazard.e1", 0 ],
+				[ "hsv2transmission.hazard.e2", 0 ],
 				[ "hsv2transmission.hazard.t_max", 200 ]
 			],
             "info": [ 
-				"These configuration parameters allow you to set the 'b' value in the hazard",
-				" h = exp(a_i + b*(t-t_infected))",
+				"These configuration parameters allow you to set the 'b', 'c' and 'd' values in the hazard",
+				" h = exp(a_i + b*(t-t_infected)+ c*M_i + d*H_i + e1*b0_j + e2*b2_j)",
 				"The value of 'a_i' depends on the individual, and can be specified as a ",
+				"distribution in the person parameters ",
+				"The value of 'b0_j' depends on the individual, and can be specified as a ",
+				"distribution in the person parameters ",
+				"The value of 'b2_j' depends on the individual, and can be specified as a ",
 				"distribution in the person parameters."
             ]
         })JSON");

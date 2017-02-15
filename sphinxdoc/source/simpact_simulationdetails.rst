@@ -351,20 +351,30 @@ parentheses), and their meaning:
 
 .. _personhsv2opts:
 
-HSV2 related settings
-^^^^^^^^^^^^^^^^^^^^^
+HIV and HSV2 related settings
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For the :ref:`HIV transmission <transmission>` hazard, person-dependent values for susceptibility for both infections and susceptibility for HIV only can be set. These values will be drawn from the distributions specified by ``person.hiv.b0.dist.type`` and ``person.hiv.b1.dist.type`` respectively, and their corresponding parameters.
 
 For the :ref:`HSV2 transmission <hsv2transmission>` hazard, a person-dependent baseline
 value can be set. This value will be drawn from the distribution specified
-by ``person.hsv2.a.dist.type`` and its corresponding parameters. 
+by ``person.hsv2.a.dist.type`` and its corresponding parameters. Furthermore, a person-dependent value for susceptibility for HSV2 only can be set. This value will be drawn from a distribution specified by ``person.hsv2.b2.dist.type`` and its corresponding parameters. Furthermore, the value for susceptibility for both infections, drawn from the distribution specified by ``person.hiv.b0.dist.type`` will also be included in the :ref:`HSV2 transmission <hsv2transmission>` hazard.
 
 Here is an overview of the relevant configuration options, their defaults (between
 parentheses), and their meaning:
 
+ - ``person.hiv.b0.dist.type`` ('fixed' with value 0): |br|
+   Specifies the :ref:`one dimensional distribution <prob1d>` that is used to draw the person dependent value for susceptibility for both infections from the :ref:`HIV transmission <transmission>` and the :ref:`HSV2 transmission <hsv2transmission>` hazards.
+ - ``person.hiv.b1.dist.type`` ('fixed' with value 0): |br|
+   Specifies the :ref:`one dimensional distribution <prob1d>` that is used to draw the person dependent value for susceptibility for HIV only from the :ref:`HIV transmission <transmission>` hazard.
  - ``person.hsv2.a.dist.type`` ('fixed' with value 0): |br|
    Specifies the :ref:`one dimensional distribution <prob1d>` that is used to draw
    the person dependent baseline value from for the :ref:`HSV2 transmission <hsv2transmission>`
    hazard.
+ - ``person.hsv2.b2.dist.type`` ('fixed' with value 0): |br|
+   Specifies the :ref:`one dimensional distribution <prob1d>` that is used to draw the person dependent value for susceptibility for HSV2 only for the :ref:`HSV2 transmission <hsv2transmission>` hazard.
+
+If you want to include the influence of susceptibility in your simulations, appropriate distributions for :math:`b_{\rm 0}`, :math:`b_{\rm 1}` and :math:`b_{\rm 2}` are normal distributions, so that the expected values of :math:`\exp(b_{\rm 0}+b_{\rm 1})` and :math:`\exp(b_{\rm 0}+b_{\rm 2})` are both equal to 1. For :math:`b_{\rm i} \sim\ N\left(\mu_{i},\sigma^{2}_{i}\right)`, normal probability distributions with :math:`\mu_{i}= - \sigma^{2}_{i}/2` (:math:`i=0,1,2`) fulfill these condions. For more information, see `probability_distributions.pdf <_static/probability_distributions.pdf>`_.
 
 Relationship related settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -770,8 +780,10 @@ This event is hazard-based, and the hazard is of the following form:
 
     \begin{eqnarray}
     {\rm hazard} & = & \exp\left({\rm baseline} + {\rm agefactor}\times(t-t_{\rm birth}) + {\rm genderfactor}\times{\rm G}\right. \\
-                     &   & \left. + {\rm diagpartnersfactor}\times {\rm P} +{\rm isdiagnosedfactor}\times D +\beta(t-t_{\rm infected}) \right)
+                     &   & + {\rm diagpartnersfactor}\times {\rm P} +{\rm isdiagnosedfactor}\times D +\beta(t-t_{\rm infected})\\
+			     &   & \left.+ {\rm HSV2factor} \times {\rm HSV2} \right)
     \end{eqnarray}
+
 
 Note that this is again a time dependent exponential hazard of the form
 
@@ -782,7 +794,7 @@ In the formula, :math:`G` is a value related to the gender of the person, 0 for 
 1 for a woman. The number :math:`P` represents the number of partners of the person that
 are both HIV infected and diagnosed. The value of :math:`D` is an indication of whether
 the person was diagnosed previously: its value is 0 if this is the initial diagnosis event, or
-1 if it's a re-diagnosis (after :ref:`dropping out <dropout>` of treatment).
+1 if it's a re-diagnosis (after :ref:`dropping out <dropout>` of treatment). The value of :math:`HSV2` is an indication of whether the person is infected with HSV2: its value is 0 if the person is not infected with HSV2 and 1 if the person is infected with HSV2.
 
 Here is an overview of the relevant configuration options, their defaults (between
 parentheses), and their meaning:
@@ -811,6 +823,8 @@ parentheses), and their meaning:
  - ``diagnosis.beta`` (0): |br|
    Corresponds to the :math:`{\beta}` factor in the hazard expression, allowing one to
    take the time since infection into account.
+ - ``diagnosis.HSV2factor`` (0): |br|
+   Using the :math:`{\rm HSV2factor}`, it is possible to have a different hazard when the person is infected with HSV2.
  - ``diagnosis.t_max`` (200): |br|
    As explained in the section about :ref:`'time limited' hazards <timelimited>`, an
    exponential function needs some kind of threshold value (after which it stays
@@ -2211,9 +2225,12 @@ and one of them gets infected, an HIV transmission event is scheduled.
 The hazard for this event is the following:
 
 .. math::
-
-    {\rm hazard} = \exp\left(a + b V^{-c} + d_1 P_{\rm infected} + d_2 P_{\rm uninfected}
-                 + {\rm W} f_1 \exp( f_2 (A_{\rm woman}(t_{\rm ry}) - A_{\rm debut} ) ) \right)
+	
+	\begin{eqnarray}    
+	{\rm hazard} & = & \exp\left(a + b V^{-c} + d_1 P_{\rm infected} + d_2 P_{\rm uninfected} \right.\\
+                  & + & {\rm W} f_1 \exp( f_2 (A_{\rm woman}(t_{\rm ry}) - A_{\rm debut} ) )\\
+			  & + & \left. e_1 HSV2_{\rm infected} + e_2 HSV2_{\rm uninfected} + g_1 b_{\rm 0j} + g_2 b_{\rm 1j} \right)
+	\end{eqnarray}
 
 In this hazard, the value of
 :math:`V` is the :ref:`current viral load <viralloadx>` of the person, which can differ 
@@ -2225,8 +2242,8 @@ person is a woman, and 0 otherwise. By configuring the weights :math:`f_1` and :
 is becomes possible to change the susceptibility of a woman depending on her
 age. Note that this age is only specified approximately by using a reference
 time :math:`t_{\rm ry}` instead of the actual time :math:`t`. This reference time can be
-updated using the :ref:`reference year synchronization event <syncrefyear>`.
-The values :math:`a`, :math:`b`, :math:`c`, :math:`d_1`, :math:`d_2`, :math:`f_1` and :math:`f_2` can be configured as specified below;
+updated using the :ref:`reference year synchronization event <syncrefyear>`. :math:`{HSV2}_{\rm infected}` and :math:`{HSV2}_{\rm uninfected}` specify if the HIV-infected resp. uninfected person is infected with HSV2. The value of :math:`{HSV2}_{\rm infected}` resp. :math:`{HSV2}_{\rm uninfected}`  is 1 if the HIV-infected resp. uninfected person is infected with HSV2, and 0 otherwise. The values of :math:`b_{\rm 0j}` and :math:`b_{\rm 1j}` specify the susceptibility of the uninfected person to both diseases and HIV only respectively. Their values can be set using ``person.hiv.b0.dist.type`` resp. ``person.hiv.b1.dist.type`` from the :ref:`HIV related person settings <personhsv2opts>`.
+The values :math:`a`, :math:`b`, :math:`c`, :math:`d_1`, :math:`d_2`, :math:`e_1`, :math:`e_2`, :math:`f_1`, :math:`f_2`, :math:`g_1` and :math:`g_2` can be configured as specified below;
 the :math:`A_{\rm debut}` parameter is the :ref:`debut age <debut>`.
 
 The form of this hazard was originally inspired by the article of :ref:`[Hargrove et al] <ref_hargrove>`.
@@ -2255,10 +2272,18 @@ parentheses), and their meaning:
    This refers to the value of :math:`d_2` in the expression for the hazard,
    providing a weight based on the number of partners of the uninfected
    person.
+ - ``hivtransmission.param.e1`` (0): |br|
+   This refers to the value of :math:`e_1` in the expression of the hazard and specifies the influence of the HIV-infected person being HSV2-infected.
+ - ``hivtransmission.param.e2`` (0): |br|
+   This refers to the value of :math:`e_2` in the expression of the hazard and specifies the influence of the HIV-uninfected person being HSV2-infected.
  - ``hivtransmission.param.f1`` (0): |br|
    This refers to the value of :math:`f_1` in the expression of the hazard.
  - ``hivtransmission.param.f2`` (0): |br|
    This refers to the value of :math:`f_2` in the expression of the hazard.
+ - ``hivtransmission.param.g1`` (0): |br|
+   This refers to the value of :math:`g_1` in the expression of the hazard. Set this parameter equal to 1 if you want to include the influence of susceptibility to both infections.
+ - ``hivtransmission.param.g2`` (0): |br|
+   This refers to the value of :math:`g_2` in the expression of the hazard. Set this parameter equal to 1 if you want to include the influence of susceptibility to HIV only.
  - ``hivtransmission.maxageref.diff`` (1): |br|
    As explained above, the hazard does not use the real time dependency :math:`t`, but
    refers to a reference time :math:`t_{\rm ry}` that needs to be synchronized periodically
@@ -2276,19 +2301,27 @@ event will be scheduled. A time dependent exponential hazard is used:
 
 .. math::
 
-    {\rm hazard} = \exp(a_i+b(t-t_{\rm infected}))
+    {\rm hazard} = \exp(a_i+b(t-t_{\rm HSV2-infected})+c M_{\rm i} + d H_{\rm i} + e_1 b_{\rm 0j} + e_2 b_{\rm 2j})
 
 The value of :math:`a_i` can be set using ``person.hsv2.a.dist.type`` from the
 :ref:`HSV2 related person settings <personhsv2opts>`. This value is taken from
 the person that's already infected. The :math:`b` value can be configured using
-``hsv2transmission.hazard.b``, and :math:`t_{\rm infected}` is the time at which
-the infected person acquired the HSV2 infection.
+``hsv2transmission.hazard.b``, and :math:`t_{\rm HSV2-infected}` is the time at which
+the infected person acquired the HSV2 infection. :math:`M_{\rm i}` represents the gender effect and is taken from the person that's already HSV2-infected. It's value is 1 for male and 0 for female. The value :math:`H_{\rm i}` is an indicator for the HSV2-infected person being HIV-infected. It's value is 1 for HIV-infected and 0 for HIV-uninfected. The values of :math:`b_{\rm 0j}` and :math:`b_{\rm 2j}` specify the susceptibility of the uninfected person to both diseases and HSV2 only respectively. The value of :math:`b_{\rm 0j}` can be set using ``person.hiv.b0.dist.type`` from the :ref:`HIV related person settings <personhsv2opts>`. The value of :math:`b_{\rm 2j}` can be set using ``person.hsv2.b2.dist.type`` from the :ref:`HSV2 related person settings <personhsv2opts>`.
 
 Here is an overview of the relevant configuration options, their defaults (between
 parentheses), and their meaning:
 
  - ``hsv2transmission.hazard.b`` (0): |br|
    This configures the value of :math:`b` in the hazard above.
+ - ``hsv2transmission.hazard.c`` (0): |br|
+   This configures the value of c for the gender effect in the hazard above.
+ - ``hsv2transmission.hazard.d`` (0): |br|
+   This configures the value of d for the HIV effect in the hazard above.
+ - ``hsv2transmission.hazard.e1`` (0): |br|
+   This refers to the value of :math:`e_1` in the expression for the hazard. Set this parameter equal to 1 if you want to include the influence of susceptibility to both infections.
+ - ``hsv2transmission.hazard.e2`` (0): |br|
+   This refers to the value of :math:`e_2` in the expression for the hazard. Set this parameter equal to 1 if you want to include the influence of susceptibility to HSV2 only.
  - ``hsv2transmission.hazard.t_max`` (200): |br|
    As explained in the section about :ref:`'time limited' hazards <timelimited>`, an
    exponential function needs some kind of threshold value (after which it stays
