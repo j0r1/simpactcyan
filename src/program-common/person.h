@@ -116,6 +116,8 @@ private:
 	Point2D m_location;
 	double m_locationTime;
 
+	double m_health_seeking_propensity;
+
 	PersonImpl *m_pPersonImpl;
 
 	static ProbabilityDistribution2D *m_pPopDist;
