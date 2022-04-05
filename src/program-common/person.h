@@ -91,6 +91,10 @@ public:
 	Person_HSV2 &hsv2()																{ return m_hsv2; }
 	const Person_HSV2 &hsv2() const													{ return m_hsv2; }
 
+	// Health-seeking behavior
+	double getHealthSeekingPropensity() const 										{ return m_health_seeking_propensity; }
+	void setHealthSeekingPropensity(double healthSeekingPropensity) 				{ m_health_seeking_propensity = healthSeekingPropensity; }
+
 	// This is a per person value
 	double getSurvivalTimeLog10Offset() const										{ return m_hiv.getSurvivalTimeLog10Offset(); }
 
