@@ -30,5 +30,14 @@ JSONConfig personImplJSONConfig(R"JSON(
                 "The distribution specified by 'person.geo.dist2d' is used to assign (x,y)",
                 "location coordinates to a person."
             ]
-        })JSON");
+        },
+		"PersonHealthSeekingPropensityDist": {
+			"depends": null,
+			"params": [
+				[ "person.healthseekingpropensity.dist", "distTypes", [ "fixed", [ [ "value", 0 ]   ] ] ]
+			], 
+			"info": [
+				"The distribution used to assing a health-seeking propensity to a person."
+			]
+		})JSON");
 

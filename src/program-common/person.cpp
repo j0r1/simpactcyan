@@ -20,10 +20,14 @@ Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_rel
 	assert(g == Male || g == Female);
 
 	assert(m_pPopDist);
+	assert(m_pHealthSeekingPropDist);
 
 	Point2D loc = m_pPopDist->pickPoint();
 	assert(loc.x == loc.x && loc.y == loc.y); // check for NaN
 	setLocation(loc, 0);
+
+	double healthSeekingPropensity = m_pHealthSeekingPropDist->pickNumber();
+	setHealthSeekingPropensity(healthSeekingPropensity);
 
 	m_pPersonImpl = new PersonImpl(*this);
 }
@@ -37,6 +41,8 @@ ProbabilityDistribution2D *Person::m_pPopDist = 0;
 double Person::m_popDistWidth = 0;
 double Person::m_popDistHeight = 0;
 
+ProbabilityDistribution *Person::m_pHealthSeekingPropDist = 0;
+
 void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
 	assert(pRndGen != 0);
@@ -44,12 +50,18 @@ void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRn
 	// Population distribution
 	delete m_pPopDist;
 	m_pPopDist = getDistribution2DFromConfig(config, pRndGen, "person.geo");
+
+	// Health-seeking propensity distribution
+	delete m_pHealthSeekingPropDist;
+	m_pHealthSeekingPropDist = getDistributionFromConfig(config, pRndGen, "person.healthseekingpropensity");
 }
 
 void Person::obtainConfig(ConfigWriter &config)
 {
 	assert(m_pPopDist);
 	addDistribution2DToConfig(m_pPopDist, config, "person.geo");
+	assert(m_pHealthSeekingPropDist);
+	addDistributionToConfig(m_pHealthSeekingPropDist, config, "person.healthseekingpropensity");
 }
 
 void Person::writeToPersonLog()
@@ -114,12 +126,12 @@ void Person::writeToPersonLog()
 	double cd4AtInfection = (m_hiv.isInfected())?m_hiv.getCD4CountAtInfectionStart() : (-1);
 	double cd4AtDeath = (m_hiv.isInfected())?m_hiv.getCD4CountAtDeath() : (-1);
 
-	LogPerson.print("%d,%d,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%10.10f,%10.10f",
+	LogPerson.print("%d,%d,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%10.10f,%10.10f,%10.10f",
 		        id, gender, timeOfBirth, timeOfDeath, fatherID, motherID, debutTime,
 		        formationEagerness,formationEagernessMSM,
 		        infectionTime, origin, infectionType, log10SPVLoriginal, treatmentTime,
 				m_location.x, m_location.y, aidsDeath,
-				hsv2InfectionTime, hsv2origin, cd4AtInfection, cd4AtDeath);
+				hsv2InfectionTime, hsv2origin, cd4AtInfection, cd4AtDeath, m_health_seeking_propensity);
 }
 
 void Person::writeToLocationLog(double tNow)

@@ -210,8 +210,8 @@ JSONConfig diagnosisJSONConfig(R"JSON(
                 [ "diagnosis.genderfactor", 0 ],
                 [ "diagnosis.diagpartnersfactor", 0 ],
                 [ "diagnosis.isdiagnosedfactor", 0 ],
-				[ "diagnosis.healthseekingpropensityfactor", 0],
                 [ "diagnosis.beta", 0 ],
+				[ "diagnosis.healthseekingpropensityfactor", 0 ],
 		     	[ "diagnosis.HSV2factor", 0 ],
                 [ "diagnosis.t_max", 200 ]	
             ],
@@ -221,13 +221,12 @@ JSONConfig diagnosisJSONConfig(R"JSON(
                 "",
                 " h = exp(baseline + agefactor*A(t) + genderfactor*G ",
                 "         + diagpartnersfactor*ND + isdiagnosedfactor*D",
-				"		  + healthseekingpropensityfactor*H,
                 "         + beta*t + HSV2factor*HSV2)",
                 "",
                 "Here, A(t) is the age of the person, G is the gender (0 for a man, 1 for a",
                 "woman), ND is the number of diagnosed partners and D is a flag (0 or 1)",
                 "indicating if the person has been on treatment before (to have different",
-                "behaviour for first diagnosis and re-testing after dropout),",
+                "behaviour for first diagnosis and re-testing after dropout)",
 				"and H is the health-seeking propensity of the person."
             ]
         })JSON");

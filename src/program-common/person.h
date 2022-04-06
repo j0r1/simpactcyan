@@ -127,6 +127,8 @@ private:
 	static ProbabilityDistribution2D *m_pPopDist;
 	static double m_popDistWidth;
 	static double m_popDistHeight;
+
+	static ProbabilityDistribution *m_pHealthSeekingPropDist;
 };
 
 class Man : public Person
