@@ -21,10 +21,10 @@ JSONConfig personImplJSONConfig(R"JSON(
                 "location coordinates to a person."
             ]
         },
-		"PersonHealthSeekingPropensityDist": {
+		"PersonBehaviorDist": {
 			"depends": null,
 			"params": [
-				[ "person.healthseekingpropensity.dist", "distTypes", [ "fixed", [ [ "value", 0 ]   ] ] ]
+				[ "person.behavior.dist2d", "distTypes2D", [ "fixed", [ [ "xvalue", 0 ], ["yvalue", 0]   ] ] ]
 			], 
 			"info": [
 				"The distribution used to assing a health-seeking propensity to a person."

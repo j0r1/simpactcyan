@@ -64,7 +64,7 @@ void LogSystem::processConfig(ConfigSettings &config, GslRandomNumberGenerator *
 			abortWithMessage("Unable to open HIV viral load log file: " + r.getErrorString());
 	}
 
-	logPersons.print("\"ID\",\"Gender\",\"TOB\",\"TOD\",\"IDF\",\"IDM\",\"TODebut\",\"FormEag\",\"FormEagMSM\",\"InfectTime\",\"InfectOrigID\",\"InfectType\",\"log10SPVL\",\"TreatTime\",\"XCoord\",\"YCoord\",\"AIDSDeath\",\"HSV2InfectTime\",\"HSV2InfectOriginID\",\"CD4atInfection\",\"CD4atDeath\"");
+	logPersons.print("\"ID\",\"Gender\",\"TOB\",\"TOD\",\"IDF\",\"IDM\",\"TODebut\",\"FormEag\",\"FormEagMSM\",\"InfectTime\",\"InfectOrigID\",\"InfectType\",\"log10SPVL\",\"TreatTime\",\"XCoord\",\"YCoord\",\"AIDSDeath\",\"HSV2InfectTime\",\"HSV2InfectOriginID\",\"CD4atInfection\",\"CD4atDeath\",\"SexualRiskBehavior\",\"HealthSeekingPropensity\"");
 	logRelations.print("\"ID1\",\"ID2\",\"FormTime\",\"DisTime\",\"AgeGap\",\"MSM\"");
 	logTreatment.print("\"ID\",\"Gender\",\"TStart\",\"TEnd\",\"DiedNow\",\"CD4atARTstart\"");
 	logLocation.print("\"Time\",\"ID\",\"XCoord\",\"YCoord\"");

@@ -95,6 +95,9 @@ public:
 	double getHealthSeekingPropensity() const 										{ return m_health_seeking_propensity; }
 	void setHealthSeekingPropensity(double healthSeekingPropensity) 				{ m_health_seeking_propensity = healthSeekingPropensity; }
 
+	double getSexualRiskBehavior() const 											{ return m_sexual_risk_behavior; }
+	void setSexualRiskBehavior(double sexualRiskBehavior) 							{ m_sexual_risk_behavior = sexualRiskBehavior; }
+
 	// This is a per person value
 	double getSurvivalTimeLog10Offset() const										{ return m_hiv.getSurvivalTimeLog10Offset(); }
 
@@ -121,6 +124,7 @@ private:
 	double m_locationTime;
 
 	double m_health_seeking_propensity;
+	double m_sexual_risk_behavior; // TODO clean this up w.r.t. redundancy with eagerness parameters!
 
 	PersonImpl *m_pPersonImpl;
 
@@ -128,7 +132,7 @@ private:
 	static double m_popDistWidth;
 	static double m_popDistHeight;
 
-	static ProbabilityDistribution *m_pHealthSeekingPropDist;
+	static ProbabilityDistribution2D *m_pBehaviorDist;
 };
 
 class Man : public Person

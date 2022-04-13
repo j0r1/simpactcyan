@@ -15,7 +15,8 @@ using namespace std;
 
 EvtHazardFormationSimple::EvtHazardFormationSimple(const string &hazName, bool msm,
 		           double a0, double a1, double a2, double a3, 
-				   double a4, double a5, double a6, double a7, double aDist,
+				   double a4, double a5, double a6, double a7,
+				   double a8, double a9, double aDist,
 				   double Dp, double b, double tMax) : EvtHazard(hazName)
 {
 	m_msm = msm;
@@ -28,6 +29,8 @@ EvtHazardFormationSimple::EvtHazardFormationSimple(const string &hazName, bool m
 	m_a5 = a5;
 	m_a6 = a6;
 	m_a7 = a7;
+	m_a8 = a8;
+	m_a9 = a9;
 	m_aDist = aDist;
 	m_Dp = Dp;
 	m_b = b;
@@ -107,7 +110,9 @@ double EvtHazardFormationSimple::getA0(const SimpactPopulation &population, Pers
 	double n = population.getLastKnownPopulationSize(lastKnownPopSizeTime);
 	double a0i = pPerson1->getFormationEagernessParameter();
 	double a0j = pPerson2->getFormationEagernessParameter();
-	double a0_base = m_a0 + (a0i + a0j)*m_a6 * std::abs(a0i-a0j)*m_a7;
+	double a0k = pPerson1->getSexualRiskBehavior();
+	double a0l = pPerson2->getSexualRiskBehavior();
+	double a0_base = m_a0 + (a0i + a0j)*m_a6 + std::abs(a0i-a0j)*m_a7 + (a0k +a0l)*m_a8 + std::abs(a0k-a0l)*m_a9;
 	a0_base += m_aDist * pPerson1->getDistanceTo(pPerson2);
 
 	double eyeCapsFraction = population.getEyeCapsFraction();
@@ -139,7 +144,7 @@ double EvtHazardFormationSimple::getTr(const SimpactPopulation &population, Pers
 
 EvtHazard *EvtHazardFormationSimple::processConfig(ConfigSettings &config, const string &prefix, const string &hazName, bool msm)
 {
-	double a0 = 0, a1 = 0, a2 = 0, a3 = 0, a4 = 0, a5 = 0, a6 = 0, a7 = 0, aDist = 0, Dp = 0, b = 0, tMax = 0;
+	double a0 = 0, a1 = 0, a2 = 0, a3 = 0, a4 = 0, a5 = 0, a6 = 0, a7 = 0, a8 = 0, a9 = 0, aDist = 0, Dp = 0, b = 0, tMax = 0;
 	bool_t r;
 
 	if (!msm)
@@ -152,6 +157,8 @@ EvtHazard *EvtHazardFormationSimple::processConfig(ConfigSettings &config, const
 			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_5", a5)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_6", a6)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_7", a7)) ||
+			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_8", a8)) ||
+			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_9", a9)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_dist", aDist)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".Dp", Dp)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".beta", b)) ||
@@ -167,6 +174,8 @@ EvtHazard *EvtHazardFormationSimple::processConfig(ConfigSettings &config, const
 			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_5", a5)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_6", a6)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_7", a7)) ||
+			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_8", a8)) ||
+			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_9", a9)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".alpha_dist", aDist)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".beta", b)) ||
 			!(r = config.getKeyValue(prefix + "." + hazName + ".t_max", tMax, 0)) )
@@ -177,7 +186,7 @@ EvtHazard *EvtHazardFormationSimple::processConfig(ConfigSettings &config, const
 		a2 = a1;
 	}
 
-	return new EvtHazardFormationSimple(hazName, msm, a0,a1,a2,a3,a4,a5,a6,a7,aDist,Dp,b,tMax);
+	return new EvtHazardFormationSimple(hazName, msm, a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,aDist,Dp,b,tMax);
 }
 
 void EvtHazardFormationSimple::obtainConfig(ConfigWriter &config, const string &prefix)
@@ -196,6 +205,8 @@ void EvtHazardFormationSimple::obtainConfig(ConfigWriter &config, const string &
 			!(r = config.addKey(prefix + "." + hazName + ".alpha_5", m_a5)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".alpha_6", m_a6)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".alpha_7", m_a7)) ||
+			!(r = config.addKey(prefix + "." + hazName + ".alpha_8", m_a8)) ||
+			!(r = config.addKey(prefix + "." + hazName + ".alpha_9", m_a9)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".alpha_dist", m_aDist)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".Dp", m_Dp)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".beta", m_b)) ||
@@ -212,6 +223,8 @@ void EvtHazardFormationSimple::obtainConfig(ConfigWriter &config, const string &
 			!(r = config.addKey(prefix + "." + hazName + ".alpha_5", m_a5)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".alpha_6", m_a6)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".alpha_7", m_a7)) ||
+			!(r = config.addKey(prefix + "." + hazName + ".alpha_8", m_a8)) ||
+			!(r = config.addKey(prefix + "." + hazName + ".alpha_9", m_a9)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".alpha_dist", m_aDist)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".beta", m_b)) ||
 			!(r = config.addKey(prefix + "." + hazName + ".t_max", m_tMax)) )
@@ -234,6 +247,8 @@ JSONConfig simpleFormationJSONConfig(R"JSON(
                 ["formation.hazard.simple.alpha_5", 0],
                 ["formation.hazard.simple.alpha_6", 0],
                 ["formation.hazard.simple.alpha_7", 0],
+				["formation.hazard.simple.alpha_8", 0],
+				["formation.hazard.simple.alpha_9", 0],
 				["formation.hazard.simple.alpha_dist", 0],
                 ["formation.hazard.simple.Dp", 0],
                 ["formation.hazard.simple.beta", 0],
@@ -256,6 +271,8 @@ JSONConfig simpleFormationMSMJSONConfig(R"JSON(
                 ["formationmsm.hazard.simple.alpha_5", 0],
                 ["formationmsm.hazard.simple.alpha_6", 0],
                 ["formationmsm.hazard.simple.alpha_7", 0],
+				["formationmsm.hazard.simple.alpha_8", 0],
+				["formationmsm.hazard.simple.alpha_9", 0],
 				["formationmsm.hazard.simple.alpha_dist", 0],
                 ["formationmsm.hazard.simple.beta", 0],
                 ["formationmsm.hazard.simple.t_max", 200] ],

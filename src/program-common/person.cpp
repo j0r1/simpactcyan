@@ -15,19 +15,21 @@
 using namespace std;
 
 Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_relations(this), m_hiv(this),
-	                                           m_hsv2(this), m_health_seeking_propensity(0)
+	                                           m_hsv2(this), m_health_seeking_propensity(0), m_sexual_risk_behavior(0)
 {
 	assert(g == Male || g == Female);
 
 	assert(m_pPopDist);
-	assert(m_pHealthSeekingPropDist);
+	assert(m_pBehaviorDist);
 
 	Point2D loc = m_pPopDist->pickPoint();
 	assert(loc.x == loc.x && loc.y == loc.y); // check for NaN
 	setLocation(loc, 0);
 
-	double healthSeekingPropensity = m_pHealthSeekingPropDist->pickNumber();
-	setHealthSeekingPropensity(healthSeekingPropensity);
+	Point2D beh = m_pBehaviorDist->pickPoint();
+	assert(beh.x == beh.x && beh.y == beh.y); // check for NaN
+	setSexualRiskBehavior(beh.x);
+	setHealthSeekingPropensity(beh.y);
 
 	m_pPersonImpl = new PersonImpl(*this);
 }
@@ -41,7 +43,7 @@ ProbabilityDistribution2D *Person::m_pPopDist = 0;
 double Person::m_popDistWidth = 0;
 double Person::m_popDistHeight = 0;
 
-ProbabilityDistribution *Person::m_pHealthSeekingPropDist = 0;
+ProbabilityDistribution2D *Person::m_pBehaviorDist = 0;
 
 void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
@@ -51,17 +53,17 @@ void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRn
 	delete m_pPopDist;
 	m_pPopDist = getDistribution2DFromConfig(config, pRndGen, "person.geo");
 
-	// Health-seeking propensity distribution
-	delete m_pHealthSeekingPropDist;
-	m_pHealthSeekingPropDist = getDistributionFromConfig(config, pRndGen, "person.healthseekingpropensity");
+	// Sexual risk behavior and health-seeking propensity distribution
+	delete m_pBehaviorDist;
+	m_pBehaviorDist = getDistribution2DFromConfig(config, pRndGen, "person.behavior");
 }
 
 void Person::obtainConfig(ConfigWriter &config)
 {
 	assert(m_pPopDist);
 	addDistribution2DToConfig(m_pPopDist, config, "person.geo");
-	assert(m_pHealthSeekingPropDist);
-	addDistributionToConfig(m_pHealthSeekingPropDist, config, "person.healthseekingpropensity");
+	assert(m_pBehaviorDist);
+	addDistribution2DToConfig(m_pBehaviorDist, config, "person.behavior");
 }
 
 void Person::writeToPersonLog()
@@ -126,12 +128,12 @@ void Person::writeToPersonLog()
 	double cd4AtInfection = (m_hiv.isInfected())?m_hiv.getCD4CountAtInfectionStart() : (-1);
 	double cd4AtDeath = (m_hiv.isInfected())?m_hiv.getCD4CountAtDeath() : (-1);
 
-	LogPerson.print("%d,%d,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%10.10f,%10.10f,%10.10f",
+	LogPerson.print("%d,%d,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%10.10f,%10.10f,%10.10f,%10.10f",
 		        id, gender, timeOfBirth, timeOfDeath, fatherID, motherID, debutTime,
 		        formationEagerness,formationEagernessMSM,
 		        infectionTime, origin, infectionType, log10SPVLoriginal, treatmentTime,
 				m_location.x, m_location.y, aidsDeath,
-				hsv2InfectionTime, hsv2origin, cd4AtInfection, cd4AtDeath, m_health_seeking_propensity);
+				hsv2InfectionTime, hsv2origin, cd4AtInfection, cd4AtDeath, m_sexual_risk_behavior, m_health_seeking_propensity);
 }
 
 void Person::writeToLocationLog(double tNow)
