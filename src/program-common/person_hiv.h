@@ -33,7 +33,7 @@ public:
 	double getAIDSMortalityTime() const												{ return m_aidsTodUtil.getTimeOfDeath(); }
 
 	bool isDiagnosed() const														{ return (m_diagnoseCount > 0); }
-	void increaseDiagnoseCount()													{ m_diagnoseCount++; }
+	void increaseDiagnoseCount(double tNow)											{ m_diagnoseCount++; m_lastCD4AtDiagnosis = getCD4Count(tNow);}
 	int getDiagnoseCount() const													{ return m_diagnoseCount; }
 
 	double getSetPointViralLoad() const												{ assert(m_infectionStage != NoInfection); return m_Vsp; }
@@ -48,7 +48,10 @@ public:
 	double getCD4CountAtInfectionStart() const										{ return m_cd4AtStart; }
 	double getCD4CountAtDeath() const												{ return m_cd4AtDeath; }
 	double getCD4Count(double t) const;
+
+	double getLastCD4CountAtDiagnosis() const 										{ assert(isInfected()); return m_lastCD4AtDiagnosis; }
 	double getLastCD4CountAtARTStart() const										{ assert(isInfected()); assert(m_VspLowered); return m_lastCD4AtTreatmentStart; }
+
 	double getARTAcceptanceThreshold() const										{ return m_artAcceptanceThreshold; }
 
 	void markAIDSDeath()															{ /*assert(hasDied());*/ m_aidsDeath = true; }
@@ -89,6 +92,7 @@ private:
 	AIDSTimeOfDeathUtility m_aidsTodUtil;
 
 	double m_cd4AtStart, m_cd4AtDeath;
+	double m_lastCD4AtDiagnosis;
 	double m_lastCD4AtTreatmentStart;
 	double m_artAcceptanceThreshold;
 

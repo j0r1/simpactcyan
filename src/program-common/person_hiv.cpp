@@ -31,6 +31,7 @@ Person_HIV::Person_HIV(Person *pSelf) : m_pSelf(pSelf)
 
 	m_cd4AtStart = -1;
 	m_cd4AtDeath = -1;
+	m_lastCD4AtDiagnosis = -1;
 	m_lastCD4AtTreatmentStart = -1;
 
 	assert(m_pARTAcceptDistribution);

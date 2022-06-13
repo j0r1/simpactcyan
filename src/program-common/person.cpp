@@ -147,13 +147,14 @@ void Person::writeToTreatmentLog(double dropoutTime, bool justDied)
 	int gender = (isMan())?0:1;
 	int justDiedInt = (justDied)?1:0;
 	double lastTreatmentStartTime = m_hiv.getLastTreatmentStartTime();
-	double lastCD4 = m_hiv.getLastCD4CountAtARTStart();
+	double lastCD4AtDiagnosis = m_hiv.getLastCD4CountAtDiagnosis();
+	double lastCD4AtTreatmentStart = m_hiv.getLastCD4CountAtARTStart();
 
 	assert(m_hiv.hasLoweredViralLoad());
 	assert(lastTreatmentStartTime >= 0);
 
 	LogTreatment.print("%d,%d,%10.10f,%10.10f,%d,%10.10f", id, gender, lastTreatmentStartTime, 
-	                                                       dropoutTime, justDiedInt, lastCD4);
+	                                                       dropoutTime, justDiedInt, lastCD4AtDiagnosis, lastCD4AtTreatmentStart);
 }
 
 Man::Man(double dateOfBirth) : Person(dateOfBirth, Male)

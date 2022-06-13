@@ -140,7 +140,7 @@ void runHazardTests(SimpactPopulation &pop)
 			runHazardTest(h, "HazardFunctionDiagnosis", rndGen);
 		}
 
-		pMan->hiv().increaseDiagnoseCount();
+		pMan->hiv().increaseDiagnoseCount(0);
 
 		{
 			HazardFunctionDiagnosis h0(pWoman, 0.1, -0.2, 0.3, 0.4, 0.5, 0, 0.6, 0.7);

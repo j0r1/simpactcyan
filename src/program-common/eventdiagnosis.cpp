@@ -65,7 +65,7 @@ void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 	assert(!pPerson->hiv().hasLoweredViralLoad());
 
 	// Mark the person as diagnosed
-	pPerson->hiv().increaseDiagnoseCount();
+	pPerson->hiv().increaseDiagnoseCount(t);
 
 	// Schedule an initial monitoring event right away! (the 'true' is for 'right away')
 	EventMonitoring *pEvtMonitor = new EventMonitoring(pPerson, true);
