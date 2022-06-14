@@ -41,6 +41,7 @@ protected:
 	static double s_f2;
 	static double s_g1;
 	static double s_g2;
+	static double s_h;
 	static double s_tMaxAgeRefDiff;
 	static int getH(const Person *pPerson);
 };

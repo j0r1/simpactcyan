@@ -76,6 +76,8 @@ public:
 	double getFormationEagernessParameterMSM() const								{ assert(isMan()); return m_relations.getFormationEagernessParameterMSM(); }
 	double getPreferredAgeDifferenceMSM() const										{ assert(isMan()); return m_relations.getPreferredAgeDifferenceMSM(); }
 
+	double getCondomUseProbability(bool isPartnerDiagnosed) const 					{ return 0; }
+
 	// NOTE: this ignores the call if already in the list
 	void addPersonOfInterest(Person *pPerson)										{ m_relations.addPersonOfInterest(pPerson); }
 	void removePersonOfInterest(Person *pPerson)									{ m_relations.removePersonOfInterest(pPerson); }
