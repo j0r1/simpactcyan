@@ -15,7 +15,8 @@
 using namespace std;
 
 Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_relations(this), m_hiv(this),
-	                                           m_hsv2(this), m_health_seeking_propensity(0)
+	                                           m_hsv2(this), m_condom_use_probability_concordant(0),
+											   m_condom_use_probability_discordant(0), m_health_seeking_propensity(0)
 {
 	assert(g == Male || g == Female);
 
@@ -30,6 +31,9 @@ Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_rel
 	assert(hsp == hsp); // check for NaN
 	setHealthSeekingPropensity(hsp);
 
+	// TODO pick condom use probability from distributions.
+	// TODO use joint distributions?
+
 	m_pPersonImpl = new PersonImpl(*this);
 }
 
@@ -43,6 +47,22 @@ double Person::m_popDistWidth = 0;
 double Person::m_popDistHeight = 0;
 
 ProbabilityDistribution *Person::m_pHealthSeekingPropensityDist = 0;
+
+double Person::getCondomUseProbability(bool isPartnerDiagnosed) const
+{
+	bool amIDiagnosed = m_hiv.isDiagnosed();
+
+	if (isPartnerDiagnosed == amIDiagnosed) {
+		// Concordant HIV status
+		return m_condom_use_probability_concordant;
+	} else  {
+		// Discordant HIV status
+		return m_condom_use_probability_discordant;
+	}
+	// TODO base on ART use?
+	// TODO base on PreP use?
+	// FIXME should this be framed as 'probability' in the context of hazard functions?
+}
 
 void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {

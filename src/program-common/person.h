@@ -76,7 +76,7 @@ public:
 	double getFormationEagernessParameterMSM() const								{ assert(isMan()); return m_relations.getFormationEagernessParameterMSM(); }
 	double getPreferredAgeDifferenceMSM() const										{ assert(isMan()); return m_relations.getPreferredAgeDifferenceMSM(); }
 
-	double getCondomUseProbability(bool isPartnerDiagnosed) const 					{ return 0; }
+	double getCondomUseProbability(bool isPartnerDiagnosed) const;
 
 	// NOTE: this ignores the call if already in the list
 	void addPersonOfInterest(Person *pPerson)										{ m_relations.addPersonOfInterest(pPerson); }
@@ -122,6 +122,8 @@ private:
 	Point2D m_location;
 	double m_locationTime;
 
+	double m_condom_use_probability_concordant;
+	double m_condom_use_probability_discordant;
 	double m_health_seeking_propensity;
 
 	PersonImpl *m_pPersonImpl;
