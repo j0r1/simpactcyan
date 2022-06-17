@@ -133,6 +133,8 @@ private:
 	static double m_popDistHeight;
 
 	static ProbabilityDistribution *m_pHealthSeekingPropensityDist;
+
+	static ProbabilityDistribution2D *m_pCondomUseProbDist;
 };
 
 class Man : public Person

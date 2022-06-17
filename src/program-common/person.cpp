@@ -22,6 +22,7 @@ Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_rel
 
 	assert(m_pPopDist);
 	assert(m_pHealthSeekingPropensityDist);
+	assert(m_pCondomUseProbDist);
 
 	Point2D loc = m_pPopDist->pickPoint();
 	assert(loc.x == loc.x && loc.y == loc.y); // check for NaN
@@ -31,8 +32,10 @@ Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_rel
 	assert(hsp == hsp); // check for NaN
 	setHealthSeekingPropensity(hsp);
 
-	// TODO pick condom use probability from distributions.
-	// TODO use joint distributions?
+	Point2D condomUseProbs = m_pCondomUseProbDist->pickPoint();
+	assert(condomUseProbs.x == condomUseProbs.x && condomUseProbs.y == condomUseProbs.y); // check for NaN
+	m_condom_use_probability_concordant = condomUseProbs.x;
+	m_condom_use_probability_discordant = condomUseProbs.y; // TODO use setters?
 
 	m_pPersonImpl = new PersonImpl(*this);
 }
@@ -48,6 +51,8 @@ double Person::m_popDistHeight = 0;
 
 ProbabilityDistribution *Person::m_pHealthSeekingPropensityDist = 0;
 
+ProbabilityDistribution2D *Person::m_pCondomUseProbDist = 0;
+
 double Person::getCondomUseProbability(bool isPartnerDiagnosed) const
 {
 	bool amIDiagnosed = m_hiv.isDiagnosed();
@@ -61,6 +66,7 @@ double Person::getCondomUseProbability(bool isPartnerDiagnosed) const
 	}
 	// TODO base on ART use?
 	// TODO base on PreP use?
+	// TODO concordant + and concordant - different?
 	// FIXME should this be framed as 'probability' in the context of hazard functions?
 }
 
@@ -72,9 +78,13 @@ void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRn
 	delete m_pPopDist;
 	m_pPopDist = getDistribution2DFromConfig(config, pRndGen, "person.geo");
 
-	// Sexual risk behavior and health-seeking propensity distribution
+	// Health-seeking propensity distribution
 	delete m_pHealthSeekingPropensityDist;
 	m_pHealthSeekingPropensityDist = getDistributionFromConfig(config, pRndGen, "person.healthseekingpropensity");
+
+	// Condom use probability distributions
+	delete m_pCondomUseProbDist;
+	m_pCondomUseProbDist = getDistribution2DFromConfig(config, pRndGen, "person.condomuse");
 }
 
 void Person::obtainConfig(ConfigWriter &config)
@@ -83,6 +93,8 @@ void Person::obtainConfig(ConfigWriter &config)
 	addDistribution2DToConfig(m_pPopDist, config, "person.geo");
 	assert(m_pHealthSeekingPropensityDist);
 	addDistributionToConfig(m_pHealthSeekingPropensityDist, config, "person.healthseekingpropensity");
+	assert(m_pCondomUseProbDist);
+	addDistribution2DToConfig(m_pCondomUseProbDist, config, "person.condomuse");
 }
 
 void Person::writeToPersonLog()
