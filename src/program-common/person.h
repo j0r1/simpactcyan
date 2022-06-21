@@ -7,6 +7,7 @@
 #include "person_relations.h"
 #include "person_hiv.h"
 #include "person_hsv2.h"
+#include "person_sti.h"
 #include "probabilitydistribution2d.h"
 #include "util.h"
 #include <stdlib.h>
@@ -118,6 +119,8 @@ private:
 	Person_Relations m_relations;
 	Person_HIV m_hiv;
 	Person_HSV2 m_hsv2;
+
+	std::vector<Person_STI*> m_stis;
 
 	Point2D m_location;
 	double m_locationTime;
