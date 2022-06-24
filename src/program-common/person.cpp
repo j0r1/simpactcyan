@@ -15,8 +15,8 @@
 using namespace std;
 
 Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_relations(this), m_hiv(this),
-	                                           m_hsv2(this), m_condom_use_probability_concordant(0),
-											   m_condom_use_probability_discordant(0), m_health_seeking_propensity(0)
+	                                           m_hsv2(this), m_condom_use_probability(0),
+											   m_health_seeking_propensity(0)
 {
 	assert(g == Male || g == Female);
 
@@ -32,10 +32,9 @@ Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_rel
 	assert(hsp == hsp); // check for NaN
 	setHealthSeekingPropensity(hsp);
 
-	Point2D condomUseProbs = m_pCondomUseProbDist->pickPoint();
-	assert(condomUseProbs.x == condomUseProbs.x && condomUseProbs.y == condomUseProbs.y); // check for NaN
-	m_condom_use_probability_concordant = condomUseProbs.x;
-	m_condom_use_probability_discordant = condomUseProbs.y; // TODO use setters?
+	double cup = m_pCondomUseProbDist->pickNumber();
+	assert(cup == cup); // check for NaN
+	m_condom_use_probability = cup; // TODO use setters?
 
 	m_pPersonImpl = new PersonImpl(*this);
 }
@@ -51,20 +50,28 @@ double Person::m_popDistHeight = 0;
 
 ProbabilityDistribution *Person::m_pHealthSeekingPropensityDist = 0;
 
-ProbabilityDistribution2D *Person::m_pCondomUseProbDist = 0;
+ProbabilityDistribution*Person::m_pCondomUseProbDist = 0;
+double Person::m_concordanceCondomUseFactor = 1;
+double Person::m_artCondomUseFactor = 1;
 
 double Person::getCondomUseProbability(bool isPartnerDiagnosed) const
 {
+	double condomUseProbability = m_condom_use_probability;
+	// Adjust for concordance of perceived HIV serostatus
 	bool amIDiagnosed = m_hiv.isDiagnosed();
-
 	if (isPartnerDiagnosed == amIDiagnosed) {
 		// Concordant HIV status
-		return m_condom_use_probability_concordant;
-	} else  {
-		// Discordant HIV status
-		return m_condom_use_probability_discordant;
+		 condomUseProbability *= m_concordanceCondomUseFactor;
 	}
-	// TODO base on ART use?
+	// Adjust for ART use in case of HIV positive
+	if (amIDiagnosed) {
+		bool amIUnderTreatment = m_hiv.hasLoweredViralLoad();
+		if (amIUnderTreatment) {
+			condomUseProbability *= m_artCondomUseFactor;
+		}
+	}
+
+	return condomUseProbability;
 	// TODO base on PreP use?
 	// TODO concordant + and concordant - different?
 	// FIXME should this be framed as 'probability' in the context of hazard functions?
@@ -84,7 +91,10 @@ void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRn
 
 	// Condom use probability distributions
 	delete m_pCondomUseProbDist;
-	m_pCondomUseProbDist = getDistribution2DFromConfig(config, pRndGen, "person.condomuse");
+	m_pCondomUseProbDist = getDistributionFromConfig(config, pRndGen, "person.condomuse");
+	// Condom use adjustment factors
+	config.getKeyValue("person.condomuse.concordancefactor", m_concordanceCondomUseFactor);
+	config.getKeyValue("person.condomuse.artfactor", m_artCondomUseFactor);
 }
 
 void Person::obtainConfig(ConfigWriter &config)
@@ -94,7 +104,9 @@ void Person::obtainConfig(ConfigWriter &config)
 	assert(m_pHealthSeekingPropensityDist);
 	addDistributionToConfig(m_pHealthSeekingPropensityDist, config, "person.healthseekingpropensity");
 	assert(m_pCondomUseProbDist);
-	addDistribution2DToConfig(m_pCondomUseProbDist, config, "person.condomuse");
+	addDistributionToConfig(m_pCondomUseProbDist, config, "person.condomuse");
+	config.addKey("person.condomuse.concordancefactor", m_concordanceCondomUseFactor);
+	config.addKey("person.condomuse.artfactor", m_artCondomUseFactor);
 }
 
 void Person::writeToPersonLog()

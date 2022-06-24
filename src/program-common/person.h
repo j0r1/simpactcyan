@@ -122,8 +122,7 @@ private:
 	Point2D m_location;
 	double m_locationTime;
 
-	double m_condom_use_probability_concordant;
-	double m_condom_use_probability_discordant;
+	double m_condom_use_probability;
 	double m_health_seeking_propensity;
 
 	PersonImpl *m_pPersonImpl;
@@ -134,7 +133,10 @@ private:
 
 	static ProbabilityDistribution *m_pHealthSeekingPropensityDist;
 
-	static ProbabilityDistribution2D *m_pCondomUseProbDist;
+	static ProbabilityDistribution *m_pCondomUseProbDist;
+	static double m_concordanceCondomUseFactor;
+	static double m_artCondomUseFactor;
+	//static double m_prepCondomUseFactor;
 };
 
 class Man : public Person
