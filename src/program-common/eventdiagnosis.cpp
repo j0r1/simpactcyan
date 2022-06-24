@@ -77,7 +77,7 @@ double EventDiagnosis::calculateInternalTimeInterval(const State *pState, double
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 
-	HazardFunctionDiagnosis h0(pPerson, s_baseline, s_ageFactor, s_genderFactor, s_diagPartnersFactor,
+	HazardFunctionDiagnosis h0(pPerson, s_baseline, s_ageFactor, s_genderFactor, s_diagPartnersFactor, s_numPartnersFactor,
 			           s_isDiagnosedFactor, s_healthSeekingPropensityFactor, s_beta, s_HSV2factor);
 	TimeLimitedHazardFunction h(h0, tMax);
 
@@ -89,7 +89,7 @@ double EventDiagnosis::solveForRealTimeInterval(const State *pState, double Tdif
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 
-	HazardFunctionDiagnosis h0(pPerson, s_baseline, s_ageFactor, s_genderFactor, s_diagPartnersFactor,
+	HazardFunctionDiagnosis h0(pPerson, s_baseline, s_ageFactor, s_genderFactor, s_diagPartnersFactor, s_numPartnersFactor,
 			           s_isDiagnosedFactor, s_healthSeekingPropensityFactor, s_beta, s_HSV2factor);
 	TimeLimitedHazardFunction h(h0, tMax);
 
@@ -109,6 +109,7 @@ double EventDiagnosis::s_baseline = 0;
 double EventDiagnosis::s_ageFactor = 0;
 double EventDiagnosis::s_genderFactor = 0;
 double EventDiagnosis::s_diagPartnersFactor = 0;
+double EventDiagnosis::s_numPartnersFactor = 0;
 double EventDiagnosis::s_isDiagnosedFactor = 0;
 double EventDiagnosis::s_healthSeekingPropensityFactor = 0;
 double EventDiagnosis::s_beta = 0;
@@ -124,6 +125,7 @@ void EventDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenera
 	    !(r = config.getKeyValue("diagnosis.agefactor", s_ageFactor)) ||
 	    !(r = config.getKeyValue("diagnosis.genderfactor", s_genderFactor)) ||
 	    !(r = config.getKeyValue("diagnosis.diagpartnersfactor", s_diagPartnersFactor)) ||
+		!(r = config.getKeyValue("diagnosis.numpartnersfactor", s_numPartnersFactor)) ||
 	    !(r = config.getKeyValue("diagnosis.isdiagnosedfactor", s_isDiagnosedFactor)) ||
 		!(r = config.getKeyValue("diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
 	    !(r = config.getKeyValue("diagnosis.beta", s_beta)) ||
@@ -141,6 +143,7 @@ void EventDiagnosis::obtainConfig(ConfigWriter &config)
 	    !(r = config.addKey("diagnosis.agefactor", s_ageFactor)) ||
 	    !(r = config.addKey("diagnosis.genderfactor", s_genderFactor)) ||
 	    !(r = config.addKey("diagnosis.diagpartnersfactor", s_diagPartnersFactor)) ||
+		!(r = config.addKey("diagnosis.numpartnersfactor", s_numPartnersFactor)) ||
 	    !(r = config.addKey("diagnosis.isdiagnosedfactor", s_isDiagnosedFactor)) ||
 		!(r = config.addKey("diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
 	    !(r = config.addKey("diagnosis.beta", s_beta)) ||
@@ -155,14 +158,15 @@ void EventDiagnosis::obtainConfig(ConfigWriter &config)
 //
 // = exp(A + B*t) with
 // 
-//  A = baseline - ageFactor*t_birth + genderFactor*gender + diagPartnersFactor*numDiagnosedPartners + HSV2factor*HSV2
+//  A = baseline - ageFactor*t_birth + genderFactor*gender + diagPartnersFactor*numDiagnosedPartners
+//  + numPartnersFactor*numRelationships + HSV2factor*HSV2
 //      + isDiagnosedFactor*hasBeenDiagnosed + healthSeekingPropensityFactor*healthSeekingPropensity - beta*t_infected
 //  B = ageFactor + beta
 HazardFunctionDiagnosis::HazardFunctionDiagnosis(Person *pPerson, double baseline, double ageFactor,
-		                                                 double genderFactor, double diagPartnersFactor,
+		                                                 double genderFactor, double diagPartnersFactor, double numPartnersFactor,
 							         double isDiagnosedFactor, double healthSeekingPropensityFactor, double beta, double HSV2factor)
 	: m_baseline(baseline), m_ageFactor(ageFactor), m_genderFactor(genderFactor),
-	  m_diagPartnersFactor(diagPartnersFactor), m_isDiagnosedFactor(isDiagnosedFactor), m_healthSeekingPropensityFactor(healthSeekingPropensityFactor),
+	  m_diagPartnersFactor(diagPartnersFactor), m_numPartnersFactor(numPartnersFactor), m_isDiagnosedFactor(isDiagnosedFactor), m_healthSeekingPropensityFactor(healthSeekingPropensityFactor),
 	  m_beta(beta), m_HSV2factor(HSV2factor)
 {
 	assert(pPerson != 0);
@@ -172,11 +176,12 @@ HazardFunctionDiagnosis::HazardFunctionDiagnosis(Person *pPerson, double baselin
 	double tinf = pPerson->hiv().getInfectionTime();
 	double G = (pPerson->isMan())?0:1;
 	int D = pPerson->getNumberOfDiagnosedPartners();
+	int P = pPerson->getNumberOfRelationships();
 	int hasBeenDiagnosed = (pPerson->hiv().isDiagnosed())?1:0;
 	double H = pPerson->getHealthSeekingPropensity();
 	int HSV2 = (pPerson->hsv2().isInfected())?1:0;
 
-	double A = baseline - ageFactor*tb + genderFactor*G + diagPartnersFactor*D + isDiagnosedFactor*hasBeenDiagnosed + healthSeekingPropensityFactor*H - beta*tinf + HSV2factor*HSV2;
+	double A = baseline - ageFactor*tb + genderFactor*G + diagPartnersFactor*D + numPartnersFactor*P + isDiagnosedFactor*hasBeenDiagnosed + healthSeekingPropensityFactor*H - beta*tinf + HSV2factor*HSV2;
 	double B = ageFactor + beta;
 
 	setAB(A, B);
@@ -189,13 +194,14 @@ double HazardFunctionDiagnosis::evaluate(double t)
 	double tinf = m_pPerson->hiv().getInfectionTime();
 	double G = (m_pPerson->isMan())?0:1;
 	int D = m_pPerson->getNumberOfDiagnosedPartners();
+	int P = m_pPerson->getNumberOfRelationships();
 	int hasBeenDiagnosed = (m_pPerson->hiv().isDiagnosed())?1:0;
 	double H = m_pPerson->getHealthSeekingPropensity();
 	int HSV2 = (m_pPerson->hsv2().isInfected()) ?1:0;
 
 	double age = (t-tb);
 
-	return std::exp(m_baseline + m_ageFactor*age + m_genderFactor*G + m_diagPartnersFactor*D +
+	return std::exp(m_baseline + m_ageFactor*age + m_genderFactor*G + m_diagPartnersFactor*D + m_numPartnersFactor*P +
 			m_isDiagnosedFactor*hasBeenDiagnosed + m_healthSeekingPropensityFactor*H + m_beta*(t-tinf)+ m_HSV2factor*HSV2);
 }
 
@@ -209,6 +215,7 @@ JSONConfig diagnosisJSONConfig(R"JSON(
                 [ "diagnosis.agefactor", 0 ],
                 [ "diagnosis.genderfactor", 0 ],
                 [ "diagnosis.diagpartnersfactor", 0 ],
+				[ "diagnosis.numpartnersfactor", 0 ],
                 [ "diagnosis.isdiagnosedfactor", 0 ],
                 [ "diagnosis.beta", 0 ],
 				[ "diagnosis.healthseekingpropensityfactor", 0 ],
@@ -220,11 +227,11 @@ JSONConfig diagnosisJSONConfig(R"JSON(
                 "scheduled of which the fire time is determined by the following hazard:",
                 "",
                 " h = exp(baseline + agefactor*A(t) + genderfactor*G ",
-                "         + diagpartnersfactor*ND + isdiagnosedfactor*D",
+                "         + diagpartnersfactor*ND + numpartnersfactor*P + isdiagnosedfactor*D",
                 "         + beta*t + HSV2factor*HSV2)",
                 "",
                 "Here, A(t) is the age of the person, G is the gender (0 for a man, 1 for a",
-                "woman), ND is the number of diagnosed partners and D is a flag (0 or 1)",
+                "woman), ND is the number of diagnosed partners, P is the number of partners and D is a flag (0 or 1)",
                 "indicating if the person has been on treatment before (to have different",
                 "behaviour for first diagnosis and re-testing after dropout)",
 				"and H is the health-seeking propensity of the person."
