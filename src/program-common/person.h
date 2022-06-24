@@ -94,6 +94,8 @@ public:
 	Person_HSV2 &hsv2()																{ return m_hsv2; }
 	const Person_HSV2 &hsv2() const													{ return m_hsv2; }
 
+	void addSTI(Person_STI *sti) 													{ m_coinfections.push_back(sti); }
+
 	// Health-seeking behavior
 	double getHealthSeekingPropensity() const 										{ return m_health_seeking_propensity; }
 	void setHealthSeekingPropensity(double healthSeekingPropensity) 				{ m_health_seeking_propensity = healthSeekingPropensity; }
