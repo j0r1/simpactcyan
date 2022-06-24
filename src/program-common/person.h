@@ -120,7 +120,7 @@ private:
 	Person_HIV m_hiv;
 	Person_HSV2 m_hsv2;
 
-	std::vector<Person_STI*> m_stis;
+	std::vector<Person_STI*> m_coinfections; /// Vector of all STIs that are modelled during this simulation.
 
 	Point2D m_location;
 	double m_locationTime;
