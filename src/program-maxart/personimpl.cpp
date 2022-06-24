@@ -40,14 +40,17 @@ JSONConfig personImplJSONConfig(R"JSON(
 				"The distribution used to assign a health-seeking propensity to a person."
 			]
 		},
-        "PersonCondomUseDist": {
+        "PersonCondomUse": {
             "depends": null,
             "params": [
-                [ "person.condomuse.dist2d", "distTypes2D" ]
+                [ "person.condomuse.dist", "distTypes", [ "fixed", [ [ "value", 0 ] ] ] ],
+				[ "person.condomuse.concordancefactor", 1],
+				[ "person.condomuse.artfactor", 1]
             ],
             "info": [ 
-                "The distribution specified by 'person.condomuse.dist2d' is used to assign",
-                "a condom use probability for concordant (x) and discordant (y) partnerships to a person."
+                "The distribution specified by 'person.condomuse.dist' is used to assign",
+                "a condom use probability discordant partnerships to a person. This can be adjusted",
+				"by a factor for concordant relationships and a factor for ART as well."
             ]
         })JSON");
 
