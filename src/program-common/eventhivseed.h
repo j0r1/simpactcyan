@@ -6,6 +6,18 @@
 
 class ConfigSettings;
 
+class HIVSeedEventSettings: public SeedEventSettings
+{
+public:
+	HIVSeedEventSettings();
+
+	double m_fraction_chronic;
+	double m_fraction_aids;
+	double m_fraction_final_aids;
+	double m_fraction_diagnosed;
+
+};
+
 class EventHIVSeed : public EventSeedBase
 {
 public:
@@ -23,7 +35,7 @@ public:
 private:
 	double getNewInternalTimeDifference(GslRandomNumberGenerator *pRndGen, const State *pState);
 
-	static SeedEventSettings s_settings;
+	static HIVSeedEventSettings s_settings;
 };
 
 #endif // EVENTHIVSEED_H
