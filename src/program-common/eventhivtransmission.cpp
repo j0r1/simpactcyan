@@ -76,7 +76,7 @@ bool EventHIVTransmission::isUseless(const PopulationStateInterface &population)
 	return false;
 }
 
-void EventHIVTransmission::infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t)
+void EventHIVTransmission::infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t, bool scheduleAll)
 {
 	assert(!pTarget->hiv().isInfected());
 
@@ -100,16 +100,19 @@ void EventHIVTransmission::infectPerson(SimpactPopulation &population, Person *p
 	EventAIDSMortality *pAidsEvt = new EventAIDSMortality(pTarget);
 	population.onNewEvent(pAidsEvt);
 	
-	// we're still in the acute stage and should schedule
-	// an event to mark the transition to the chronic stage
+	if (scheduleAll)
+	{
+		// we're still in the acute stage and should schedule
+		// an event to mark the transition to the chronic stage
 
-	EventChronicStage *pEvtChronic = new EventChronicStage(pTarget);
-	population.onNewEvent(pEvtChronic);
+		EventChronicStage *pEvtChronic = new EventChronicStage(pTarget);
+		population.onNewEvent(pEvtChronic);
 
-	// Once infected, a HIV diagnosis event will be scheduled, which can cause 
-	// treatment of the person later on
-	EventDiagnosis *pEvtDiag = new EventDiagnosis(pTarget);
-	population.onNewEvent(pEvtDiag);
+		// Once infected, a HIV diagnosis event will be scheduled, which can cause
+		// treatment of the person later on
+		EventDiagnosis *pEvtDiag = new EventDiagnosis(pTarget);
+		population.onNewEvent(pEvtDiag);
+	}
 
 	// Check relationships pTarget is in, and if the partner is not yet infected, schedule
 	// a transmission event.

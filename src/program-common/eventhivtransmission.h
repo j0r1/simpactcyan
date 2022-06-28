@@ -23,7 +23,7 @@ public:
 	static double getParamB()																		{ return s_b; }
 	static double getParamC()																		{ return s_c; }
 
-	static void infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t);
+	static void infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t, bool schedulAll=true);
 protected:
 	double calculateInternalTimeInterval(const State *pState, double t0, double dt);
 	double solveForRealTimeInterval(const State *pState, double Tdiff, double t0);
