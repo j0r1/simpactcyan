@@ -88,15 +88,16 @@ void EventHIVSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 	{
 		// We've specified a fraction, use a binomial distribution to obtain the number of people
 		// to be seeded
+		// TODO why not just round a fraction?
 		assert(s_settings.m_seedFraction >= 0 && s_settings.m_seedFraction <= 1.0);
 
 		numSeeders = pRngGen->pickBinomialNumber(s_settings.m_seedFraction, possibleSeeders.size());
 	}
 
-	int numChronic = pRngGen->pickBinomialNumber(s_settings.m_fraction_chronic, numSeeders);
-	int numAids = pRngGen->pickBinomialNumber(s_settings.m_fraction_aids, numSeeders);
-	int numFinalAids = pRngGen->pickBinomialNumber(s_settings.m_fraction_final_aids, numSeeders);
-	int numDiagnosed = pRngGen->pickBinomialNumber(s_settings.m_fraction_diagnosed, numSeeders);
+	int numChronic = std::round(numSeeders * s_settings.m_fraction_chronic);
+	int numAids = std::round(numSeeders * s_settings.m_fraction_aids);
+	int numFinalAids = std::round(numSeeders * s_settings.m_fraction_final_aids);
+	int numDiagnosed = std::round(numSeeders * s_settings.m_fraction_diagnosed);
 
 	vector<Person *> seeded;
 
@@ -140,14 +141,17 @@ void EventHIVSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 			if (numChronic > 0) {
 				EventChronicStage *pEvt = new EventChronicStage(pPerson);
 				pEvt->fire(pAlgorithm, pState, t);
+
 				numChronic--;
 			} else if (numAids > 0) {
 				EventAIDSStage *pEvt = new EventAIDSStage(pPerson, false);
 				pEvt->fire(pAlgorithm, pState, t);
 				numAids --;
 			} else if (numFinalAids > 0) {
-				// TODO
+				EventAIDSStage *pEvt = new EventAIDSStage(pPerson, true);
+				pEvt->fire(pAlgorithm, pState, t);
 				numFinalAids--;
+				// FIXME: It seems deaths are not correctly re-calculated here?
 			}
 		}
 
