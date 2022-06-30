@@ -29,6 +29,12 @@ class VspModel;
 Man *MAN(Person *pPerson);
 Woman *WOMAN(Person *pPerson);
 
+enum SexualRolePreference {
+	Variable,
+	Receptive,
+	Insertive
+};
+
 class Person : public PersonBase
 {
 public:
@@ -125,6 +131,8 @@ private:
 	double m_condom_use_probability;
 	double m_health_seeking_propensity;
 
+	SexualRolePreference m_sexual_role_preference;
+
 	PersonImpl *m_pPersonImpl;
 
 	static ProbabilityDistribution2D *m_pPopDist;
@@ -137,6 +145,7 @@ private:
 	static double m_concordanceCondomUseFactor;
 	static double m_artCondomUseFactor;
 	//static double m_prepCondomUseFactor;
+
 };
 
 class Man : public Person
