@@ -36,6 +36,9 @@ Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_rel
 	assert(cup == cup); // check for NaN
 	m_condom_use_probability = cup; // TODO use setters?
 
+	int sexrole = round(m_pSexualRoleDist->pickNumber());
+	m_sexual_role_preference = static_cast<SexualRolePreference>(sexrole);
+
 	m_pPersonImpl = new PersonImpl(*this);
 }
 
@@ -50,9 +53,12 @@ double Person::m_popDistHeight = 0;
 
 ProbabilityDistribution *Person::m_pHealthSeekingPropensityDist = 0;
 
-ProbabilityDistribution*Person::m_pCondomUseProbDist = 0;
+ProbabilityDistribution *Person::m_pCondomUseProbDist = 0;
 double Person::m_concordanceCondomUseFactor = 1;
 double Person::m_artCondomUseFactor = 1;
+
+ProbabilityDistribution *Person::m_pSexualRoleDist = 0;
+
 
 double Person::getCondomUseProbability(bool isPartnerDiagnosed) const
 {
@@ -95,6 +101,10 @@ void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRn
 	// Condom use adjustment factors
 	config.getKeyValue("person.condomuse.concordancefactor", m_concordanceCondomUseFactor);
 	config.getKeyValue("person.condomuse.artfactor", m_artCondomUseFactor);
+
+	// Sexual role preference distribution
+	delete m_pSexualRoleDist;
+	m_pSexualRoleDist = getDistributionFromConfig(config, pRndGen, "person.sexualrole");
 }
 
 void Person::obtainConfig(ConfigWriter &config)
@@ -107,6 +117,7 @@ void Person::obtainConfig(ConfigWriter &config)
 	addDistributionToConfig(m_pCondomUseProbDist, config, "person.condomuse");
 	config.addKey("person.condomuse.concordancefactor", m_concordanceCondomUseFactor);
 	config.addKey("person.condomuse.artfactor", m_artCondomUseFactor);
+	addDistributionToConfig(m_pSexualRoleDist, config, "person.sexualrole");
 }
 
 void Person::writeToPersonLog()

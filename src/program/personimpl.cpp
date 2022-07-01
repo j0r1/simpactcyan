@@ -42,4 +42,11 @@ JSONConfig personImplJSONConfig(R"JSON(
                 "a condom use probability discordant partnerships to a person. This can be adjusted",
 				"by a factor for concordant relationships and a factor for ART as well."
             ]
-        })JSON");
+        },
+		"PersonSexualRoleDist": {
+			"depends": null,
+			"params": [
+				[ "person.sexualrole.dist", "distTypes", [ "discrete.inline", [ [ "floor", "yes" ], [ "xvalues", "0, 1, 2, 3" ], [ "yvalues", "1, 0, 0, 0" ] ] ] ]
+			],
+			"info": [ "TODO" ]
+		})JSON");

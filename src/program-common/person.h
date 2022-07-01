@@ -8,6 +8,7 @@
 #include "person_hiv.h"
 #include "person_hsv2.h"
 #include "probabilitydistribution2d.h"
+#include "discretedistribution.h"
 #include "util.h"
 #include <stdlib.h>
 #include <iostream>
@@ -103,6 +104,8 @@ public:
 	double getHealthSeekingPropensity() const 										{ return m_health_seeking_propensity; }
 	void setHealthSeekingPropensity(double healthSeekingPropensity) 				{ m_health_seeking_propensity = healthSeekingPropensity; }
 
+	SexualRolePreference getPreferredSexualRole() const 							{ return m_sexual_role_preference; }
+
 	// This is a per person value
 	double getSurvivalTimeLog10Offset() const										{ return m_hiv.getSurvivalTimeLog10Offset(); }
 
@@ -145,6 +148,8 @@ private:
 	static double m_concordanceCondomUseFactor;
 	static double m_artCondomUseFactor;
 	//static double m_prepCondomUseFactor;
+
+	static ProbabilityDistribution *m_pSexualRoleDist; // TODO ensure that this is a discrete distribution?
 
 };
 
