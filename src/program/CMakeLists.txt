@@ -6,7 +6,7 @@ set(SOURCES_SIMPACT
 	../program-common/person_relations.cpp
 	../program-common/person_hiv.cpp
 	../program-common/person_hsv2.cpp
-	../program-common/person_chlamydia.cpp
+	../program-common/person_gonorrhea.cpp
 	../program-common/logsystem.cpp
 	../program-common/simpactpopulation.cpp
 	../program-common/eventmortalitybase.cpp

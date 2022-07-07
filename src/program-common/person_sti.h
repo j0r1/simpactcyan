@@ -16,17 +16,20 @@ public:
 	virtual ~Person_STI() {}
 
 	virtual bool isInfected() const = 0;
+	virtual bool isInfectious() const = 0;
+	virtual bool isSymptomatic() const = 0;
 
-	//virtual void setInfected(double t, Person *pOrigin) = 0;
+	virtual void setInfected(double t, Person *pOrigin) = 0;
 	//virtual void advanceDiseaseState() = 0;
 	//virtual void cure() = 0;
 
 	double getInfectionTime() const 										{ assert(isInfected()); return m_infectionTime; }
 	Person *getInfectionOrigin() const 										{ assert(isInfected()); return m_pInfectionOrigin; }
 
-	// TODO declare config functions here or in child classes?
-
 protected:
+	void setInfectionTime(double t) 										{ m_infectionTime = t; }
+	void setInfectionOrigin(Person *pOrigin) 								{ m_pInfectionOrigin = pOrigin; }
+
 	double m_infectionTime;
 	Person *m_pInfectionOrigin;
 
