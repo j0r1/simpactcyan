@@ -4,6 +4,7 @@
 #include "eventformation.h"
 #include "eventdebut.h"
 #include "eventchronicstage.h"
+#include "eventgonorrheaseed.h"
 #include "eventhivseed.h"
 #include "eventhsv2seed.h"
 #include "eventintervention.h"
@@ -203,6 +204,14 @@ bool_t SimpactPopulation::scheduleInitialEvents()
 		EventHSV2Seed *pEvt = new EventHSV2Seed(); // this is a global event
 		onNewEvent(pEvt);
 	}
+
+	if (EventGonorrheaSeed::getSeedTime() >= 0)
+	{
+		EventGonorrheaSeed *pEvt = new EventGonorrheaSeed(); // this is a global event
+		onNewEvent(pEvt);
+	}
+
+	// TODO seed other STIs
 
 	if (EventIntervention::hasNextIntervention()) // We need to schedule a first intervention event
 	{

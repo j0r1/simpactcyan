@@ -7,7 +7,6 @@
 #include "person_relations.h"
 #include "person_hiv.h"
 #include "person_hsv2.h"
-#include "person_sti.h"
 #include "probabilitydistribution2d.h"
 #include "util.h"
 #include <stdlib.h>
@@ -94,8 +93,6 @@ public:
 	Person_HSV2 &hsv2()																{ return m_hsv2; }
 	const Person_HSV2 &hsv2() const													{ return m_hsv2; }
 
-	void addSTI(Person_STI *sti) 													{ m_coinfections.push_back(sti); }
-
 	// Health-seeking behavior
 	double getHealthSeekingPropensity() const 										{ return m_health_seeking_propensity; }
 	void setHealthSeekingPropensity(double healthSeekingPropensity) 				{ m_health_seeking_propensity = healthSeekingPropensity; }
@@ -121,8 +118,6 @@ private:
 	Person_Relations m_relations;
 	Person_HIV m_hiv;
 	Person_HSV2 m_hsv2;
-
-	std::vector<Person_STI*> m_coinfections; /// Vector of all STIs that are modelled during this simulation.
 
 	Point2D m_location;
 	double m_locationTime;
