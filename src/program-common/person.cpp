@@ -70,6 +70,11 @@ double Person::getCondomUseProbability(bool isPartnerDiagnosed) const
 	// FIXME should this be framed as 'probability' in the context of hazard functions?
 }
 
+bool Person::isInfectedWithSTI() const
+{
+	return (m_gonorrhea.isInfected(), m_hsv2.isInfected());
+}
+
 void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
 	assert(pRndGen != 0);

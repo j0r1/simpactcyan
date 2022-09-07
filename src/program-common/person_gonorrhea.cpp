@@ -22,6 +22,8 @@ void Person_Gonorrhea::setInfected(double t, Person *pOrigin, InfectionType iTyp
 	m_infectionTime = t;
 	m_pInfectionOrigin = pOrigin;
 	m_infectionType = iType;
+
+	m_diseaseStage = Asymptomatic;
 }
 
 /*

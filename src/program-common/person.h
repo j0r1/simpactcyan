@@ -97,6 +97,8 @@ public:
 	Person_Gonorrhea &gonorrhea() 													{ return m_gonorrhea; }
 	const Person_Gonorrhea &gonorrhea() const										{ return m_gonorrhea; }
 
+	bool isInfectedWithSTI() const;
+
 	// Health-seeking behavior
 	double getHealthSeekingPropensity() const 										{ return m_health_seeking_propensity; }
 	void setHealthSeekingPropensity(double healthSeekingPropensity) 				{ m_health_seeking_propensity = healthSeekingPropensity; }

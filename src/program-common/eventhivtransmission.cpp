@@ -181,7 +181,7 @@ int EventHIVTransmission::getH(const Person *pPerson)
 {
 	assert(pPerson != 0);
       
-	bool H1 = pPerson->hsv2().isInfected();
+	bool H1 = pPerson->isInfectedWithSTI();
 
  	int H = 0;
  	if (H1 == true)
