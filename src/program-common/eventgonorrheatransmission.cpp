@@ -1,90 +1,140 @@
 #include "eventgonorrheatransmission.h"
 
+#include "jsonconfig.h"
+#include "configfunctions.h"
+
 using namespace std;
 
 // When one of the involved persons dies before the event fires, the event is removed automatically
 EventGonorrheaTransmission::EventGonorrheaTransmission(Person *pPerson1, Person *pPerson2): SimpactEvent(pPerson1, pPerson2)
 {
-	//assert(pPerson1->hsv2().isInfected() && !pPerson2->hsv2().isInfected());
+	assert(pPerson1->gonorrhea().isInfected() && !pPerson2->gonorrhea().isInfected());
 }
 
 EventGonorrheaTransmission::~EventGonorrheaTransmission() {}
 
-void EventGonorrheaTransmission::infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t)
+string EventGonorrheaTransmission::getDescription(double tNow) const
 {
-
+	return strprintf("Gonorrhea Transmission event from %s to %s", getPerson(0)->getName().c_str(), getPerson(1)->getName().c_str());
 }
 
-/*
-void EventHSV2Transmission::infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t)
-{
-	assert(!pTarget->hsv2().isInfected());
-
-	if (pOrigin == 0) // Seeding
-		pTarget->hsv2().setInfected(t, 0, Person_HSV2::Seed);
-	else
-	{
-		assert(pOrigin->hsv2().isInfected());
-		pTarget->hsv2().setInfected(t, pOrigin, Person_HSV2::Partner);
-	}
-
-	// Check relationships pTarget is in, and if the partner is not yet infected, schedule
-	// a transmission event.
-	int numRelations = pTarget->getNumberOfRelationships();
-	pTarget->startRelationshipIteration();
-
-	for (int i = 0 ; i < numRelations ; i++)
-	{
-		double formationTime = -1;
-		Person *pPartner = pTarget->getNextRelationshipPartner(formationTime);
-
-		if (!pPartner->hsv2().isInfected())
-		{
-			EventHSV2Transmission *pEvtTrans = new EventHSV2Transmission(pTarget, pPartner);
-			population.onNewEvent(pEvtTrans);
-		}
-	}
-
-#ifndef NDEBUG
-	double tDummy;
-	assert(pTarget->getNextRelationshipPartner(tDummy) == 0);
-#endif // NDEBUG
-}*/
-
-/*
-#include "jsonconfig.h"
-#include "configfunctions.h"
-#include "util.h"
-#include <cmath>
-#include <iostream>
-
-string EventHSV2Transmission::getDescription(double tNow) const
-{
-	return strprintf("HSV2 Transmission event from %s to %s", getPerson(0)->getName().c_str(), getPerson(1)->getName().c_str());
-}
-
-void EventHSV2Transmission::writeLogs(const SimpactPopulation &pop, double tNow) const
+void EventGonorrheaTransmission::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
-	writeEventLogStart(true, "HSV2 transmission", tNow, pPerson1, pPerson2);
+	writeEventLogStart(true, "Gonorrhea transmission", tNow, pPerson1, pPerson2);
 }
 
-// The dissolution event that makes this event useless involves the exact same people,
-// so this function will automatically make sure that this conception event is discarded
-// (this function is definitely called for those people)
-
-bool EventHSV2Transmission::isUseless(const PopulationStateInterface &population)
+void EventGonorrheaTransmission::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
+	SimpactPopulation &population = SIMPACTPOPULATION(pState);
 	// Transmission from pPerson1 to pPerson2
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
 
-	// If person2 already became HSV2 positive, there no sense in further transmission
-	if (pPerson2->hsv2().isInfected())
-		return true;
+	// Person 1 should be infected , person 2 should not be infected yet
+	assert(pPerson1->gonorrhea().isInfected());
+	assert(!pPerson2->gonorrhea().isInfected());
 
-	// Event is useless if the relationship between the two people is over
+	infectPerson(population, pPerson1, pPerson2, t);
+}
+
+void EventGonorrheaTransmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
+{
+	bool_t r;
+
+    if (!(r = config.getKeyValue("gonorrheatransmission.hazard.a", s_a)) ||
+    		!(r = config.getKeyValue("gonorrheatransmission.hazard.b", HazardFunctionGonorrheaTransmission::s_b)) ||
+        	!(r = config.getKeyValue("gonorrheatransmission.hazard.t_max", s_tMax))
+        )
+        abortWithMessage(r.getErrorString());
+}
+
+void EventGonorrheaTransmission::obtainConfig(ConfigWriter &config)
+{
+	bool_t r;
+
+	if (!(r = config.addKey("gonorrheatransmission.hazard.a", s_a))||
+			!(r = config.addKey("gonorrheatransmission.hazard.b", HazardFunctionGonorrheaTransmission::s_b)) ||
+			!(r = config.addKey("gonorrheatransmission.hazard.t_max", s_tMax))
+		)
+		abortWithMessage(r.getErrorString());
+}
+
+
+void EventGonorrheaTransmission::infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t)
+{
+	assert(!pTarget->gonorrhea().isInfected());
+
+	if (pOrigin == 0) // Seeding
+		pTarget->gonorrhea().setInfected(t, 0, Person_Gonorrhea::Seed);
+	else
+	{
+		assert(pOrigin->hsv2().isInfected());
+		pTarget->gonorrhea().setInfected(t, pOrigin, Person_Gonorrhea::Partner);
+	}
+
+	// Check relationships pTarget is in, and if partner not yet infected with gonorrhea, schedule transmission event.
+	int numRelations = pTarget->getNumberOfRelationships();
+	pTarget->startRelationshipIteration();
+
+	for (int i = 0; i < numRelations; i++)
+	{
+		double formationTime = -1;
+		Person *pPartner = pTarget->getNextRelationshipPartner(formationTime);
+
+		if (!pPartner->gonorrhea().isInfected())
+		{
+			EventGonorrheaTransmission *pEvtTrans = new EventGonorrheaTransmission(pTarget, pPartner);
+			population.onNewEvent(pEvtTrans);
+		}
+	}
+
+	//  TODO schedule treatment event
+}
+
+double EventGonorrheaTransmission::calculateInternalTimeInterval(const State *pState, double t0, double dt)
+{
+	Person *pOrigin = getPerson(0);
+	Person *pTarget = getPerson(1);
+	double tMax = getTMax(pOrigin, pTarget);
+
+	HazardFunctionGonorrheaTransmission h0(pOrigin, pTarget);
+	TimeLimitedHazardFunction h(h0, tMax);
+
+	return h.calculateInternalTimeInterval(t0, dt);
+}
+
+double EventGonorrheaTransmission::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
+{
+	Person *pOrigin = getPerson(0);
+	Person *pTarget = getPerson(1);
+	double tMax = getTMax(pOrigin, pTarget);
+
+	HazardFunctionGonorrheaTransmission h0(pOrigin, pTarget);
+	TimeLimitedHazardFunction h(h0, tMax);
+
+	return h.solveForRealTimeInterval(t0, Tdiff);
+}
+
+// In case of dissolution of relationship, infection of susceptible person through other relationship,
+// or cure of infected person, transmission event is no longer useful and needs to be discarded.
+bool EventGonorrheaTransmission::isUseless(const PopulationStateInterface &population)
+{
+	// Transmission happens from pPerson1 to pPerson2
+	Person *pPerson1 = getPerson(0);
+	Person *pPerson2 = getPerson(1);
+
+	// If person2 was already infected with gonorrhea, there is no sense in further transmission
+	if (pPerson2->gonorrhea().isInfected()) {
+		return true;
+	}
+	// If person1 has been cured of gonorrhea, they can no longer transmit it
+	if (!pPerson1->gonorrhea().isInfected()) {
+		return true;
+	}
+
+	// If relationship is over, transmission event is useless
 	if (!pPerson1->hasRelationshipWith(pPerson2))
 	{
 		assert(!pPerson2->hasRelationshipWith(pPerson1));
@@ -98,82 +148,9 @@ bool EventHSV2Transmission::isUseless(const PopulationStateInterface &population
 	return false;
 }
 
+//double calculateHazardFactor(const SimpactPopulation &population, double t0);
 
-
-void EventHSV2Transmission::fire(Algorithm *pAlgorithm, State *pState, double t)
-{
-	SimpactPopulation &population = SIMPACTPOPULATION(pState);
-	// Transmission from pPerson1 to pPerson2
-	Person *pPerson1 = getPerson(0);
-	Person *pPerson2 = getPerson(1);
-
-	// Person 1 should be infected , person 2 should not be infected yet
-	assert(pPerson1->hsv2().isInfected());
-	assert(!pPerson2->hsv2().isInfected());
-
-	infectPerson(population, pPerson1, pPerson2, t);
-}
-
-double EventHSV2Transmission::calculateInternalTimeInterval(const State *pState, double t0, double dt)
-{
-	Person *pOrigin = getPerson(0);
-	Person *pTarget = getPerson(1);
-	double tMax = getTMax(pOrigin, pTarget);
-
-	HazardFunctionHSV2Transmission h0(pOrigin, pTarget);
-	TimeLimitedHazardFunction h(h0, tMax);
-
-	return h.calculateInternalTimeInterval(t0, dt);
-}
-
-double EventHSV2Transmission::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
-{
-	Person *pOrigin = getPerson(0);
-	Person *pTarget = getPerson(1);
-	double tMax = getTMax(pOrigin, pTarget);
-
-	HazardFunctionHSV2Transmission h0(pOrigin, pTarget);
-	TimeLimitedHazardFunction h(h0, tMax);
-
-	return h.solveForRealTimeInterval(t0, Tdiff);
-}
-
-double EventHSV2Transmission::s_tMax = 200;
-double EventHSV2Transmission::s_c = 0;
-double EventHSV2Transmission::s_d = 0;
-double EventHSV2Transmission::s_e1 = 0;
-double EventHSV2Transmission::s_e2 = 0;
-double EventHSV2Transmission::HazardFunctionHSV2Transmission::s_b = 0;
-
-void EventHSV2Transmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
-{
-	bool_t r;
-
-    	if (!(r = config.getKeyValue("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
-        	!(r = config.getKeyValue("hsv2transmission.hazard.c", s_c)) ||
-        	!(r = config.getKeyValue("hsv2transmission.hazard.d", s_d)) ||
-		!(r = config.getKeyValue("hsv2transmission.hazard.e1", s_e1)) ||
-		!(r = config.getKeyValue("hsv2transmission.hazard.e2", s_e2)) ||
-        	!(r = config.getKeyValue("hsv2transmission.hazard.t_max", s_tMax))
-        )
-        abortWithMessage(r.getErrorString());
-}
-
-void EventHSV2Transmission::obtainConfig(ConfigWriter &config)
-{
-	bool_t r;
-
-	if (!(r = config.addKey("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
-		!(r = config.addKey("hsv2transmission.hazard.c", s_c))||
-		!(r = config.addKey("hsv2transmission.hazard.d", s_d))||
-		!(r = config.addKey("hsv2transmission.hazard.e1", s_e1))||
-		!(r = config.addKey("hsv2transmission.hazard.e2", s_e2))||
-		!(r = config.addKey("hsv2transmission.hazard.t_max", s_tMax))
-		)
-		abortWithMessage(r.getErrorString());
-}
-
-double EventHSV2Transmission::getTMax(const Person *pPerson1, const Person *pPerson2)
+double EventGonorrheaTransmission::getTMax(const Person *pPerson1, const Person *pPerson2)
 {
     assert(pPerson1 != 0 && pPerson2 != 0);
 
@@ -190,68 +167,42 @@ double EventHSV2Transmission::getTMax(const Person *pPerson1, const Person *pPer
     return tMax;
 }
 
-int EventHSV2Transmission::getM(const Person *pPerson1)
-{
-	assert(pPerson1 != 0);
-	bool M1 = pPerson1->isMan();
-	int M = 0;
-	if (M1 == true)
-		M = 1;
-	return M;
-}
+double EventGonorrheaTransmission::s_a = 0;
+double EventGonorrheaTransmission::s_tMax = 200;
 
-int EventHSV2Transmission::getH(const Person *pPerson1)
-{
-	assert(pPerson1 != 0);
-	bool H1 = pPerson1->hiv().isInfected();
-	int H = 0;
-	if (H1 == true)
-		H = 1;
-	return H;
-}
-
-EventHSV2Transmission::HazardFunctionHSV2Transmission::HazardFunctionHSV2Transmission(const Person *pPerson1,
+EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::HazardFunctionGonorrheaTransmission(const Person *pPerson1,
                                                                                       const Person *pPerson2)
     : HazardFunctionExp(getA(pPerson1, pPerson2), s_b)
 {
 }
 
-EventHSV2Transmission::HazardFunctionHSV2Transmission::~HazardFunctionHSV2Transmission()
+EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::~HazardFunctionGonorrheaTransmission()
 {
 }
 
-double EventHSV2Transmission::HazardFunctionHSV2Transmission::getA(const Person *pOrigin, const Person *pTarget)
+double EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::getA(const Person *pOrigin, const Person *pTarget)
 {
     assert(pOrigin);
     assert(pTarget);
-    return pOrigin->hsv2().getHazardAParameter() - s_b*pOrigin->hsv2().getInfectionTime() + s_c*EventHSV2Transmission::getM(pOrigin) + s_d*EventHSV2Transmission::getH(pOrigin) + s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter();
+    return s_a - s_b * pOrigin->gonorrhea().getInfectionTime();
 }
 
-ConfigFunctions hsv2TransmissionConfigFunctions(EventHSV2Transmission::processConfig, EventHSV2Transmission::obtainConfig,
-		                                        "EventHSV2Transmission");
+double EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::s_b = 0;
 
-JSONConfig hsv2TransmissionJSONConfig(R"JSON(
-        "EventHSV2Transmission": {
+ConfigFunctions gonorrheaTransmissionConfigFunctions(EventGonorrheaTransmission::processConfig,
+														EventGonorrheaTransmission::obtainConfig,
+														"EventGonorrheaTransmission");
+
+JSONConfig gonorrheaTransmissionJSONConfig(R"JSON(
+        "EventGonorrheaTransmission": {
             "depends": null,
             "params": [
-				[ "hsv2transmission.hazard.b", 0 ],
-				[ "hsv2transmission.hazard.c", 0 ],
-				[ "hsv2transmission.hazard.d", 0 ],
-				[ "hsv2transmission.hazard.e1", 0 ],
-				[ "hsv2transmission.hazard.e2", 0 ],
-				[ "hsv2transmission.hazard.t_max", 200 ]
+				[ "gonorrheatransmission.hazard.a", 0 ],
+				[ "gonorrheatransmission.hazard.b", 0 ],
+				[ "gonorrheatransmission.hazard.t_max", 200 ]
 			],
             "info": [
-				"These configuration parameters allow you to set the 'b', 'c' and 'd' values in the hazard",
-				" h = exp(a_i + b*(t-t_infected)+ c*M_i + d*H_i + e1*b0_j + e2*b2_j)",
-				"The value of 'a_i' depends on the individual, and can be specified as a ",
-				"distribution in the person parameters ",
-				"The value of 'b0_j' depends on the individual, and can be specified as a ",
-				"distribution in the person parameters ",
-				"The value of 'b2_j' depends on the individual, and can be specified as a ",
-				"distribution in the person parameters."
+				"These configuration parameters allow you to set the 'a' and 'b' in the hazard",
+				" h = exp(a + b*(t-t_infected)",
             ]
         })JSON");
-
- *
- */

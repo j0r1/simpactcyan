@@ -11,6 +11,7 @@ set(SOURCES_SIMPACT
 	../program-common/logsystem.cpp
 	../program-common/person.cpp
 	../program-common/person_relations.cpp
+	../program-common/person_gonorrhea.cpp
 	../program-common/person_hiv.cpp
 	../program-common/person_hsv2.cpp
 	../program-common/simpactpopulation.cpp

@@ -2,6 +2,9 @@
 #define EVENTGONORRHEATRANSMISSION_H
 
 #include "simpactevent.h"
+#include "hazardfunctionexp.h"
+
+class ConfigSettings;
 
 class EventGonorrheaTransmission : public SimpactEvent
 {
@@ -9,22 +12,6 @@ public:
 	// Gonorrhea transmission from person1 to person2
 	EventGonorrheaTransmission(Person *pPerson1, Person *pPerson2);
 	~EventGonorrheaTransmission();
-
-	static void infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t);
-
-};
-
-#endif // EVENTGONORRHEATRANSMISSION_h
-
-/*
-
-#include "hazardfunctionexp.h"
-
-class ConfigSettings;
-
-class EventHSV2Transmission : public SimpactEvent
-{
-public:
 
 	std::string getDescription(double tNow) const;
 	void writeLogs(const SimpactPopulation &pop, double tNow) const;
@@ -34,29 +21,28 @@ public:
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);
 
+	static void infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t);
+
 protected:
 	double calculateInternalTimeInterval(const State *pState, double t0, double dt);
 	double solveForRealTimeInterval(const State *pState, double Tdiff, double t0);
 	bool isUseless(const PopulationStateInterface &population) override;
 	double calculateHazardFactor(const SimpactPopulation &population, double t0);
 
-    class HazardFunctionHSV2Transmission : public HazardFunctionExp
-    {
-    public:
-        HazardFunctionHSV2Transmission(const Person *pPerson1, const Person *pPerson2);
-        ~HazardFunctionHSV2Transmission();
+	class HazardFunctionGonorrheaTransmission : public HazardFunctionExp
+	{
+	public:
+		HazardFunctionGonorrheaTransmission(const Person *pPerson1, const Person *pPerson2);
+		~HazardFunctionGonorrheaTransmission();
 
-        static double getA(const Person *pPerson1, const Person *pPerson2);
-        static double s_b;
-    };
+		static double getA(const Person *pPerson1, const Person *pPerson2);
+		static double s_b;
+	};
 
 	static double getTMax(const Person *pOrigin, const Person *pTarget);
-	static int getM(const Person *pPerson1);
-	static int getH(const Person *pPerson1);
+
+	static double s_a;
 	static double s_tMax;
-	static double s_c;
-	static double s_d;
-	static double s_e1;
-	static double s_e2;
 };
- */
+
+#endif // EVENTGONORRHEATRANSMISSION_h
