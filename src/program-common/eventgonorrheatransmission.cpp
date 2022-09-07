@@ -2,6 +2,7 @@
 
 #include "jsonconfig.h"
 #include "configfunctions.h"
+#include "eventgonorrhearecovery.h"
 
 using namespace std;
 
@@ -90,7 +91,9 @@ void EventGonorrheaTransmission::infectPerson(SimpactPopulation &population, Per
 		}
 	}
 
-	//  TODO schedule treatment event
+	// Schedule recovery event for newly infected person
+	EventGonorrheaRecovery *pEvtRecovery = new EventGonorrheaRecovery(pTarget);
+	population.onNewEvent(pEvtRecovery);
 }
 
 double EventGonorrheaTransmission::calculateInternalTimeInterval(const State *pState, double t0, double dt)

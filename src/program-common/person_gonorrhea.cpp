@@ -26,6 +26,17 @@ void Person_Gonorrhea::setInfected(double t, Person *pOrigin, InfectionType iTyp
 	m_diseaseStage = Asymptomatic;
 }
 
+void Person_Gonorrhea::setRecovered(double t)
+
+{
+	m_diseaseStage = Susceptible;
+
+	// Reset disease variables
+	m_infectionTime = -1e200;
+	m_pInfectionOrigin = 0;
+	m_infectionType = None;
+}
+
 /*
  *
 #include "person.h"
@@ -38,17 +49,6 @@ void Person_Gonorrhea::setInfected(double t, Person *pOrigin, InfectionType iTyp
 #include <iostream>
 
 using namespace std;
-
-Person_HSV2::Person_HSV2(Person *pSelf) : m_pSelf(pSelf)
-{
-	assert(pSelf);
-
-	m_hazardAParam = m_pADist->pickNumber();
-	m_hazardB2Param = m_pB2Dist->pickNumber();
-}
-
-ProbabilityDistribution *Person_HSV2::m_pADist = 0;
-ProbabilityDistribution *Person_HSV2::m_pB2Dist = 0;
 
 void Person_HSV2::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {

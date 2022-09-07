@@ -20,6 +20,7 @@ public:
 	Person *getInfectionOrigin() const { assert(isInfected()); return m_pInfectionOrigin; }
 
 	virtual void setInfected(double t, Person *pOrigin, InfectionType iType) = 0;
+	virtual void setRecovered(double t) = 0;
 
 protected:
 	const Person *m_pSelf;
@@ -48,10 +49,5 @@ public:
 
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);
-private:
-	double m_hazardAParam;
-	double m_hazardB2Param;
 
-	static ProbabilityDistribution *m_pADist;
-	static ProbabilityDistribution *m_pB2Dist;
 };*/

@@ -20,6 +20,7 @@ public:
 	bool isInfected() const;
 
 	void setInfected(double t, Person *pOrigin, InfectionType iType);
+	void setRecovered(double t);
 
 private:
 	GonorrheaDiseaseStage m_diseaseStage;

@@ -21,6 +21,7 @@ set(SOURCES_SIMPACT
 	../program-common/eventseedbase.cpp
 	../program-common/eventgonorrheaseed.cpp
 	../program-common/eventgonorrheatransmission.cpp
+	../program-common/eventgonorrhearecovery.cpp
 	../program-common/eventhivseed.cpp
 	../program-common/eventhsv2seed.cpp
 	../program-common/eventintervention.cpp
