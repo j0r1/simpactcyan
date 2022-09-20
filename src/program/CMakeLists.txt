@@ -4,6 +4,7 @@ set(SOURCES_SIMPACT
 	../program-common/coarsemap.cpp
 	../program-common/person.cpp
 	../program-common/person_relations.cpp
+	../program-common/person_gonorrhea.cpp
 	../program-common/person_hiv.cpp
 	../program-common/person_hsv2.cpp
 	../program-common/logsystem.cpp
@@ -18,6 +19,9 @@ set(SOURCES_SIMPACT
 	../program-common/eventhsv2transmission.cpp
 	../program-common/eventchronicstage.cpp
 	../program-common/eventseedbase.cpp
+	../program-common/eventgonorrheaseed.cpp
+	../program-common/eventgonorrheatransmission.cpp
+	../program-common/eventgonorrhearecovery.cpp
 	../program-common/eventhivseed.cpp
 	../program-common/eventhsv2seed.cpp
 	../program-common/eventintervention.cpp

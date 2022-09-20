@@ -6,6 +6,7 @@
 #include "person_family.h"
 #include "person_relations.h"
 #include "person_hiv.h"
+#include "person_gonorrhea.h"
 #include "person_hsv2.h"
 #include "probabilitydistribution2d.h"
 #include "discretedistribution.h"
@@ -100,6 +101,11 @@ public:
 	Person_HSV2 &hsv2()																{ return m_hsv2; }
 	const Person_HSV2 &hsv2() const													{ return m_hsv2; }
 
+	Person_Gonorrhea &gonorrhea() 													{ return m_gonorrhea; }
+	const Person_Gonorrhea &gonorrhea() const										{ return m_gonorrhea; }
+
+	bool isInfectedWithSTI() const;
+
 	// Health-seeking behavior
 	double getHealthSeekingPropensity() const 										{ return m_health_seeking_propensity; }
 	void setHealthSeekingPropensity(double healthSeekingPropensity) 				{ m_health_seeking_propensity = healthSeekingPropensity; }
@@ -126,6 +132,8 @@ private:
 	Person_Family m_family;
 	Person_Relations m_relations;
 	Person_HIV m_hiv;
+
+	Person_Gonorrhea m_gonorrhea;
 	Person_HSV2 m_hsv2;
 
 	Point2D m_location;

@@ -7,6 +7,7 @@ endif()
 
 project(simpact-cyan)
 set(VERSION 1.0.0)
+set(CMAKE_CXX_STANDARD 14)
 include(${PROJECT_SOURCE_DIR}/cmake/SimpactMacros.cmake)
 
 simpact_setup()
