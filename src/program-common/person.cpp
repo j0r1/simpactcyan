@@ -15,7 +15,7 @@
 using namespace std;
 
 Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_relations(this), m_hiv(this),
-	                                           m_hsv2(this), m_gonorrhea(this), m_condom_use_probability(0),
+	                                           m_chlamydia(this), m_hsv2(this), m_gonorrhea(this), m_syphilis(this), m_condom_use_probability(0),
 											   m_health_seeking_propensity(0), m_sexual_role_preference(SexualRolePreference::Variable)
 {
 	assert(g == Male || g == Female);
@@ -85,7 +85,7 @@ double Person::getCondomUseProbability(bool isPartnerDiagnosed) const
 
 bool Person::isInfectedWithSTI() const
 {
-	return (m_gonorrhea.isInfected() || m_hsv2.isInfected());
+	return (m_chlamydia.isInfected() || m_gonorrhea.isInfected() || m_hsv2.isInfected() || m_syphilis.isInfected());
 }
 
 void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)

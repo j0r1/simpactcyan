@@ -3,8 +3,6 @@
 
 #include "person_sti.h"
 
-class Person;
-
 class Person_Gonorrhea : public Person_STI
 {
 public:

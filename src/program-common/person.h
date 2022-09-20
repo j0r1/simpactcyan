@@ -6,8 +6,10 @@
 #include "person_family.h"
 #include "person_relations.h"
 #include "person_hiv.h"
+#include "person_chlamydia.h"
 #include "person_gonorrhea.h"
 #include "person_hsv2.h"
+#include "person_syphilis.h"
 #include "probabilitydistribution2d.h"
 #include "discretedistribution.h"
 #include "util.h"
@@ -97,12 +99,18 @@ public:
 	Person_HIV &hiv()																{ return m_hiv; }
 	const Person_HIV &hiv() const 													{ return m_hiv; }
 
+	Person_Chlamydia &chlamydia() 													{ return m_chlamydia; }
+	const Person_Chlamydia &chlamydia() const										{ return m_chlamydia; }
+
+	Person_Gonorrhea &gonorrhea() 													{ return m_gonorrhea; }
+	const Person_Gonorrhea &gonorrhea() const										{ return m_gonorrhea; }
+
 	// HSV2 stuff
 	Person_HSV2 &hsv2()																{ return m_hsv2; }
 	const Person_HSV2 &hsv2() const													{ return m_hsv2; }
 
-	Person_Gonorrhea &gonorrhea() 													{ return m_gonorrhea; }
-	const Person_Gonorrhea &gonorrhea() const										{ return m_gonorrhea; }
+	Person_Syphilis &syphilis() 													{ return m_syphilis; }
+	const Person_Syphilis &syphilis() const											{ return m_syphilis; }
 
 	bool isInfectedWithSTI() const;
 
@@ -133,8 +141,10 @@ private:
 	Person_Relations m_relations;
 	Person_HIV m_hiv;
 
+	Person_Chlamydia m_chlamydia;
 	Person_Gonorrhea m_gonorrhea;
 	Person_HSV2 m_hsv2;
+	Person_Syphilis m_syphilis;
 
 	Point2D m_location;
 	double m_locationTime;
