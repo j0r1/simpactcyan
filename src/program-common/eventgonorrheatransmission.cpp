@@ -71,7 +71,7 @@ void EventGonorrheaTransmission::infectPerson(SimpactPopulation &population, Per
 		pTarget->gonorrhea().setInfected(t, 0, Person_Gonorrhea::Seed);
 	else
 	{
-		assert(pOrigin->hsv2().isInfected());
+		assert(pOrigin->gonorrhea().isInfected());
 		pTarget->gonorrhea().setInfected(t, pOrigin, Person_Gonorrhea::Partner);
 	}
 

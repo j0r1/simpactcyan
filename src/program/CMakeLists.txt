@@ -21,6 +21,9 @@ set(SOURCES_SIMPACT
 	../program-common/eventhsv2transmission.cpp
 	../program-common/eventchronicstage.cpp
 	../program-common/eventseedbase.cpp
+	../program-common/eventchlamydiaseed.cpp
+	../program-common/eventchlamydiatransmission.cpp
+	../program-common/eventchlamydiarecovery.cpp
 	../program-common/eventgonorrheaseed.cpp
 	../program-common/eventgonorrheatransmission.cpp
 	../program-common/eventgonorrhearecovery.cpp
