@@ -90,7 +90,7 @@ bool Person::isInfectedWithSTI() const
 
 void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
-	/*assert(pRndGen != 0);
+	assert(pRndGen != 0);
 
 	// Population distribution
 	delete m_pPopDist;
@@ -109,12 +109,12 @@ void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRn
 
 	// Sexual role preference distribution
 	delete m_pSexualRoleDist;
-	m_pSexualRoleDist = getDistributionFromConfig(config, pRndGen, "person.sexualrole");*/
+	m_pSexualRoleDist = getDistributionFromConfig(config, pRndGen, "person.sexualrole");
 }
 
 void Person::obtainConfig(ConfigWriter &config)
 {
-	/*assert(m_pPopDist);
+	assert(m_pPopDist);
 	addDistribution2DToConfig(m_pPopDist, config, "person.geo");
 	assert(m_pHealthSeekingPropensityDist);
 	addDistributionToConfig(m_pHealthSeekingPropensityDist, config, "person.healthseekingpropensity");
@@ -122,7 +122,7 @@ void Person::obtainConfig(ConfigWriter &config)
 	addDistributionToConfig(m_pCondomUseProbDist, config, "person.condomuse");
 	config.addKey("person.condomuse.concordancefactor", m_concordanceCondomUseFactor);
 	config.addKey("person.condomuse.artfactor", m_artCondomUseFactor);
-	addDistributionToConfig(m_pSexualRoleDist, config, "person.sexualrole");*/
+	addDistributionToConfig(m_pSexualRoleDist, config, "person.sexualrole");
 }
 
 void Person::writeToPersonLog()
