@@ -29,10 +29,10 @@ set(SOURCES_SIMPACT
 	../program-common/eventseedbase.cpp
 	../program-common/eventchlamydiaseed.cpp
 	../program-common/eventchlamydiatransmission.cpp
-	../program-common/eventchlamydiarecovery.cpp
+	../program-common/eventchlamydiaprogression.cpp
 	../program-common/eventgonorrheaseed.cpp
 	../program-common/eventgonorrheatransmission.cpp
-	../program-common/eventgonorrhearecovery.cpp
+	../program-common/eventgonorrheaprogression.cpp
 	../program-common/eventhivseed.cpp
 	../program-common/eventhsv2seed.cpp
 	../program-common/eventintervention.cpp

@@ -1,9 +1,8 @@
-#include "eventchlamydiarecovery.h"
-
 #include "configsettings.h"
 #include "configwriter.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
+#include "eventchlamydiaprogression.h"
 
 using namespace std;
 

@@ -2,7 +2,7 @@
 
 #include "jsonconfig.h"
 #include "configfunctions.h"
-#include "eventchlamydiarecovery.h"
+#include "eventchlamydiaprogression.h"
 
 using namespace std;
 
