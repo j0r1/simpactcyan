@@ -206,6 +206,6 @@ JSONConfig gonorrheaTransmissionJSONConfig(R"JSON(
 			],
             "info": [
 				"These configuration parameters allow you to set the 'a' and 'b' in the hazard",
-				" h = exp(a + b*(t-t_infected)",
+				" h = exp(a + b*(t-t_infected)"
             ]
         })JSON");
