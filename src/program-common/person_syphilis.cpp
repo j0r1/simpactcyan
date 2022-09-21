@@ -60,11 +60,6 @@ void Person_Syphilis::progress(double t)
 	}
 }
 
-void Person_Syphilis::setRecovered(double t)
-{
-	// No natural clearance
-}
-
 void Person_Syphilis::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
 	s_uniformDistribution = UniformDistribution(0, 1, pRndGen);

@@ -60,19 +60,14 @@ void Person_Gonorrhea::progress(double t)
 {
 	if (m_diseaseStage == Asymptomatic || m_diseaseStage == Symptomatic)
 	{
-		setRecovered(t);
+		// Recover
+		m_diseaseStage = Susceptible;
+
+		// Reset disease variables
+		m_infectionTime = -1e200;
+		m_pInfectionOrigin = 0;
+		m_infectionType = None;
 	}
-}
-
-void Person_Gonorrhea::setRecovered(double t)
-
-{
-	m_diseaseStage = Susceptible;
-
-	// Reset disease variables
-	m_infectionTime = -1e200;
-	m_pInfectionOrigin = 0;
-	m_infectionType = None;
 }
 
 void Person_Gonorrhea::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)

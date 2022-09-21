@@ -27,7 +27,6 @@ public:
 
 	void setInfected(double t, Person *pOrigin, InfectionType iType);
 	void progress(double t);
-	void setRecovered(double t);
 
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);

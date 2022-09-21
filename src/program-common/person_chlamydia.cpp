@@ -60,29 +60,27 @@ void Person_Chlamydia::progress(double t)
 			}
 		}
 
-	} else if (m_diseaseStage == Asymptomatic || m_diseaseStage == Symptomatic) {
-		// Recover
-		setRecovered(t);
+	} else if (m_diseaseStage == Asymptomatic) {
+		// Recover and gain temporary immunity
+		m_diseaseStage = Immune;
+	} else if (m_diseaseStage == Symptomatic) {
+		// Recover and return to susceptible state
+		m_diseaseStage = Susceptible;
+
+		// Reset disease variables
+		m_infectionTime = -1e200;
+		m_pInfectionOrigin = 0;
+		m_infectionType = None;
+
 	} else if (m_diseaseStage == Immune) {
 		// Return to susceptible state
 		m_diseaseStage = Susceptible;
-	}
-}
 
-void Person_Chlamydia::setRecovered(double t)
-{
-	if (m_diseaseStage == Asymptomatic) {
-		// Gain temporary immunity after spontaneous clearance of asymptomatic infection
-		m_diseaseStage = Immune;
-	} else if (m_diseaseStage == Symptomatic) {
-		// Immediately become susceptible again after spontaneous clearance of symptomatic infection
-		m_diseaseStage = Susceptible;
+		// Reset disease variables
+		m_infectionTime = -1e200;
+		m_pInfectionOrigin = 0;
+		m_infectionType = None;
 	}
-
-	// Reset disease variables
-	m_infectionTime = -1e200;
-	m_pInfectionOrigin = 0;
-	m_infectionType = None;
 }
 
 void Person_Chlamydia::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)

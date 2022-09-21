@@ -22,7 +22,6 @@ public:
 
 	virtual void setInfected(double t, Person *pOrigin, InfectionType iType) = 0;
 	virtual void progress(double t) = 0;
-	virtual void setRecovered(double t) = 0;
 
 protected:
 	const Person *m_pSelf;
@@ -33,23 +32,3 @@ protected:
 };
 
 #endif // PERSON_STI_H
-
-/*
-#include "util.h"
-
-
-class ProbabilityDistribution;
-class ConfigSettings;
-class ConfigWriter;
-class GslRandomNumberGenerator;
-
-class Person_HSV2
-{
-public:
-	double getHazardAParameter() const												{ return m_hazardAParam; }
-	double getHazardB2Parameter() const												{ return m_hazardB2Param; }
-
-	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
-	static void obtainConfig(ConfigWriter &config);
-
-};*/
