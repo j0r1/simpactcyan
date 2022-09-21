@@ -29,10 +29,7 @@ void EventGonorrheaProgression::fire(Algorithm *pAlgorithm, State *pState, doubl
 	SimpactPopulation &population = SIMPACTPOPULATION(pState);
 	Person *pPerson = getPerson(0);
 
-	assert(pPerson->gonorrhea().isInfected());
-
-	// Mark the person as recovered from gonorrhea
-	pPerson->gonorrhea().setRecovered(t);
+	pPerson->gonorrhea().progress(t);
 }
 
 void EventGonorrheaProgression::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
@@ -64,21 +61,17 @@ double EventGonorrheaProgression::getNewInternalTimeDifference(GslRandomNumberGe
 
 	assert(pPerson != 0);
 
-	double infectionDuration = 0;
+	double dt = 0;
 
 	Person_Gonorrhea::GonorrheaDiseaseStage diseaseStage = pPerson->gonorrhea().getDiseaseStage();
 	if (diseaseStage == Person_Gonorrhea::Symptomatic) {
-		infectionDuration = s_pSymptomaticInfectionDurationDistribution->pickNumber();
+		dt = s_pSymptomaticInfectionDurationDistribution->pickNumber();
 	} else if (diseaseStage == Person_Gonorrhea::Asymptomatic) {
-		infectionDuration = s_pAsymptomaticInfectionDurationDistribution->pickNumber();
+		dt = s_pAsymptomaticInfectionDurationDistribution->pickNumber();
 	}
 
-	double tEvt = pPerson->gonorrhea().getInfectionTime() + infectionDuration;
-	double dt = tEvt - population.getTime();
-
-	assert(dt >= 0); // should not be in the past!
-
-	return dt;
+	return dt; // TODO is there any reason NOT to calculate it like this?
+	// (i.e. instead of tEvt = tInfection + duration of stages up till now --> dt = tEvt - population.getTime()
 }
 
 ProbabilityDistribution *EventGonorrheaProgression::s_pSymptomaticInfectionDurationDistribution = 0;
@@ -88,7 +81,7 @@ ProbabilityDistribution *EventGonorrheaProgression::s_pAsymptomaticInfectionDura
 ConfigFunctions gonorrheaProgressionConfigFunctions(EventGonorrheaProgression::processConfig, EventGonorrheaProgression::obtainConfig, "EventGonorrheaProgression");
 
 JSONConfig gonorrheaProgressionJSONConfig(R"JSON(
-        "EventProgressionRecovery": {
+        "EventGonorrheaProgression": {
             "depends": null,
             "params": [
                 [ "gonorrheaprogression.symptomaticinfectionduration.dist", "distTypes", [ "fixed", 1 ] ],

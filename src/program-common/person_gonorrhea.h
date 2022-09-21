@@ -22,9 +22,11 @@ public:
 	virtual ~Person_Gonorrhea();
 
 	bool isInfected() const;
+	bool isInfectious() const;
 	GonorrheaDiseaseStage getDiseaseStage() const { return m_diseaseStage; }
 
 	void setInfected(double t, Person *pOrigin, InfectionType iType);
+	void progress(double t);
 	void setRecovered(double t);
 
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);

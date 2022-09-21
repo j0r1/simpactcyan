@@ -21,6 +21,15 @@ bool Person_Gonorrhea::isInfected() const
 	}
 }
 
+bool Person_Gonorrhea::isInfectious() const
+{
+	if (m_diseaseStage == Asymptomatic || m_diseaseStage == Symptomatic) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 void Person_Gonorrhea::setInfected(double t, Person *pOrigin, InfectionType iType)
 {
 	assert(iType != None);
@@ -47,6 +56,14 @@ void Person_Gonorrhea::setInfected(double t, Person *pOrigin, InfectionType iTyp
 	}
 }
 
+void Person_Gonorrhea::progress(double t)
+{
+	if (m_diseaseStage == Asymptomatic || m_diseaseStage == Symptomatic)
+	{
+		setRecovered(t);
+	}
+}
+
 void Person_Gonorrhea::setRecovered(double t)
 
 {
@@ -64,8 +81,8 @@ void Person_Gonorrhea::processConfig(ConfigSettings &config, GslRandomNumberGene
 
 	bool_t r;
 
-	if (!(config.getKeyValue("person.gonorrhea.fractionmensymptomatic", s_fractionMenSymptomatic)) ||
-			!(config.getKeyValue("person.gonorrhea.fractionwomensymptomatic", s_fractionWomenSymptomatic))
+	if (!(r = config.getKeyValue("person.gonorrhea.fractionmensymptomatic", s_fractionMenSymptomatic)) ||
+			!(r = config.getKeyValue("person.gonorrhea.fractionwomensymptomatic", s_fractionWomenSymptomatic))
 		)
 		abortWithMessage(r.getErrorString());
 }

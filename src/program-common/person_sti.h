@@ -14,12 +14,14 @@ public:
 	virtual ~Person_STI() {}
 
 	virtual bool isInfected() const = 0;
+	virtual bool isInfectious() const = 0;
 
 	InfectionType getInfectionType() const { return m_infectionType; }
 	double getInfectionTime() const { assert(isInfected()); return m_infectionTime; }
 	Person *getInfectionOrigin() const { assert(isInfected()); return m_pInfectionOrigin; }
 
 	virtual void setInfected(double t, Person *pOrigin, InfectionType iType) = 0;
+	virtual void progress(double t) = 0;
 	virtual void setRecovered(double t) = 0;
 
 protected:

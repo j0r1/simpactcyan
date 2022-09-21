@@ -19,8 +19,10 @@ public:
 	virtual ~Person_Syphilis();
 
 	bool isInfected() const;
+	bool isInfectious() const;
 
 	void setInfected(double t, Person *pOrigin, InfectionType iType);
+	void progress(double t);
 	void setRecovered(double t);
 private:
 	SyphilisDiseaseStage m_diseaseStage;

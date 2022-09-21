@@ -9,7 +9,7 @@ using namespace std;
 // When one of the involved persons dies before the event fires, the event is removed automatically
 EventGonorrheaTransmission::EventGonorrheaTransmission(Person *pPerson1, Person *pPerson2): SimpactEvent(pPerson1, pPerson2)
 {
-	assert(pPerson1->gonorrhea().isInfected() && !pPerson2->gonorrhea().isInfected());
+	assert(pPerson1->gonorrhea().isInfectious() && !pPerson2->gonorrhea().isInfected());
 }
 
 EventGonorrheaTransmission::~EventGonorrheaTransmission() {}
@@ -33,8 +33,8 @@ void EventGonorrheaTransmission::fire(Algorithm *pAlgorithm, State *pState, doub
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
 
-	// Person 1 should be infected , person 2 should not be infected yet
-	assert(pPerson1->gonorrhea().isInfected());
+	// Person 1 should be infectious , person 2 should not be infected yet
+	assert(pPerson1->gonorrhea().isInfectious());
 	assert(!pPerson2->gonorrhea().isInfected());
 
 	infectPerson(population, pPerson1, pPerson2, t);
@@ -71,7 +71,7 @@ void EventGonorrheaTransmission::infectPerson(SimpactPopulation &population, Per
 		pTarget->gonorrhea().setInfected(t, 0, Person_Gonorrhea::Seed);
 	else
 	{
-		assert(pOrigin->gonorrhea().isInfected());
+		assert(pOrigin->gonorrhea().isInfectious());
 		pTarget->gonorrhea().setInfected(t, pOrigin, Person_Gonorrhea::Partner);
 	}
 
@@ -121,7 +121,7 @@ double EventGonorrheaTransmission::solveForRealTimeInterval(const State *pState,
 }
 
 // In case of dissolution of relationship, infection of susceptible person through other relationship,
-// or cure of infected person, transmission event is no longer useful and needs to be discarded.
+// or recovery / cure of infected person, transmission event is no longer useful and needs to be discarded.
 bool EventGonorrheaTransmission::isUseless(const PopulationStateInterface &population)
 {
 	// Transmission happens from pPerson1 to pPerson2
@@ -132,8 +132,8 @@ bool EventGonorrheaTransmission::isUseless(const PopulationStateInterface &popul
 	if (pPerson2->gonorrhea().isInfected()) {
 		return true;
 	}
-	// If person1 has been cured of gonorrhea, they can no longer transmit it
-	if (!pPerson1->gonorrhea().isInfected()) {
+	// If person1 is no longer infectious, they can no longer transmit it
+	if (!pPerson1->gonorrhea().isInfectious()) {
 		return true;
 	}
 

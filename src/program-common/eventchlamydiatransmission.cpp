@@ -9,7 +9,7 @@ using namespace std;
 // When one of the involved persons dies before the event fires, the event is removed automatically
 EventChlamydiaTransmission::EventChlamydiaTransmission(Person *pPerson1, Person *pPerson2): SimpactEvent(pPerson1, pPerson2)
 {
-	assert(pPerson1->chlamydia().isInfected() && !pPerson2->chlamydia().isInfected());
+	assert(pPerson1->chlamydia().isInfectious() && !pPerson2->chlamydia().isInfected());
 }
 
 EventChlamydiaTransmission::~EventChlamydiaTransmission() {}
@@ -33,8 +33,8 @@ void EventChlamydiaTransmission::fire(Algorithm *pAlgorithm, State *pState, doub
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
 
-	// Person 1 should be infected , person 2 should not be infected yet
-	assert(pPerson1->chlamydia().isInfected());
+	// Person 1 should be infectious , person 2 should not be infected yet
+	assert(pPerson1->chlamydia().isInfectious());
 	assert(!pPerson2->chlamydia().isInfected());
 
 	infectPerson(population, pPerson1, pPerson2, t);
@@ -64,7 +64,7 @@ void EventChlamydiaTransmission::obtainConfig(ConfigWriter &config)
 
 void EventChlamydiaTransmission::infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t)
 {
-	assert(!pTarget->chlamydia().isInfected());
+	assert(!pTarget->chlamydia().isInfectious());
 
 	if (pOrigin == 0) // Seeding
 		pTarget->chlamydia().setInfected(t, 0, Person_Chlamydia::Seed);
@@ -90,9 +90,10 @@ void EventChlamydiaTransmission::infectPerson(SimpactPopulation &population, Per
 		}
 	}
 
-	// Schedule recovery event for newly infected person
-	EventChlamydiaRecovery *pEvtRecovery = new EventChlamydiaRecovery(pTarget);
-	population.onNewEvent(pEvtRecovery);
+	// Schedule progression event for newly infected person
+	// Exposed --> Symptomatic or Asymptomatic
+	EventChlamydiaProgression *pEvtProgression = new EventChlamydiaProgression(pTarget);
+	population.onNewEvent(pEvtProgression);
 }
 
 
@@ -121,7 +122,7 @@ double EventChlamydiaTransmission::solveForRealTimeInterval(const State *pState,
 }
 
 // In case of dissolution of relationship, infection of susceptible person through other relationship,
-// or cure of infected person, transmission event is no longer useful and needs to be discarded.
+// or recovery / cure of infected person, transmission event is no longer useful and needs to be discarded.
 bool EventChlamydiaTransmission::isUseless(const PopulationStateInterface &population)
 {
 	// Transmission happens from pPerson1 to pPerson2
@@ -132,8 +133,8 @@ bool EventChlamydiaTransmission::isUseless(const PopulationStateInterface &popul
 	if (pPerson2->chlamydia().isInfected()) {
 		return true;
 	}
-	// If person1 has been cured / has recovered, they can no longer transmit it
-	if (!pPerson1->chlamydia().isInfected()) {
+	// If person1 is no longer infectious, they can no longer transmit it
+	if (!pPerson1->chlamydia().isInfectious()) {
 		return true;
 	}
 

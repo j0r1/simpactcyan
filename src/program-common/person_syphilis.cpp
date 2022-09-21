@@ -15,6 +15,11 @@ bool Person_Syphilis::isInfected() const
 	}
 }
 
+bool Person_Syphilis::isInfectious() const
+{
+	return isInfected();
+}
+
 void Person_Syphilis::setInfected(double t, Person *pOrigin, InfectionType iType)
 {
 	assert(iType != None);
@@ -25,6 +30,11 @@ void Person_Syphilis::setInfected(double t, Person *pOrigin, InfectionType iType
 	m_infectionType = iType;
 
 	m_diseaseStage = Primary;
+}
+
+void Person_Syphilis::progress(double t)
+{
+
 }
 
 void Person_Syphilis::setRecovered(double t)
