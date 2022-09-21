@@ -37,20 +37,20 @@ void EventGonorrheaProgression::processConfig(ConfigSettings &config, GslRandomN
 	assert(pRndGen != 0);
 
 	delete s_pSymptomaticInfectionDurationDistribution;
-	s_pSymptomaticInfectionDurationDistribution = getDistributionFromConfig(config, pRndGen, "eventgonorrheaprogression.symptomaticinfectionduration");
+	s_pSymptomaticInfectionDurationDistribution = getDistributionFromConfig(config, pRndGen, "gonorrheaprogression.symptomaticinfectionduration");
 
 	delete s_pAsymptomaticInfectionDurationDistribution;
-	s_pAsymptomaticInfectionDurationDistribution = getDistributionFromConfig(config, pRndGen, "eventgonorrheaprogression.asymptomaticinfectionduration");
+	s_pAsymptomaticInfectionDurationDistribution = getDistributionFromConfig(config, pRndGen, "gonorrheaprogression.asymptomaticinfectionduration");
 
 }
 
 void EventGonorrheaProgression::obtainConfig(ConfigWriter &config)
 {
 	assert(s_pSymptomaticInfectionDurationDistribution);
-	addDistributionToConfig(s_pSymptomaticInfectionDurationDistribution, config, "eventgonorrheaprogression.symptomaticinfectionduration");
+	addDistributionToConfig(s_pSymptomaticInfectionDurationDistribution, config, "gonorrheaprogression.symptomaticinfectionduration");
 
 	assert(s_pAsymptomaticInfectionDurationDistribution);
-	addDistributionToConfig(s_pAsymptomaticInfectionDurationDistribution, config, "eventgonorrheaprogression.asymptomaticinfectionduration");
+	addDistributionToConfig(s_pAsymptomaticInfectionDurationDistribution, config, "gonorrheaprogression.asymptomaticinfectionduration");
 }
 
 
@@ -84,8 +84,8 @@ JSONConfig gonorrheaProgressionJSONConfig(R"JSON(
         "EventGonorrheaProgression": {
             "depends": null,
             "params": [
-                [ "gonorrheaprogression.symptomaticinfectionduration.dist", "distTypes", [ "fixed", 1 ] ],
-                [ "gonorrheaprogression.asymptomaticinfectionduration.dist", "distTypes", [ "fixed", 0.5 ] ]
+                [ "gonorrheaprogression.symptomaticinfectionduration.dist", "distTypes", [ "fixed", [ [ "value", 1 ] ] ] ],
+                [ "gonorrheaprogression.asymptomaticinfectionduration.dist", "distTypes", [ "fixed", [ [ "value", 0.5 ] ] ] ]
             ],
             "info": [
                 "TODO"

@@ -18,7 +18,6 @@ set(SOURCES_SIMPACT
 	../program-common/eventdissolution.cpp
 	../program-common/eventdebut.cpp
 	../program-common/eventhivtransmission.cpp
-	../program-common/eventhsv2transmission.cpp
 	../program-common/eventchronicstage.cpp
 	../program-common/eventseedbase.cpp
 	../program-common/eventchlamydiaseed.cpp
@@ -27,8 +26,12 @@ set(SOURCES_SIMPACT
 	../program-common/eventgonorrheaseed.cpp
 	../program-common/eventgonorrheatransmission.cpp
 	../program-common/eventgonorrheaprogression.cpp
-	../program-common/eventhivseed.cpp
 	../program-common/eventhsv2seed.cpp
+	../program-common/eventhsv2transmission.cpp
+	../program-common/eventsyphilisseed.cpp
+	../program-common/eventsyphilistransmission.cpp
+	../program-common/eventsyphilisprogression.cpp
+	../program-common/eventhivseed.cpp
 	../program-common/eventintervention.cpp
 	../program-common/eventaidsstage.cpp
 	../program-common/eventconception.cpp

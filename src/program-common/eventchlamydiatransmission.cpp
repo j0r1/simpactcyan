@@ -64,30 +64,14 @@ void EventChlamydiaTransmission::obtainConfig(ConfigWriter &config)
 
 void EventChlamydiaTransmission::infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t)
 {
-	assert(!pTarget->chlamydia().isInfectious());
+	assert(!pTarget->chlamydia().isInfected());
 
 	if (pOrigin == 0) // Seeding
 		pTarget->chlamydia().setInfected(t, 0, Person_Chlamydia::Seed);
 	else
 	{
-		assert(pOrigin->chlamydia().isInfected());
+		assert(pOrigin->chlamydia().isInfectious());
 		pTarget->chlamydia().setInfected(t, pOrigin, Person_Chlamydia::Partner);
-	}
-
-	// Check relationships pTarget is in, and if partner not yet infected with chlamydia, schedule transmission event.
-	int numRelations = pTarget->getNumberOfRelationships();
-	pTarget->startRelationshipIteration();
-
-	for (int i = 0; i < numRelations; i++)
-	{
-		double formationTime = -1;
-		Person *pPartner = pTarget->getNextRelationshipPartner(formationTime);
-
-		if (!pPartner->chlamydia().isInfected())
-		{
-			EventChlamydiaTransmission *pEvtTrans = new EventChlamydiaTransmission(pTarget, pPartner);
-			population.onNewEvent(pEvtTrans);
-		}
 	}
 
 	// Schedule progression event for newly infected person
@@ -129,8 +113,8 @@ bool EventChlamydiaTransmission::isUseless(const PopulationStateInterface &popul
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
 
-	// If person2 was already infected, there is no sense in further transmission
-	if (pPerson2->chlamydia().isInfected()) {
+	// If person2 was already infected or is immune, there is no sense in further transmission
+	if (pPerson2->chlamydia().isInfected() || pPerson2->chlamydia().isImmune()) {
 		return true;
 	}
 	// If person1 is no longer infectious, they can no longer transmit it
@@ -202,7 +186,7 @@ JSONConfig chlamydiaTransmissionJSONConfig(R"JSON(
             "params": [
 				[ "chlamydiatransmission.hazard.a", 0 ],
 				[ "chlamydiatransmission.hazard.b", 0 ],
-				[ "chlamediatransmission.hazard.t_max", 200 ]
+				[ "chlamydiatransmission.hazard.t_max", 200 ]
 			],
             "info": [
 				"These configuration parameters allow you to set the 'a' and 'b' in the hazard",

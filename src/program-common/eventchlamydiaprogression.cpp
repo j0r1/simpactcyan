@@ -4,6 +4,7 @@
 #include "configfunctions.h"
 #include "configsettings.h"
 #include "configwriter.h"
+#include "eventchlamydiatransmission.h"
 #include "jsonconfig.h"
 #include "person_chlamydia.h"
 
@@ -40,6 +41,41 @@ void EventChlamydiaProgression::fire(Algorithm *pAlgorithm, State *pState, doubl
 		EventChlamydiaProgression *pEvtProgression = new EventChlamydiaProgression(pPerson);
 		population.onNewEvent(pEvtProgression);
 	}
+
+	if (diseaseStage == Person_Chlamydia::Symptomatic || diseaseStage == Person_Chlamydia::Asymptomatic) {
+		// Check relationships pTarget is in, and if partner not yet infected with chlamydia, schedule transmission event now that person is infectious.
+		int numRelations = pPerson->getNumberOfRelationships();
+		pPerson->startRelationshipIteration();
+
+		for (int i = 0; i < numRelations; i++)
+		{
+			double formationTime = -1;
+			Person *pPartner = pPerson->getNextRelationshipPartner(formationTime);
+
+			if (!pPartner->chlamydia().isInfected())
+			{
+				EventChlamydiaTransmission *pEvtTrans = new EventChlamydiaTransmission(pPerson, pPartner);
+				population.onNewEvent(pEvtTrans);
+			}
+		}
+	}
+
+	// Schedule new transmission event from infectious partners if person becomes susceptible again
+	if (diseaseStage == Person_Chlamydia::Susceptible) {
+		int numRelations = pPerson->getNumberOfRelationships();
+		pPerson->startRelationshipIteration();
+
+		for (int i = 0; i < numRelations; i++)
+		{
+			double formationTime = -1;
+			Person *pPartner = pPerson->getNextRelationshipPartner(formationTime);
+			if (pPartner->chlamydia().isInfectious())
+			{
+				EventChlamydiaTransmission *pEvtTrans = new EventChlamydiaTransmission(pPartner, pPerson);
+				population.onNewEvent(pEvtTrans);
+			}
+		}
+	}
 }
 
 void EventChlamydiaProgression::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
@@ -47,31 +83,31 @@ void EventChlamydiaProgression::processConfig(ConfigSettings &config, GslRandomN
 	assert(pRndGen != 0);
 
 	delete s_pExposedStageDurationDistribution;
-	s_pExposedStageDurationDistribution = getDistributionFromConfig(config, pRndGen, "eventchlamydiaprogression.exposedstageduration");
+	s_pExposedStageDurationDistribution = getDistributionFromConfig(config, pRndGen, "chlamydiaprogression.exposedstageduration");
 
 	delete s_pSymptomaticInfectionDurationDistribution;
-	s_pSymptomaticInfectionDurationDistribution = getDistributionFromConfig(config, pRndGen, "eventchlamydiaprogression.symptomaticinfectionduration");
+	s_pSymptomaticInfectionDurationDistribution = getDistributionFromConfig(config, pRndGen, "chlamydiaprogression.symptomaticinfectionduration");
 
 	delete s_pAsymptomaticInfectionDurationDistribution;
-	s_pAsymptomaticInfectionDurationDistribution = getDistributionFromConfig(config, pRndGen, "eventchlamydiaprogression.asymptomaticinfectionduration");
+	s_pAsymptomaticInfectionDurationDistribution = getDistributionFromConfig(config, pRndGen, "chlamydiaprogression.asymptomaticinfectionduration");
 
 	delete s_pImmunityDurationDistribution;
-	s_pImmunityDurationDistribution = getDistributionFromConfig(config, pRndGen, "eventchlamydiaprogression.immunityduration");
+	s_pImmunityDurationDistribution = getDistributionFromConfig(config, pRndGen, "chlamydiaprogression.immunityduration");
 }
 
 void EventChlamydiaProgression::obtainConfig(ConfigWriter &config)
 {
 	assert(s_pExposedStageDurationDistribution);
-	addDistributionToConfig(s_pExposedStageDurationDistribution, config, "eventchlamydiaprogression.exposedstageduration");
+	addDistributionToConfig(s_pExposedStageDurationDistribution, config, "chlamydiaprogression.exposedstageduration");
 
 	assert(s_pSymptomaticInfectionDurationDistribution);
-	addDistributionToConfig(s_pSymptomaticInfectionDurationDistribution, config, "eventchlamydiaprogression.symptomaticinfectionduration");
+	addDistributionToConfig(s_pSymptomaticInfectionDurationDistribution, config, "chlamydiaprogression.symptomaticinfectionduration");
 
 	assert(s_pAsymptomaticInfectionDurationDistribution);
-	addDistributionToConfig(s_pAsymptomaticInfectionDurationDistribution, config, "eventchlamydiaprogression.asymptomaticinfectionduration");
+	addDistributionToConfig(s_pAsymptomaticInfectionDurationDistribution, config, "chlamydiaprogression.asymptomaticinfectionduration");
 
 	assert(s_pImmunityDurationDistribution);
-	addDistributionToConfig(s_pImmunityDurationDistribution, config, "eventchlamydiaprogression.immunityduration");
+	addDistributionToConfig(s_pImmunityDurationDistribution, config, "chlamydiaprogression.immunityduration");
 
 }
 
@@ -110,10 +146,10 @@ JSONConfig chlamydiaProgressionJSONConfig(R"JSON(
         "EventChlamydiaProgression": {
             "depends": null,
             "params": [
-                [ "chlamydiaprogression.exposedstageduration.dist", "distTypes", [ "fixed", 0.083 ] ],
-				[ "chlamydiaprogression.symptomaticinfectionduration.dist", "distTypes", [ "fixed", 0.1 ] ],
-				[ "chlamydiaprogression.asymptomaticinfectionduration.dist", "distTypes", [ "fixed", 1 ] ],
-                [ "chlamydiaprogression.immunityduration.dist", "distTypes", [ "fixed", 0.5 ] ]
+				[ "chlamydiaprogression.exposedstageduration.dist", "distTypes", [ "fixed", [ [ "value", 0 ] ] ] ],
+				[ "chlamydiaprogression.symptomaticinfectionduration.dist", "distTypes", [ "fixed", [ [ "value", 0.1 ] ] ] ],
+				[ "chlamydiaprogression.asymptomaticinfectionduration.dist", "distTypes", [ "fixed", [ [ "value", 1 ] ] ] ],
+                [ "chlamydiaprogression.immunityduration.dist", "distTypes", [ "fixed", [ [ "value", 0.5 ] ] ] ]
             ],
             "info": [
                 "TODO"

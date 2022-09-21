@@ -106,7 +106,7 @@ ConfigFunctions personGonorrheaConfigFunctions(Person_Gonorrhea::processConfig, 
 
 JSONConfig personGonorrheaJSONConfig(R"JSON(
 
-        "PersonHSV2": {
+        "PersonGonorrhea": {
             "depends": null,
             "params": [
 				[ "person.gonorrhea.fractionmensymptomatic", 0.8 ],

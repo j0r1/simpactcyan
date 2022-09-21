@@ -114,7 +114,7 @@ ConfigFunctions personChlamydiaConfigFunctions(Person_Chlamydia::processConfig, 
 
 JSONConfig personChlamydiaJSONConfig(R"JSON(
 
-        "PersonHSV2": {
+        "PersonChlamydia": {
             "depends": null,
             "params": [
 				[ "person.chlamydia.fractionmensymptomatic", 0.8 ],
