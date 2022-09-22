@@ -9,6 +9,7 @@
 #include "eventhsv2seed.h"
 #include "eventintervention.h"
 #include "eventperiodiclogging.h"
+#include "eventprepstart.h"
 #include "eventsyncpopstats.h"
 #include "eventsyncrefyear.h"
 #include "eventcheckstopalgorithm.h"
@@ -181,6 +182,8 @@ bool_t SimpactPopulation::scheduleInitialEvents()
 	}
 
 	// For the people who are not sexually active, set a debut event
+	// For the people who are already sexually active & not infected with HIV, set a PreP start event
+	// TODO eligibility?
 
 	for (int i = 0 ; i < numPeople ; i++)
 	{
@@ -188,8 +191,16 @@ bool_t SimpactPopulation::scheduleInitialEvents()
 
 		if (!pPerson->isSexuallyActive())
 		{
+			// Person is not yet sexually active
 			EventDebut *pEvt = new EventDebut(pPerson);
 			onNewEvent(pEvt);
+		} else {
+			// Person is already sexually active
+			if (!pPerson->hiv().isInfected())
+			{
+				EventPrePStart *pEvt = new EventPrePStart(pPerson);
+				onNewEvent(pEvt);
+			}
 		}
 	}
 

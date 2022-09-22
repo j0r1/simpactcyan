@@ -1,5 +1,6 @@
 #include "eventdebut.h"
 #include "eventformation.h"
+#include "eventprepstart.h"
 #include "gslrandomnumbergenerator.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
@@ -55,6 +56,11 @@ void EventDebut::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// No relationships will be scheduled if the person is already in the final AIDS stage
 	if (pPerson->hiv().getInfectionStage() != Person_HIV::AIDSFinal)
 		population.initializeFormationEvents(pPerson, false, false, t);
+
+	if (!pPerson->hiv().isInfected()) {
+		EventPrePStart *pEvt = new EventPrePStart(pPerson);
+		population.onNewEvent(pEvt);
+	}
 }
 
 double EventDebut::m_debutAge = -1;
