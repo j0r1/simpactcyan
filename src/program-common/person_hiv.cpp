@@ -37,6 +37,8 @@ Person_HIV::Person_HIV(Person *pSelf) : m_pSelf(pSelf)
 	assert(m_pARTAcceptDistribution);
 	m_artAcceptanceThreshold = m_pARTAcceptDistribution->pickNumber();
 
+	m_isOnPreP = false;
+
 	m_aidsDeath = false;
 
 	assert(m_pLogSurvTimeOffsetDistribution);

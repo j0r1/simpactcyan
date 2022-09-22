@@ -49,6 +49,10 @@ public:
 	double getCD4CountAtDeath() const												{ return m_cd4AtDeath; }
 	double getCD4Count(double t) const;
 
+	bool isOnPreP() const 															{ return m_isOnPreP; }
+	void startPreP() 																{ m_isOnPreP = true; }
+	void stopPreP() 																{ m_isOnPreP = false; }
+
 	double getLastCD4CountAtDiagnosis() const 										{ assert(isInfected()); return m_lastCD4AtDiagnosis; }
 	double getLastCD4CountAtARTStart() const										{ assert(isInfected()); assert(m_VspLowered); return m_lastCD4AtTreatmentStart; }
 
@@ -95,6 +99,8 @@ private:
 	double m_lastCD4AtDiagnosis;
 	double m_lastCD4AtTreatmentStart;
 	double m_artAcceptanceThreshold;
+
+	bool m_isOnPreP;
 
 	static double m_hivSeedWeibullShape;
 	static double m_hivSeedWeibullScale;
