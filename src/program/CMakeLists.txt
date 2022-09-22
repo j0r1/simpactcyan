@@ -41,6 +41,7 @@ set(SOURCES_SIMPACT
 	../program-common/eventdropout.cpp
 	../program-common/eventperiodiclogging.cpp
 	../program-common/eventprepstart.cpp
+	../program-common/eventprepscreening.cpp
 	../program-common/eventsyncpopstats.cpp
 	../program-common/eventsyncrefyear.cpp
 	../program-common/eventcheckstopalgorithm.cpp

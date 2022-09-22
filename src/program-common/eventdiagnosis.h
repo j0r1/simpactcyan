@@ -27,7 +27,7 @@ private:
 class EventDiagnosis : public SimpactEvent
 {
 public:
-	EventDiagnosis(Person *pPerson);
+	EventDiagnosis(Person *pPerson, bool scheduleImmediately = false);
 	~EventDiagnosis();
 
 	std::string getDescription(double tNow) const;
@@ -45,6 +45,8 @@ private:
 	double calculateInternalTimeInterval(const State *pState, double t0, double dt);
 	double solveForRealTimeInterval(const State *pState, double Tdiff, double t0);
 	static double getTMax(const Person *pPerson);
+
+	bool m_scheduleImmediately;
 
 	static double s_baseline;
 	static double s_ageFactor;

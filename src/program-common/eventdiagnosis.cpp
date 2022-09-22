@@ -11,7 +11,7 @@
 
 using namespace std;
 
-EventDiagnosis::EventDiagnosis(Person *pPerson) : SimpactEvent(pPerson)
+EventDiagnosis::EventDiagnosis(Person *pPerson, bool scheduleImmediately) : SimpactEvent(pPerson), m_scheduleImmediately(scheduleImmediately)
 {
 }
 
@@ -67,6 +67,11 @@ void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// Mark the person as diagnosed
 	pPerson->hiv().increaseDiagnoseCount(t);
 
+	// If on PreP, stop PreP
+	if (pPerson->hiv().isOnPreP()) {
+		pPerson->hiv().stopPreP();
+	}
+
 	// Schedule an initial monitoring event right away! (the 'true' is for 'right away')
 	EventMonitoring *pEvtMonitor = new EventMonitoring(pPerson, true);
 	population.onNewEvent(pEvtMonitor);
@@ -74,6 +79,14 @@ void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 
 double EventDiagnosis::calculateInternalTimeInterval(const State *pState, double t0, double dt)
 {
+	// This is for the diagnosis event that should be scheduled right after the
+	// screening event
+	if (m_scheduleImmediately)
+	{
+		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
+		return hour;
+	}
+
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 
@@ -86,6 +99,14 @@ double EventDiagnosis::calculateInternalTimeInterval(const State *pState, double
 
 double EventDiagnosis::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
 {
+	// This is for the diagnosis event that should be scheduled right after the
+	// screening event
+	if (m_scheduleImmediately)
+	{
+		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
+		return hour;
+	}
+
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 

@@ -3,6 +3,7 @@
 #include "configfunctions.h"
 #include "configsettings.h"
 #include "configwriter.h"
+#include "eventprepscreening.h"
 #include "jsonconfig.h"
 
 using namespace std;
@@ -31,7 +32,10 @@ void EventPrePStart::fire(Algorithm *pAlgorithm, State *pState, double t)
 
 	pPerson->hiv().startPreP();
 
-	// TODO schedule PreP screening
+	// Schedule PreP screening immediately
+	EventPrePScreening *pEvt = new EventPrePScreening(pPerson, true);
+	population.onNewEvent(pEvt);
+
 	// TODO schedule PreP dropout?
 }
 
