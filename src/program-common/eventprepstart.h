@@ -18,6 +18,8 @@ public:
 
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);
+protected:
+	bool isUseless(const PopulationStateInterface &pop);
 private:
 	double calculateInternalTimeInterval(const State *pState, double t0, double dt);
 	double solveForRealTimeInterval(const State *pState, double Tdiff, double t0);
@@ -43,18 +45,3 @@ private:
 };
 
 #endif // EVENTPREPSTART_H
-
-/*
-class ProbabilityDistribution;
-
-class EventDiagnosis : public SimpactEvent
-{
-public:
-
-	// Since the hazard depends on the number of diagnosed partners,
-	// every partner of this person who is infected (so diagnosis event
-	// is possible) needs to be marked as affected
-	void markOtherAffectedPeople(const PopulationStateInterface &population);
-};
-
- */

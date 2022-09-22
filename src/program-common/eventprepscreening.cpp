@@ -58,10 +58,22 @@ void EventPrePScreening::obtainConfig(ConfigWriter &config)
 	addDistributionToConfig(s_pScreeningIntervalDistribution, config, "prepscreening.interval");
 }
 
+bool EventPrePScreening::isUseless(const PopulationStateInterface &pop)
+{
+	// PreP screening event becomes useless if person has been diagnosed with HIV
+	Person *pPerson = getPerson(0);
+
+	if (pPerson->hiv().isDiagnosed()) {
+		return true;
+	}
+
+	return false;
+}
+
 double EventPrePScreening::getNewInternalTimeDifference(GslRandomNumberGenerator *pRndGen, const State *pState)
 {
-	// This is for the monitoring event that should be scheduled right after the
-	// diagnosis event
+	// This is for the screening event that should be scheduled right after the
+	// prep start event event
 	if (m_scheduleImmediately)
 	{
 		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year

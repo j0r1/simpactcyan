@@ -61,6 +61,18 @@ void EventPrePStart::obtainConfig(ConfigWriter &config)
 		abortWithMessage(r.getErrorString());
 }
 
+bool EventPrePStart::isUseless(const PopulationStateInterface &pop)
+{
+	// PreP start event becomes useless if person has been diagnosed with HIV
+	Person *pPerson = getPerson(0);
+
+	if (pPerson->hiv().isDiagnosed()) {
+		return true;
+	}
+
+	return false;
+}
+
 double EventPrePStart::calculateInternalTimeInterval(const State *pState, double t0, double dt)
 {
 	Person *pPerson = getPerson(0);
