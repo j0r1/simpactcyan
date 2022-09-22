@@ -86,7 +86,7 @@ public:
 	double getFormationEagernessParameterMSM() const								{ assert(isMan()); return m_relations.getFormationEagernessParameterMSM(); }
 	double getPreferredAgeDifferenceMSM() const										{ assert(isMan()); return m_relations.getPreferredAgeDifferenceMSM(); }
 
-	double getCondomUseProbability(bool isPartnerDiagnosed) const;
+	bool usesCondom(bool isPartnerDiagnosed, GslRandomNumberGenerator *pRndGen) const;
 
 	// NOTE: this ignores the call if already in the list
 	void addPersonOfInterest(Person *pPerson)										{ m_relations.addPersonOfInterest(pPerson); }
@@ -149,7 +149,8 @@ private:
 	Point2D m_location;
 	double m_locationTime;
 
-	double m_condom_use_probability;
+	double m_condom_use_threshold;
+	bool m_uses_condom;
 	double m_health_seeking_propensity;
 
 	SexualRolePreference m_sexual_role_preference;
@@ -162,10 +163,10 @@ private:
 
 	static ProbabilityDistribution *m_pHealthSeekingPropensityDist;
 
-	static ProbabilityDistribution *m_pCondomUseProbDist;
+	static ProbabilityDistribution *m_pCondomUseDist;
 	static double m_concordanceCondomUseFactor;
 	static double m_artCondomUseFactor;
-	//static double m_prepCondomUseFactor;
+	static double m_prepCondomUseFactor;
 
 	static ProbabilityDistribution *m_pSexualRoleDist; // TODO ensure that this is a discrete distribution?
 

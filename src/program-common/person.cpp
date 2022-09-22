@@ -15,14 +15,14 @@
 using namespace std;
 
 Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_relations(this), m_hiv(this),
-	                                           m_chlamydia(this), m_hsv2(this), m_gonorrhea(this), m_syphilis(this), m_condom_use_probability(0),
+	                                           m_chlamydia(this), m_hsv2(this), m_gonorrhea(this), m_syphilis(this), m_condom_use_threshold(0),
 											   m_health_seeking_propensity(0), m_sexual_role_preference(SexualRolePreference::Variable)
 {
 	assert(g == Male || g == Female);
 
 	assert(m_pPopDist);
 	assert(m_pHealthSeekingPropensityDist);
-	assert(m_pCondomUseProbDist);
+	assert(m_pCondomUseDist);
 
 	Point2D loc = m_pPopDist->pickPoint();
 	assert(loc.x == loc.x && loc.y == loc.y); // check for NaN
@@ -32,9 +32,9 @@ Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_rel
 	assert(hsp == hsp); // check for NaN
 	setHealthSeekingPropensity(hsp);
 
-	double cup = m_pCondomUseProbDist->pickNumber();
+	double cup = m_pCondomUseDist->pickNumber();
 	assert(cup == cup); // check for NaN
-	m_condom_use_probability = cup; // TODO use setters?
+	m_condom_use_threshold = cup;
 
 	int sexrole = round(m_pSexualRoleDist->pickNumber());
 	m_sexual_role_preference = static_cast<SexualRolePreference>(sexrole);
@@ -53,34 +53,45 @@ double Person::m_popDistHeight = 0;
 
 ProbabilityDistribution *Person::m_pHealthSeekingPropensityDist = 0;
 
-ProbabilityDistribution *Person::m_pCondomUseProbDist = 0;
+ProbabilityDistribution *Person::m_pCondomUseDist = 0;
 double Person::m_concordanceCondomUseFactor = 1;
 double Person::m_artCondomUseFactor = 1;
+double Person::m_prepCondomUseFactor = 1;
 
 ProbabilityDistribution *Person::m_pSexualRoleDist = 0;
 
 
-double Person::getCondomUseProbability(bool isPartnerDiagnosed) const
+bool Person::usesCondom(bool isPartnerDiagnosed, GslRandomNumberGenerator *pRndGen) const
 {
-	double condomUseProbability = m_condom_use_probability;
+	double relationshipCondomUseThreshold = m_condom_use_threshold;
 	// Adjust for concordance of perceived HIV serostatus
 	bool amIDiagnosed = m_hiv.isDiagnosed();
 	if (isPartnerDiagnosed == amIDiagnosed) {
 		// Concordant HIV status
-		 condomUseProbability *= m_concordanceCondomUseFactor;
+		 relationshipCondomUseThreshold *= m_concordanceCondomUseFactor;
 	}
-	// Adjust for ART use in case of HIV positive
-	if (amIDiagnosed) {
-		bool amIUnderTreatment = m_hiv.hasLoweredViralLoad();
-		if (amIUnderTreatment) {
-			condomUseProbability *= m_artCondomUseFactor;
+
+	if (m_hiv.isInfected()) {
+		// Adjust for ART use in case person is HIV positive
+		if (m_hiv.hasLoweredViralLoad()) {
+			relationshipCondomUseThreshold *= m_artCondomUseFactor;
+		}
+
+	} else {
+		// Adjust for PreP use in case person is HIV negative
+		if (m_hiv.isOnPreP()) {
+			relationshipCondomUseThreshold *= m_prepCondomUseFactor;
 		}
 	}
 
-	return condomUseProbability;
-	// TODO base on PreP use?
-	// TODO concordant + and concordant - different?
-	// FIXME should this be framed as 'probability' in the context of hazard functions?
+	double rn = pRndGen->pickRandomDouble();
+	if (rn < relationshipCondomUseThreshold)
+	{
+		return true;
+	} else {
+		return false;
+	}
+
 }
 
 bool Person::isInfectedWithSTI() const
@@ -101,11 +112,12 @@ void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRn
 	m_pHealthSeekingPropensityDist = getDistributionFromConfig(config, pRndGen, "person.healthseekingpropensity");
 
 	// Condom use probability distributions
-	delete m_pCondomUseProbDist;
-	m_pCondomUseProbDist = getDistributionFromConfig(config, pRndGen, "person.condomuse");
+	delete m_pCondomUseDist;
+	m_pCondomUseDist = getDistributionFromConfig(config, pRndGen, "person.condomuse");
 	// Condom use adjustment factors
 	config.getKeyValue("person.condomuse.concordancefactor", m_concordanceCondomUseFactor);
 	config.getKeyValue("person.condomuse.artfactor", m_artCondomUseFactor);
+	config.getKeyValue("person.condomuse.prepfactor", m_prepCondomUseFactor);
 
 	// Sexual role preference distribution
 	delete m_pSexualRoleDist;
@@ -118,10 +130,11 @@ void Person::obtainConfig(ConfigWriter &config)
 	addDistribution2DToConfig(m_pPopDist, config, "person.geo");
 	assert(m_pHealthSeekingPropensityDist);
 	addDistributionToConfig(m_pHealthSeekingPropensityDist, config, "person.healthseekingpropensity");
-	assert(m_pCondomUseProbDist);
-	addDistributionToConfig(m_pCondomUseProbDist, config, "person.condomuse");
+	assert(m_pCondomUseDist);
+	addDistributionToConfig(m_pCondomUseDist, config, "person.condomuse");
 	config.addKey("person.condomuse.concordancefactor", m_concordanceCondomUseFactor);
 	config.addKey("person.condomuse.artfactor", m_artCondomUseFactor);
+	config.addKey("person.condomuse.prepfactor", m_prepCondomUseFactor);
 	addDistributionToConfig(m_pSexualRoleDist, config, "person.sexualrole");
 }
 

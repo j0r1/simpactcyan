@@ -45,7 +45,8 @@ JSONConfig personImplJSONConfig(R"JSON(
             "params": [
                 [ "person.condomuse.dist", "distTypes", [ "fixed", [ [ "value", 0 ] ] ] ],
 				[ "person.condomuse.concordancefactor", 1],
-				[ "person.condomuse.artfactor", 1]
+				[ "person.condomuse.artfactor", 1],
+				[ "person.condomuse.prepfactor", 1]
             ],
             "info": [ 
                 "The distribution specified by 'person.condomuse.dist' is used to assign",

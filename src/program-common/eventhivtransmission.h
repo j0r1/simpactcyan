@@ -41,7 +41,8 @@ protected:
 	static double s_f2;		/// Influence of woman's age on susceptibility
 	static double s_g1;		/// Set to 1 to include influence of individual susceptibility to HIV and HSV2
 	static double s_g2;		/// Set to 1 to include influence of individual susceptibility to HIV only
-	static double s_h;		///
+	static double s_h1;		/// Influence of condom use of infectious person
+	static double s_h2;  	/// Influence of condom use of susceptible person
 	static double s_i; 		/// Impact of PreP use of susceptible person.
 	static double s_tMaxAgeRefDiff;
 
