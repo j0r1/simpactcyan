@@ -1,6 +1,7 @@
 #ifndef PERSON_HSV2_H
-
 #define PERSON_HSV2_H
+
+#include "person_sti.h"
 
 #include "util.h"
 #include <assert.h>
@@ -11,20 +12,23 @@ class ConfigSettings;
 class ConfigWriter;
 class GslRandomNumberGenerator;
 
-class Person_HSV2
+class Person_HSV2 : public Person_STI
 {
 public:
-	enum InfectionType { None, Partner, Seed };
+	enum HSV2DiseaseStage {
+		Susceptible,
+		Infected
+	};
 
 	Person_HSV2(Person *pSelf);
 	~Person_HSV2();
 
-	InfectionType getInfectionType() const											{ return m_infectionType; }
-	void setInfected(double t, Person *pOrigin, InfectionType iType);
+	bool isInfected() const															{ return m_diseaseStage == Infected; }
+	bool isInfectious() const														{ return m_diseaseStage == Infected;}
+	HSV2DiseaseStage getDiseaseStage() const 										{ return m_diseaseStage; }
 
-	bool isInfected() const															{ if (m_infectionType == None) return false; return true; }
-	double getInfectionTime() const													{ assert(isInfected()); return m_infectionTime; }
-	Person *getInfectionOrigin() const												{ assert(isInfected()); return m_pInfectionOrigin; }
+	void setInfected(double t, Person *pOrigin, InfectionType iType);
+	void progress(double t);
 
 	double getHazardAParameter() const												{ return m_hazardAParam; }
 	double getHazardB2Parameter() const												{ return m_hazardB2Param; }
@@ -32,11 +36,8 @@ public:
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);
 private:
-	const Person *m_pSelf;
+	HSV2DiseaseStage m_diseaseStage;
 
-	double m_infectionTime;
-	Person *m_pInfectionOrigin;
-	InfectionType m_infectionType;
 	double m_hazardAParam;
 	double m_hazardB2Param;
 
