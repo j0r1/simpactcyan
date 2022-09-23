@@ -103,8 +103,8 @@ void EventHSV2Transmission::fire(Algorithm *pAlgorithm, State *pState, double t)
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
 
-	// Person 1 should be infected , person 2 should not be infected yet
-	assert(pPerson1->hsv2().isInfected());
+	// Person 1 should be infectious , person 2 should not be infected yet
+	assert(pPerson1->hsv2().isInfectious());
 	assert(!pPerson2->hsv2().isInfected());
 	
 	infectPerson(population, pPerson1, pPerson2, t);
