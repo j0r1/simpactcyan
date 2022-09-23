@@ -57,6 +57,7 @@ public:
 	double getLastCD4CountAtARTStart() const										{ assert(isInfected()); assert(m_VspLowered); return m_lastCD4AtTreatmentStart; }
 
 	double getARTAcceptanceThreshold() const										{ return m_artAcceptanceThreshold; }
+	double getPrePAcceptanceThreshold() const										{ return m_prepAcceptanceThreshold; }
 
 	void markAIDSDeath()															{ /*assert(hasDied());*/ m_aidsDeath = true; }
 	bool wasAIDSDeath() const														{ /*assert(hasDied());*/ return m_aidsDeath; }
@@ -100,6 +101,7 @@ private:
 	double m_lastCD4AtTreatmentStart;
 	double m_artAcceptanceThreshold;
 
+	double m_prepAcceptanceThreshold;
 	bool m_isOnPreP;
 
 	static double m_hivSeedWeibullShape;
@@ -115,6 +117,7 @@ private:
 	static ProbabilityDistribution *m_pCD4StartDistribution;
 	static ProbabilityDistribution *m_pCD4EndDistribution;
 	static ProbabilityDistribution *m_pARTAcceptDistribution;
+	static ProbabilityDistribution *m_pPrePAcceptDistribution;
 	static ProbabilityDistribution *m_pLogSurvTimeOffsetDistribution;
 	static ProbabilityDistribution *m_pB0Dist;
 	static ProbabilityDistribution *m_pB1Dist;

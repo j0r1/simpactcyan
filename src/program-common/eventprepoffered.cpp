@@ -1,45 +1,58 @@
-#include "eventprepstart.h"
-
 #include "configfunctions.h"
 #include "configsettings.h"
 #include "configwriter.h"
+#include "eventprepoffered.h"
 #include "eventprepscreening.h"
 #include "jsonconfig.h"
 
 using namespace std;
 
-EventPrePStart::EventPrePStart(Person *pPerson) : SimpactEvent(pPerson) {}
+EventPrePOffered::EventPrePOffered(Person *pPerson) : SimpactEvent(pPerson) {}
 
-EventPrePStart::~EventPrePStart() {}
+EventPrePOffered::~EventPrePOffered() {}
 
-string EventPrePStart::getDescription(double tNow) const
+string EventPrePOffered::getDescription(double tNow) const
 {
-	return strprintf("PreP start event for %s", getPerson(0)->getName().c_str());
+	return strprintf("PreP offered to %s", getPerson(0)->getName().c_str());
 }
 
-void EventPrePStart::writeLogs(const SimpactPopulation &pop, double tNow) const
+void EventPrePOffered::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
 	Person *pPerson = getPerson(0);
-	writeEventLogStart(true, "prepstart", tNow, pPerson, 0);
+	writeEventLogStart(true, "prepoffered", tNow, pPerson, 0);
 }
 
-void EventPrePStart::fire(Algorithm *pAlgorithm, State *pState, double t)
+void EventPrePOffered::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
 	SimpactPopulation &population = SIMPACTPOPULATION(pState);
+	GslRandomNumberGenerator *pRndGen = population.getRandomNumberGenerator();
 	Person *pPerson = getPerson(0);
 
 	assert(!pPerson->hiv().isInfected());
 
-	pPerson->hiv().startPreP();
+	// Check if person is willing to start PreP
+	bool isWillingToTakePreP = false;
+	double rn = pRndGen->pickRandomDouble();
+	if (rn < pPerson->hiv().getPrePAcceptanceThreshold()) {
+		isWillingToTakePreP = true;
+	}
 
-	// Schedule PreP screening immediately
-	EventPrePScreening *pEvt = new EventPrePScreening(pPerson, true);
-	population.onNewEvent(pEvt);
+	if (isWillingToTakePreP) {
+		// Start PreP
+		pPerson->hiv().startPreP();
+		// Schedule PreP screening immediately
+		EventPrePScreening *pEvt = new EventPrePScreening(pPerson, true);
 
-	// TODO schedule PreP dropout?
+		// TODO schedule PreP dropout?
+		population.onNewEvent(pEvt);
+	} else {
+		// Schedule new offering event
+		EventPrePOffered *pEvt = new EventPrePOffered(pPerson);
+		population.onNewEvent(pEvt);
+	}
 }
 
-void EventPrePStart::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
+void EventPrePOffered::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
 	bool_t r;
 
@@ -50,7 +63,7 @@ void EventPrePStart::processConfig(ConfigSettings &config, GslRandomNumberGenera
 		abortWithMessage(r.getErrorString());
 }
 
-void EventPrePStart::obtainConfig(ConfigWriter &config)
+void EventPrePOffered::obtainConfig(ConfigWriter &config)
 {
 	bool_t r;
 
@@ -61,7 +74,7 @@ void EventPrePStart::obtainConfig(ConfigWriter &config)
 		abortWithMessage(r.getErrorString());
 }
 
-bool EventPrePStart::isUseless(const PopulationStateInterface &pop)
+bool EventPrePOffered::isUseless(const PopulationStateInterface &pop)
 {
 	// PreP start event becomes useless if person has been diagnosed with HIV
 	Person *pPerson = getPerson(0);
@@ -73,29 +86,29 @@ bool EventPrePStart::isUseless(const PopulationStateInterface &pop)
 	return false;
 }
 
-double EventPrePStart::calculateInternalTimeInterval(const State *pState, double t0, double dt)
+double EventPrePOffered::calculateInternalTimeInterval(const State *pState, double t0, double dt)
 {
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 
-	HazardFunctionPrePStart h0(pPerson, s_baseline, s_beta);
+	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_beta);
 	TimeLimitedHazardFunction h(h0, tMax);
 
 	return h.calculateInternalTimeInterval(t0, dt);
 }
 
-double EventPrePStart::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
+double EventPrePOffered::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
 {
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 
-	HazardFunctionPrePStart h0(pPerson, s_baseline, s_beta);
+	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_beta);
 	TimeLimitedHazardFunction h(h0, tMax);
 
 	return h.solveForRealTimeInterval(t0, Tdiff);
 }
 
-double EventPrePStart::getTMax(const Person *pPerson)
+double EventPrePOffered::getTMax(const Person *pPerson)
 {
 	assert(pPerson != 0);
 	double tb = pPerson->getDateOfBirth();
@@ -104,9 +117,9 @@ double EventPrePStart::getTMax(const Person *pPerson)
 	return tb + s_tMax;
 }
 
-double EventPrePStart::s_baseline = 0;
-double EventPrePStart::s_beta = 0;
-double EventPrePStart::s_tMax = 200;
+double EventPrePOffered::s_baseline = 0;
+double EventPrePOffered::s_beta = 0;
+double EventPrePOffered::s_tMax = 200;
 
 // exp(baseline + beta*(t-t_debut))
 //
@@ -114,7 +127,7 @@ double EventPrePStart::s_tMax = 200;
 //
 //  A = baseline - beta*t_debut
 //  B = beta
-HazardFunctionPrePStart::HazardFunctionPrePStart(Person *pPerson, double baseline, double beta)
+HazardFunctionPrePOffered::HazardFunctionPrePOffered(Person *pPerson, double baseline, double beta)
 	: m_baseline(baseline), m_beta(beta)
 {
 	assert(pPerson != 0);
@@ -127,15 +140,15 @@ HazardFunctionPrePStart::HazardFunctionPrePStart(Person *pPerson, double baselin
 	setAB(A, B);
 }
 
-ConfigFunctions prepStartConfigFunctions(EventPrePStart::processConfig, EventPrePStart::obtainConfig, "EventPrePStart");
+ConfigFunctions prepOfferedConfigFunctions(EventPrePOffered::processConfig, EventPrePOffered::obtainConfig, "EventPrePOffered");
 
-JSONConfig prepStartJSONConfig(R"JSON(
-        "EventPrePStart": {
+JSONConfig prepOfferedJSONConfig(R"JSON(
+        "EventPrePOffered": {
             "depends": null,
             "params": [
-                [ "prepstart.baseline", 0 ],
-                [ "diagnosis.beta", 0 ],
-                [ "diagnosis.t_max", 200 ]
+                [ "prepoffered.baseline", 0 ],
+                [ "prepoffered.beta", 0 ],
+                [ "prepoffered.t_max", 200 ]
             ],
             "info": [
                 "TODO"
@@ -147,14 +160,6 @@ JSONConfig prepStartJSONConfig(R"JSON(
 #include "gslrandomnumbergenerator.h"
 #include "util.h"
 #include <iostream>
-
-void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
-{
-	// Schedule an initial monitoring event right away! (the 'true' is for 'right away')
-	EventMonitoring *pEvtMonitor = new EventMonitoring(pPerson, true);
-	population.onNewEvent(pEvtMonitor);
-}
-
 
 
 void EventDiagnosis::markOtherAffectedPeople(const PopulationStateInterface &population)

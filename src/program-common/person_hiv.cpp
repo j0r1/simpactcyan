@@ -37,6 +37,8 @@ Person_HIV::Person_HIV(Person *pSelf) : m_pSelf(pSelf)
 	assert(m_pARTAcceptDistribution);
 	m_artAcceptanceThreshold = m_pARTAcceptDistribution->pickNumber();
 
+	assert(m_pPrePAcceptDistribution);
+	m_prepAcceptanceThreshold = m_pPrePAcceptDistribution->pickNumber();
 	m_isOnPreP = false;
 
 	m_aidsDeath = false;
@@ -242,6 +244,7 @@ VspModel *Person_HIV::m_pVspModel = 0;
 ProbabilityDistribution *Person_HIV::m_pCD4StartDistribution = 0;
 ProbabilityDistribution *Person_HIV::m_pCD4EndDistribution = 0;
 ProbabilityDistribution *Person_HIV::m_pARTAcceptDistribution = 0;
+ProbabilityDistribution *Person_HIV::m_pPrePAcceptDistribution = 0;
 
 ProbabilityDistribution *Person_HIV::m_pLogSurvTimeOffsetDistribution = 0;
 ProbabilityDistribution *Person_HIV::m_pB0Dist = 0;
@@ -324,6 +327,9 @@ void Person_HIV::processConfig(ConfigSettings &config, GslRandomNumberGenerator 
 	delete m_pARTAcceptDistribution;
 	m_pARTAcceptDistribution = getDistributionFromConfig(config, pRndGen, "person.art.accept.threshold");
 
+	delete m_pPrePAcceptDistribution;
+	m_pPrePAcceptDistribution = getDistributionFromConfig(config, pRndGen, "person.prep.accept.threshold");
+
 	delete m_pLogSurvTimeOffsetDistribution;
 	m_pLogSurvTimeOffsetDistribution = getDistributionFromConfig(config, pRndGen, "person.survtime.logoffset");
 
@@ -346,6 +352,7 @@ void Person_HIV::obtainConfig(ConfigWriter &config)
 	addDistributionToConfig(m_pCD4StartDistribution, config, "person.cd4.start");
 	addDistributionToConfig(m_pCD4EndDistribution, config, "person.cd4.end");
 	addDistributionToConfig(m_pARTAcceptDistribution, config, "person.art.accept.threshold");
+	addDistributionToConfig(m_pPrePAcceptDistribution, config, "person.prep.accept.threshold");
 	addDistributionToConfig(m_pLogSurvTimeOffsetDistribution, config, "person.survtime.logoffset");
 	addDistributionToConfig(m_pB0Dist, config, "person.hiv.b0");
 	addDistributionToConfig(m_pB1Dist, config, "person.hiv.b1");
@@ -494,7 +501,7 @@ JSONConfig personHIVJSONConfig(R"JSON(
             "info": null 
         },
 
-        "PersonARTAcceptange": {
+        "PersonARTAcceptance": {
             "depends": null,
             "params": [ 
                 [ "person.art.accept.threshold.dist", "distTypes", ["fixed", [ ["value", 0.5 ] ] ] ]
@@ -510,6 +517,17 @@ JSONConfig personHIVJSONConfig(R"JSON(
                 "If this distribution returns a low value (close to zero), it means that ",
                 "there's little chance of accepting treatment; if the value is higher (close to",
                 "one), treatment will almost always be accepted."
+            ]
+        },
+
+        "PersonPrePAcceptance": {
+            "depends": null,
+            "params": [ 
+                [ "person.prep.accept.threshold.dist", "distTypes", ["fixed", [ ["value", 0.3 ] ] ] ]
+            ],
+            "info": [
+                "This parameter specifies a distribution from which a number will be chosen",
+                "for each person, and which serves as the threshold to start PreP (if offered)."
             ]
         },
 
