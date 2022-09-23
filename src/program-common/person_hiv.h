@@ -141,21 +141,21 @@ inline double Person_HIV::getViralLoad() const
 
 inline void Person_HIV::setInChronicStage(double tNow)
 { 
-	assert(m_infectionStage == Acute); 
+	//assert(m_infectionStage == Acute);
 	m_infectionStage = Chronic; 
 	writeToViralLoadLog(tNow, "Chronic stage"); 
 }
 
 inline void Person_HIV::setInAIDSStage(double tNow)
 { 
-	assert(m_infectionStage == Chronic); 
+	//assert(m_infectionStage == Chronic);
 	m_infectionStage = AIDS; 
 	writeToViralLoadLog(tNow, "AIDS stage"); 
 }
 
 inline void Person_HIV::setInFinalAIDSStage(double tNow)
 { 
-	assert(m_infectionStage == AIDS); 
+	//assert(m_infectionStage == AIDS);
 	m_infectionStage = AIDSFinal; 
 	writeToViralLoadLog(tNow, "Final AIDS stage");
 }

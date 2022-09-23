@@ -7,7 +7,7 @@
 #include "util.h"
 #include <iostream>
 
-EventChronicStage::EventChronicStage(Person *pPerson) : SimpactEvent(pPerson)
+EventChronicStage::EventChronicStage(Person *pPerson, bool scheduleImmediately) : SimpactEvent(pPerson), m_scheduleImmediately(scheduleImmediately)
 {
 }
 
@@ -23,6 +23,13 @@ double EventChronicStage::getNewInternalTimeDifference(GslRandomNumberGenerator 
 	assert(pPerson != 0);
 	assert(getNumberOfPersons() == 1);
 	assert(pPerson->hiv().isInfected());
+
+	// This is for seeding people in chronic stage of HIV
+	if (m_scheduleImmediately)
+	{
+		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
+		return hour;
+	}
 
 	assert(m_acuteTime > 0); 
 

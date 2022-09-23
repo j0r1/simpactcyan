@@ -9,7 +9,7 @@ class ConfigSettings;
 class EventChronicStage : public SimpactEvent
 {
 public:
-	EventChronicStage(Person *pPerson);
+	EventChronicStage(Person *pPerson, bool scheduleImmediately = false);
 	~EventChronicStage();
 
 	std::string getDescription(double tNow) const;
@@ -22,6 +22,7 @@ public:
 	static void obtainConfig(ConfigWriter &config);
 private:
 	double getNewInternalTimeDifference(GslRandomNumberGenerator *pRndGen, const State *pState);
+	bool m_scheduleImmediately;
 
 	static double m_acuteTime;
 };

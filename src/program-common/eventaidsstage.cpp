@@ -6,9 +6,10 @@
 
 using namespace std;
 
-EventAIDSStage::EventAIDSStage(Person *pPerson, bool final) : SimpactEvent(pPerson)
+EventAIDSStage::EventAIDSStage(Person *pPerson, bool finalStage, bool scheduleImmediately) : SimpactEvent(pPerson)
 {
-	m_finalStage = final;
+	m_scheduleImmediately = scheduleImmediately;
+	m_finalStage = finalStage;
 }
 
 EventAIDSStage::~EventAIDSStage()
@@ -59,6 +60,14 @@ void EventAIDSStage::fire(Algorithm *pAlgorithm, State *pState, double t)
 
 double EventAIDSStage::getNewInternalTimeDifference(GslRandomNumberGenerator *pRndGen, const State *pState)
 {
+	// This is for the diagnosis event that should be scheduled right after the
+	// screening event
+	if (m_scheduleImmediately)
+	{
+		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
+		return hour;
+	}
+
 	double currentTime = pState->getTime();
 	double newStageTime = getNewStageTime(currentTime);
 	assert(newStageTime > currentTime);
@@ -69,12 +78,28 @@ double EventAIDSStage::getNewInternalTimeDifference(GslRandomNumberGenerator *pR
 
 double EventAIDSStage::calculateInternalTimeInterval(const State *pState, double t0, double dt)
 {
+	// This is for the diagnosis event that should be scheduled right after the
+	// screening event
+	if (m_scheduleImmediately)
+	{
+		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
+		return hour;
+	}
+
 	checkFireTime(t0);
 	return m_eventHelper.calculateInternalTimeInterval(pState, t0, dt, this);
 }
 
 double EventAIDSStage::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
 {
+	// This is for the diagnosis event that should be scheduled right after the
+	// screening event
+	if (m_scheduleImmediately)
+	{
+		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
+		return hour;
+	}
+
 	checkFireTime(t0);
 	return m_eventHelper.solveForRealTimeInterval(pState, Tdiff, t0, this);
 }

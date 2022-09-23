@@ -7,7 +7,7 @@
 class EventAIDSStage : public SimpactEvent
 {
 public:
-	EventAIDSStage(Person *pPerson, bool final);
+	EventAIDSStage(Person *pPerson, bool finalStage, bool scheduleImmediately = false);
 	~EventAIDSStage();
 
 	std::string getDescription(double tNow) const;
@@ -23,6 +23,8 @@ private:
 
 	void checkFireTime(double t0);
 	double getNewStageTime(double currentTime) const;
+
+	bool m_scheduleImmediately;
 
 	EventVariableFireTime_Helper m_eventHelper;
 	bool m_finalStage;
