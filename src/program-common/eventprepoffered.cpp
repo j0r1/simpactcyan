@@ -56,9 +56,9 @@ void EventPrePOffered::processConfig(ConfigSettings &config, GslRandomNumberGene
 {
 	bool_t r;
 
-	if (!(r = config.getKeyValue("prepstart.baseline", s_baseline)) ||
-			!(r = config.getKeyValue("prepstart.beta", s_beta)) ||
-			!(r = config.getKeyValue("prepstart.t_max", s_tMax))
+	if (!(r = config.getKeyValue("prepoffered.baseline", s_baseline)) ||
+			!(r = config.getKeyValue("prepoffered.beta", s_beta)) ||
+			!(r = config.getKeyValue("prepoffered.t_max", s_tMax))
 		)
 		abortWithMessage(r.getErrorString());
 }
@@ -67,9 +67,9 @@ void EventPrePOffered::obtainConfig(ConfigWriter &config)
 {
 	bool_t r;
 
-	if (!(r = config.addKey("prepstart.baseline", s_baseline)) ||
-			!(r = config.addKey("prepstart.beta", s_beta)) ||
-			!(r = config.addKey("prepstart.t_max", s_tMax))
+	if (!(r = config.addKey("prepoffered.baseline", s_baseline)) ||
+			!(r = config.addKey("prepoffered.beta", s_beta)) ||
+			!(r = config.addKey("prepoffered.t_max", s_tMax))
 		)
 		abortWithMessage(r.getErrorString());
 }
