@@ -57,6 +57,7 @@ void EventPrePOffered::processConfig(ConfigSettings &config, GslRandomNumberGene
 	bool_t r;
 
 	if (!(r = config.getKeyValue("prepoffered.baseline", s_baseline)) ||
+			!(r = config.getKeyValue("prepofferd.diagpartnersfactor", s_diagpartnersfactor)) ||
 			!(r = config.getKeyValue("prepoffered.beta", s_beta)) ||
 			!(r = config.getKeyValue("prepoffered.t_max", s_tMax))
 		)
@@ -68,6 +69,7 @@ void EventPrePOffered::obtainConfig(ConfigWriter &config)
 	bool_t r;
 
 	if (!(r = config.addKey("prepoffered.baseline", s_baseline)) ||
+			!(r = config.addKey("prepoffered.diagpartnersfactor", s_diagpartnersfactor)) ||
 			!(r = config.addKey("prepoffered.beta", s_beta)) ||
 			!(r = config.addKey("prepoffered.t_max", s_tMax))
 		)
@@ -76,7 +78,7 @@ void EventPrePOffered::obtainConfig(ConfigWriter &config)
 
 bool EventPrePOffered::isUseless(const PopulationStateInterface &pop)
 {
-	// PreP start event becomes useless if person has been diagnosed with HIV
+	// PreP offering event becomes useless if person has been diagnosed with HIV
 	Person *pPerson = getPerson(0);
 
 	if (pPerson->hiv().isDiagnosed()) {
@@ -91,7 +93,7 @@ double EventPrePOffered::calculateInternalTimeInterval(const State *pState, doub
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 
-	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_beta);
+	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_diagpartnersfactor, s_beta);
 	TimeLimitedHazardFunction h(h0, tMax);
 
 	return h.calculateInternalTimeInterval(t0, dt);
@@ -102,7 +104,7 @@ double EventPrePOffered::solveForRealTimeInterval(const State *pState, double Td
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 
-	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_beta);
+	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_diagpartnersfactor, s_beta);
 	TimeLimitedHazardFunction h(h0, tMax);
 
 	return h.solveForRealTimeInterval(t0, Tdiff);
@@ -118,6 +120,7 @@ double EventPrePOffered::getTMax(const Person *pPerson)
 }
 
 double EventPrePOffered::s_baseline = 0;
+double EventPrePOffered::s_diagpartnersfactor = 0;
 double EventPrePOffered::s_beta = 0;
 double EventPrePOffered::s_tMax = 200;
 
@@ -125,16 +128,20 @@ double EventPrePOffered::s_tMax = 200;
 //
 // = exp(A + B*t) with
 //
-//  A = baseline - beta*t_debut
+//  A = baseline + s_diatpartnersfactor*Dp - beta*t_debut
 //  B = beta
-HazardFunctionPrePOffered::HazardFunctionPrePOffered(Person *pPerson, double baseline, double beta)
-	: m_baseline(baseline), m_beta(beta)
+//
+// wit Dp the number of diagnosed partners
+HazardFunctionPrePOffered::HazardFunctionPrePOffered(Person *pPerson, double baseline, double diagpartnersfactor, double beta)
+	: m_baseline(baseline), m_diagpartnersfactor(diagpartnersfactor), m_beta(beta)
 {
 	assert(pPerson != 0);
 	m_pPerson = pPerson;
 
 	double tdebut = pPerson->getDebutTime();
-	double A = baseline - beta * tdebut;
+	int Dp = pPerson->getNumberOfDiagnosedPartners();
+
+	double A = baseline + diagpartnersfactor * Dp - beta * tdebut;
 	double B = beta;
 
 	setAB(A, B);
@@ -147,6 +154,7 @@ JSONConfig prepOfferedJSONConfig(R"JSON(
             "depends": null,
             "params": [
                 [ "prepoffered.baseline", 0 ],
+				[ "prepofferd.diagpartnersfactor", 0],
                 [ "prepoffered.beta", 0 ],
                 [ "prepoffered.t_max", 200 ]
             ],
@@ -154,32 +162,3 @@ JSONConfig prepOfferedJSONConfig(R"JSON(
                 "TODO"
             ]
         })JSON");
-
-/*
-
-#include "gslrandomnumbergenerator.h"
-#include "util.h"
-#include <iostream>
-
-
-void EventDiagnosis::markOtherAffectedPeople(const PopulationStateInterface &population)
-{
-	Person *pPerson = getPerson(0);
-
-	// Infected partners (who possibly have a diagnosis event, of which
-	// the hazard depends on the number of diagnosed partners), are also
-	// affected!
-	int numRel = pPerson->getNumberOfRelationships();
-
-	pPerson->startRelationshipIteration();
-	for (int i = 0 ; i < numRel ; i++)
-	{
-		double tDummy;
-		Person *pPartner = pPerson->getNextRelationshipPartner(tDummy);
-
-		if (pPartner->hiv().isInfected())
-			population.markAffectedPerson(pPartner);
-	}
-}
- *
- */

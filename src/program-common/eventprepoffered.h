@@ -29,7 +29,7 @@ private:
 	// TODO age factor?
 	// TODO genderfactor / msm factor?
 	// TODO health seeking propensity factor
-	// TODO (diagnosed) partners factor
+	static double s_diagpartnersfactor;
 	static double s_beta;
 	static double s_tMax;
 };
@@ -37,10 +37,11 @@ private:
 class HazardFunctionPrePOffered : public HazardFunctionExp
 {
 public:
-	HazardFunctionPrePOffered(Person *pPerson, double baseline, double beta);
+	HazardFunctionPrePOffered(Person *pPerson, double baseline, double diagpartnersfactor, double beta);
 private:
 	Person *m_pPerson;
 	const double m_baseline;
+	const double m_diagpartnersfactor;
 	const double m_beta;
 };
 
