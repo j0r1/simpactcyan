@@ -57,7 +57,7 @@ void EventPrePOffered::processConfig(ConfigSettings &config, GslRandomNumberGene
 	bool_t r;
 
 	if (!(r = config.getKeyValue("prepoffered.baseline", s_baseline)) ||
-			!(r = config.getKeyValue("prepofferd.diagpartnersfactor", s_diagpartnersfactor)) ||
+			!(r = config.getKeyValue("prepoffered.diagpartnersfactor", s_diagpartnersfactor)) ||
 			!(r = config.getKeyValue("prepoffered.beta", s_beta)) ||
 			!(r = config.getKeyValue("prepoffered.t_max", s_tMax))
 		)
@@ -154,7 +154,7 @@ JSONConfig prepOfferedJSONConfig(R"JSON(
             "depends": null,
             "params": [
                 [ "prepoffered.baseline", 0 ],
-				[ "prepofferd.diagpartnersfactor", 0],
+				[ "prepoffered.diagpartnersfactor", 0],
                 [ "prepoffered.beta", 0 ],
                 [ "prepoffered.t_max", 200 ]
             ],
