@@ -94,7 +94,7 @@ bool EventFormation::isUseless(const PopulationStateInterface &pop)
 	if (pPerson1->hiv().getInfectionStage() == Person_HIV::AIDSFinal || pPerson2->hiv().getInfectionStage() == Person_HIV::AIDSFinal)
 		return true;
 	
-	// Formation event becomes useless if sexual roles are not compatible
+	// Formation event becomes useless if sexual roles are not compatible (only for MSM)
 	if (pPerson1->isMan() && pPerson2->isMan())
 	{
 	  int p1Role = pPerson1->getPreferredSexualRole();
