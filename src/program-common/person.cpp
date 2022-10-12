@@ -158,6 +158,7 @@ void Person::writeToPersonLog()
 	double debutTime = (isSexuallyActive())? m_relations.getDebutTime():infinity;
 	double formationEagerness = getFormationEagernessParameter();
 	double formationEagernessMSM = (isMan())?getFormationEagernessParameterMSM():NaN;
+	int SexualRole = getPreferredSexualRole();
 	
 	double infectionTime = (m_hiv.isInfected())? m_hiv.getInfectionTime() : infinity;
 	Person *pOrigin = (m_hiv.isInfected())? m_hiv.getInfectionOrigin() : 0;
@@ -200,9 +201,9 @@ void Person::writeToPersonLog()
 	double cd4AtInfection = (m_hiv.isInfected())?m_hiv.getCD4CountAtInfectionStart() : (-1);
 	double cd4AtDeath = (m_hiv.isInfected())?m_hiv.getCD4CountAtDeath() : (-1);
 
-	LogPerson.print("%d,%d,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%10.10f,%10.10f,%10.10f",
+	LogPerson.print("%d,%d,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%10.10f,%10.10f,%10.10f",
 		        id, gender, timeOfBirth, timeOfDeath, fatherID, motherID, debutTime,
-		        formationEagerness,formationEagernessMSM,
+		        formationEagerness,formationEagernessMSM, SexualRole,
 		        infectionTime, origin, infectionType, log10SPVLoriginal, treatmentTime,
 				m_location.x, m_location.y, aidsDeath,
 				hsv2InfectionTime, hsv2origin, cd4AtInfection, cd4AtDeath, m_health_seeking_propensity);
@@ -225,7 +226,7 @@ void Person::writeToTreatmentLog(double dropoutTime, bool justDied)
 	assert(m_hiv.hasLoweredViralLoad());
 	assert(lastTreatmentStartTime >= 0);
 
-	LogTreatment.print("%d,%d,%10.10f,%10.10f,%d,%10.10f", id, gender, lastTreatmentStartTime, 
+	LogTreatment.print("%d,%d,%10.10f,%10.10f,%d,%10.10f,%10.10f", id, gender, lastTreatmentStartTime, 
 	                                                       dropoutTime, justDiedInt, lastCD4AtDiagnosis, lastCD4AtTreatmentStart);
 }
 

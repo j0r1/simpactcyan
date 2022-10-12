@@ -63,6 +63,27 @@ void EventFormation::writeLogs(const SimpactPopulation &pop, double tNow) const
 	writeEventLogStart(true, evtName, tNow, pPerson1, pPerson2);
 }
 
+// Function to check sexual role compatibility for MSM
+bool EventFormation::isCompatible(Person *pPerson1, Person *pPerson2)
+{
+
+  // for MSM
+  if (pPerson1->isMan() && pPerson2->isMan())
+  {
+    int p1Role = pPerson1->getPreferredSexualRole();
+    int p2Role = pPerson2->getPreferredSexualRole();
+  
+  // not compatible if both the same role and not versatile
+    if (p1Role == p2Role && p1Role != 0)
+    {
+      return false;
+    }
+  }
+  
+  // always compatible for heterosexual relationships
+  return true;
+}
+
 bool EventFormation::isUseless(const PopulationStateInterface &pop)
 {
 	// Formation event becomes useless if one of the people is in the final AIDS
@@ -72,6 +93,19 @@ bool EventFormation::isUseless(const PopulationStateInterface &pop)
 	
 	if (pPerson1->hiv().getInfectionStage() == Person_HIV::AIDSFinal || pPerson2->hiv().getInfectionStage() == Person_HIV::AIDSFinal)
 		return true;
+	
+	// Formation event becomes useless if sexual roles are not compatible
+	if (pPerson1->isMan() && pPerson2->isMan())
+	{
+	  int p1Role = pPerson1->getPreferredSexualRole();
+	  int p2Role = pPerson2->getPreferredSexualRole();
+	  
+	  // not compatible if both the same role and not versatile
+	  if (p1Role == p2Role && p1Role != 0)
+	  {
+	    return true;
+	  }
+	}
 
 	// Check if old formation events need to be dropped because a person moved
 

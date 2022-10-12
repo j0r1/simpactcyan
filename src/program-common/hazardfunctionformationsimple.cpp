@@ -26,8 +26,14 @@ double HazardFunctionFormationSimple::evaluate(double t)
 {
 	double lnB = getLnB();
 	double C = getC();
+	
+	// if not compatible, no relationship formation
+	//if(!getComp()){
+	 //return -10000000 
+	//}
 
 	return std::exp(lnB+C*t);
+	
 }
 
 double HazardFunctionFormationSimple::calculateInternalTimeInterval(double t0, double dt)
@@ -71,6 +77,7 @@ double HazardFunctionFormationSimple::solveForRealTimeInterval(double t0, double
 
 		dt = (1.0/C)*std::log((C/E)*Tdiff+1.0);
 	}
+
 	return dt;
 }
 
