@@ -161,6 +161,16 @@ double Person_HIV::getCD4Count(double t) const
 	return CD4;
 }
 
+bool Person_HIV::isEligibleForPreP() const
+{
+	if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
+			(m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold)) {
+		return true;
+	}
+	// TODO condom use?
+	return false;
+}
+
 double Person_HIV::getViralLoadFromSetPointViralLoad(double x) const
 {
 	assert(m_infectionStage != NoInfection);
@@ -240,6 +250,9 @@ double Person_HIV::m_finalAidsFromSetPointParamX = -1;
 
 double Person_HIV::m_maxViralLoad = -1; // this one is read from the config file
 
+int Person_HIV::m_numPartnersPrePThreshold = 0;
+int Person_HIV::m_numDiagPartnersPrePThreshold = 0;
+
 VspModel *Person_HIV::m_pVspModel = 0;
 ProbabilityDistribution *Person_HIV::m_pCD4StartDistribution = 0;
 ProbabilityDistribution *Person_HIV::m_pCD4EndDistribution = 0;
@@ -266,8 +279,11 @@ void Person_HIV::processConfig(ConfigSettings &config, GslRandomNumberGenerator 
 	    !(r = config.getKeyValue("person.vsp.toacute.x", m_acuteFromSetPointParamX, 0)) ||
 	    !(r = config.getKeyValue("person.vsp.toaids.x", m_aidsFromSetPointParamX, 0)) ||
 	    !(r = config.getKeyValue("person.vsp.tofinalaids.x", m_finalAidsFromSetPointParamX, m_aidsFromSetPointParamX)) ||
-	    !(r = config.getKeyValue("person.vsp.maxvalue", m_maxViralLoad, 0)) )
+	    !(r = config.getKeyValue("person.vsp.maxvalue", m_maxViralLoad, 0)) ||
+		!(r = config.getKeyValue("person.prep.eligibility.threshold.numpartners", m_numPartnersPrePThreshold)) ||
+		!(r = config.getKeyValue("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold)))
 		abortWithMessage(r.getErrorString());
+
 
 	delete m_pVspModel;
 	m_pVspModel = 0;
@@ -346,7 +362,9 @@ void Person_HIV::obtainConfig(ConfigWriter &config)
 	if (!(r = config.addKey("person.vsp.toacute.x", m_acuteFromSetPointParamX)) ||
 	    !(r = config.addKey("person.vsp.toaids.x", m_aidsFromSetPointParamX)) ||
 	    !(r = config.addKey("person.vsp.tofinalaids.x", m_finalAidsFromSetPointParamX)) ||
-	    !(r = config.addKey("person.vsp.maxvalue", m_maxViralLoad)) )
+	    !(r = config.addKey("person.vsp.maxvalue", m_maxViralLoad)) ||
+		!(r = config.addKey("person.prep.eligibility.threshold.numpartners", m_numPartnersPrePThreshold)) ||
+		!(r = config.addKey("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold)) )
 		abortWithMessage(r.getErrorString());
 
 	addDistributionToConfig(m_pCD4StartDistribution, config, "person.cd4.start");
@@ -519,6 +537,15 @@ JSONConfig personHIVJSONConfig(R"JSON(
                 "one), treatment will almost always be accepted."
             ]
         },
+
+		"PersonPrePEligibility": {
+			"depends": null,
+			"params": [
+				["person.prep.eligibility.threshold.numpartners", 0],
+                ["person.prep.eligibility.threshold.numdiagpartners", 0] 
+			],
+			"info": [ "TODO" ]
+		},
 
         "PersonPrePAcceptance": {
             "depends": null,

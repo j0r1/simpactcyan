@@ -66,7 +66,7 @@ public:
 	int getNumberOfRelationships() const											{ return m_relations.getNumberOfRelationships(); }
 	void startRelationshipIteration()												{ m_relations.startRelationshipIteration(); }
 	Person *getNextRelationshipPartner(double &formationTime)						{ return m_relations.getNextRelationshipPartner(formationTime); }
-	int getNumberOfDiagnosedPartners()												{ return m_relations.getNumberOfDiagnosedPartners(); }
+	int getNumberOfDiagnosedPartners() 												{ return m_relations.getNumberOfDiagnosedPartners(); }
 
 	bool hasRelationshipWith(Person *pPerson) const									{ return m_relations.hasRelationshipWith(pPerson); }
 

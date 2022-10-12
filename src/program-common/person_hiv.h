@@ -49,6 +49,7 @@ public:
 	double getCD4CountAtDeath() const												{ return m_cd4AtDeath; }
 	double getCD4Count(double t) const;
 
+	bool isEligibleForPreP() const;
 	bool isOnPreP() const 															{ return m_isOnPreP; }
 	void startPreP() 																{ m_isOnPreP = true; }
 	void stopPreP() 																{ m_isOnPreP = false; }
@@ -77,7 +78,7 @@ private:
 	static double pickSeedSetPointViralLoad();
 	static double pickInheritedSetPointViralLoad(const Person *pOrigin);
 
-	const Person *m_pSelf;
+	Person *m_pSelf;
 
 	double m_infectionTime;
 	Person *m_pInfectionOrigin;
@@ -111,6 +112,9 @@ private:
 	static double m_aidsFromSetPointParamX;
 	static double m_finalAidsFromSetPointParamX;
 	static double m_maxViralLoad;
+
+	static int m_numPartnersPrePThreshold;
+	static int m_numDiagPartnersPrePThreshold;
 
 	static VspModel *m_pVspModel;
 
