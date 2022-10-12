@@ -163,6 +163,9 @@ double Person_HIV::getCD4Count(double t) const
 
 bool Person_HIV::isEligibleForPreP() const
 {
+	if (isDiagnosed()) { // PreP cannot be offered to individual's that have already been diagnosed with HIV
+		return false;
+	}
 	if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
 			(m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold)) {
 		return true;

@@ -9,6 +9,7 @@
 #include "evthazardformationagegap.h"
 #include "evthazardformationagegaprefyear.h"
 #include "eventconception.h"
+#include "eventprepoffered.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
 #include "util.h"
@@ -107,6 +108,9 @@ void EventFormation::fire(Algorithm *pAlgorithm, State *pState, double t)
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
 
+	bool p1_was_eligible_for_prep = pPerson1->hiv().isEligibleForPreP();
+	bool p2_was_eligible_for_prep = pPerson2->hiv().isEligibleForPreP();
+
 	pPerson1->addRelationship(pPerson2, t);
 	pPerson2->addRelationship(pPerson1, t);
 
@@ -166,6 +170,20 @@ void EventFormation::fire(Algorithm *pAlgorithm, State *pState, double t)
 			population.onNewEvent(pEvtTrans);
 		} 
 	}
+
+	// Check if either person has become eligible for PreP
+	if ((!p1_was_eligible_for_prep) && (pPerson1->hiv().isEligibleForPreP())) {
+		// Schedule PreP being offered to this person
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson1);
+		population.onNewEvent(pEvtPreP);
+	}
+
+	if ((!p2_was_eligible_for_prep) && (pPerson2->hiv().isEligibleForPreP())) {
+		// Schedule PreP being offered to this person
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson2);
+		population.onNewEvent(pEvtPreP);
+	}
+
 }
 
 double EventFormation::calculateInternalTimeInterval(const State *pState, double t0, double dt)
