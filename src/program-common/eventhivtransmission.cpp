@@ -65,7 +65,7 @@ bool EventHIVTransmission::isUseless(const PopulationStateInterface &population)
 		return true;
 	}
 
-	// Event also gecomes useless if the first person (origin) is now in the _final_ AIDS stage
+	// Event also becomes useless if the first person (origin) is now in the _final_ AIDS stage
 	if (pPerson1->hiv().getInfectionStage() == Person_HIV::AIDSFinal)
 		return true;
 
@@ -162,8 +162,7 @@ double EventHIVTransmission::s_f1 = 0;
 double EventHIVTransmission::s_f2 = 0;
 double EventHIVTransmission::s_g1 = 0;
 double EventHIVTransmission::s_g2 = 0;
-double EventHIVTransmission::s_h1 = 0;
-double EventHIVTransmission::s_h2 = 0;
+double EventHIVTransmission::s_h = 0;
 double EventHIVTransmission::s_i = 0;
 double EventHIVTransmission::s_tMaxAgeRefDiff = -1;
 
@@ -209,8 +208,8 @@ double EventHIVTransmission::calculateHazardFactor(const SimpactPopulation &popu
 	
 	int PrePj = pPerson2->hiv().isOnPreP();
 
-	double CondomUseP1 = pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator());
-	double CondomUseP2 = pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator());
+	bool CondomUse = (pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+			(pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()));
 
 	assert(s_a != 0);
 	assert(s_b != 0);
@@ -219,7 +218,7 @@ double EventHIVTransmission::calculateHazardFactor(const SimpactPopulation &popu
 	double logh = s_a + s_b * std::pow(V,-s_c) + s_d1*Pi + s_d2*Pj
 			+ s_e1*getH(pPerson1) + s_e2*getH(pPerson2)
 	+ s_g1*pPerson2->hiv().getHazardB0Parameter() + s_g2*pPerson2->hiv().getHazardB1Parameter()
-	+ s_h1*CondomUseP1 + s_h2*CondomUseP2 + s_i*PrePj;
+	+ s_h*CondomUse + s_i*PrePj;
 
 	if (s_f1 != 0 && pPerson2->isWoman())
 	{
@@ -255,8 +254,7 @@ void EventHIVTransmission::processConfig(ConfigSettings &config, GslRandomNumber
 	    !(r = config.getKeyValue("hivtransmission.param.f2", s_f2)) ||
 	    !(r = config.getKeyValue("hivtransmission.param.g1", s_g1)) ||
 	    !(r = config.getKeyValue("hivtransmission.param.g2", s_g2)) ||
-		!(r = config.getKeyValue("hivtransmission.param.h1", s_h1)) ||
-		!(r = config.getKeyValue("hivtransmission.param.h2", s_h2)) ||
+		!(r = config.getKeyValue("hivtransmission.param.h", s_h)) ||
 		!(r = config.getKeyValue("hivtransmission.param.i", s_i)) ||
 		!(r = config.getKeyValue("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) )
 		
@@ -278,8 +276,7 @@ void EventHIVTransmission::obtainConfig(ConfigWriter &config)
 		!(r = config.addKey("hivtransmission.param.f2", s_f2)) ||
 		!(r = config.addKey("hivtransmission.param.g1", s_g1)) ||
 		!(r = config.addKey("hivtransmission.param.g2", s_g2)) ||
-		!(r = config.addKey("hivtransmission.param.h1", s_h1)) ||
-		!(r = config.addKey("hivtransmission.param.h2", s_h2)) ||
+		!(r = config.addKey("hivtransmission.param.h", s_h)) ||
 		!(r = config.addKey("hivtransmission.param.i", s_i)) ||
 		!(r = config.addKey("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff))
 		)
@@ -305,17 +302,16 @@ JSONConfig hivTransmissionJSONConfig(R"JSON(
                 ["hivtransmission.param.f2", 0],
 			["hivtransmission.param.g1", 0],
 			["hivtransmission.param.g2", 0],
-			["hivtransmission.param.h1", 0],
-			["hivtransmission.param.h2", 0],
+			["hivtransmission.param.h", 0],
 			["hivtransmission.param.i", 0],
                 ["hivtransmission.maxageref.diff", 1] ],
             "info": [ 
-                "The hazard of transmission is h = exp(a + b * V^(-c) + d1*Pi + d2*Pj + e1*Hi + e2*Hj + g1*b0_j + g2*b1_j + h1*Ci + h2*Cj + i*PrePj), ",
+                "The hazard of transmission is h = exp(a + b * V^(-c) + d1*Pi + d2*Pj + e1*Hi + e2*Hj + g1*b0_j + g2*b1_j + h*C i*PrePj), ",
                 "in case the uninfected partner is a man, or",
-                "h = exp(a + b * V^(-c) + d1*Pi + d2*Pj +e1*Hi + e2*Hj + f1*exp(f2(A(try)-Ad))+ g1*b0_j + g2*b1_j+ h1*Ci + h2*Cj + i*PrePj)",
+                "h = exp(a + b * V^(-c) + d1*Pi + d2*Pj +e1*Hi + e2*Hj + f1*exp(f2(A(try)-Ad))+ g1*b0_j + g2*b1_j+ h*C + i*PrePj)",
                 "in case the uninfected partner is a woman. The value of V is the viral",
                 "load, which is not necessarily the set-point viral load but will differ",
-                "depending on the AIDS stage. Ci and Cj are the condom use of the infectious and susceptible partner respectively."
+                "depending on the AIDS stage. C is 1 if a condom is used by either partner."
             ]
         })JSON");
 
