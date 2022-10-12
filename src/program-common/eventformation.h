@@ -21,7 +21,6 @@ public:
 	void fire(Algorithm *pAlgorithm, State *pState, double t);
 
 	double getLastDissolutionTime() const								{ return m_lastDissolutionTime; }
-	bool isCompatible(Person *pPerson1, Person *pPerson2);
 
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);

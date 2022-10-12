@@ -29,7 +29,7 @@ bool Person_Chlamydia::isInfectious() const {
 	}
 }
 
-void Person_Chlamydia::setInfected(double t, Person *pOrigin, InfectionType iType)
+void Person_Chlamydia::setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite)
 {
 	assert(iType != None);
 	assert(!(pOrigin == 00 && iType != Seed));

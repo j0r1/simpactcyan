@@ -21,7 +21,7 @@ Person_HSV2::Person_HSV2(Person *pSelf): Person_STI(pSelf), m_diseaseStage(Susce
 
 Person_HSV2::~Person_HSV2() {}
 
-void Person_HSV2::setInfected(double t, Person *pOrigin, InfectionType iType)
+void Person_HSV2::setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite)
 { 
 	assert(iType != None);
 	assert(!(pOrigin == 0 && iType != Seed));

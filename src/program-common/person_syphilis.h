@@ -28,7 +28,7 @@ public:
 	bool isInfectious() const;
 	SyphilisDiseaseStage getDiseaseStage() const { return m_diseaseStage; }
 
-	void setInfected(double t, Person *pOrigin, InfectionType iType);
+	void setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite);
 	void progress(double t);
 
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);

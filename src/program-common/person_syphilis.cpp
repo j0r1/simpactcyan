@@ -26,7 +26,7 @@ bool Person_Syphilis::isInfectious() const
 	return (m_diseaseStage == Primary || m_diseaseStage == Secondary);
 }
 
-void Person_Syphilis::setInfected(double t, Person *pOrigin, InfectionType iType)
+void Person_Syphilis::setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite)
 {
 	assert(iType != None);
 	assert(!(pOrigin == 00 && iType != Seed));

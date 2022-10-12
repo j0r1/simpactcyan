@@ -53,15 +53,6 @@ inline double HazardFunctionFormationSimple::getC() const
 	return C;
 }
 
-//inline bool HazardFunctionFormationSimple::getComp(Person *pPerson1, Person *pPerson2)
-//{
-//  if(isCompatible(Person *pPerson1, Person *pPerson2))
-//  {
-//    return true;
-//  }
-//  return false;
-//}
-
 inline double HazardFunctionFormationSimple::getE(double t0) const
 {
 	double Pi = m_pPerson1->getNumberOfRelationships();

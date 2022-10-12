@@ -27,7 +27,7 @@ public:
 	bool isInfectious() const														{ return m_diseaseStage == Infected;}
 	HSV2DiseaseStage getDiseaseStage() const 										{ return m_diseaseStage; }
 
-	void setInfected(double t, Person *pOrigin, InfectionType iType);
+	void setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite);
 	void progress(double t);
 
 	double getHazardAParameter() const												{ return m_hazardAParam; }

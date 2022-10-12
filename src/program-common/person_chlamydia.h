@@ -28,7 +28,7 @@ public:
 	ChlamydiaDiseaseStage getDiseaseStage() const { return m_diseaseStage; }
 	bool isImmune() const { return m_diseaseStage == Immune; }
 
-	void setInfected(double t, Person *pOrigin, InfectionType iType);
+	void setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite);
 	void progress(double t);
 
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
