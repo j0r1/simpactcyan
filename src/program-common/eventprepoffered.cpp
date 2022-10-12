@@ -3,6 +3,7 @@
 #include "configwriter.h"
 #include "eventprepoffered.h"
 #include "eventprepscreening.h"
+#include "eventprepdropout.h"
 #include "jsonconfig.h"
 
 using namespace std;
@@ -44,7 +45,9 @@ void EventPrePOffered::fire(Algorithm *pAlgorithm, State *pState, double t)
 		EventPrePScreening *pEvt = new EventPrePScreening(pPerson, true);
 		population.onNewEvent(pEvt);
 
-		// TODO schedule PreP dropout?
+		// Schedule PreP dropout
+		EventPrePDropout *pEvtDropout = new EventPrePDropout(pPerson);
+		population.onNewEvent(pEvt);
 	} else {
 		// Schedule new offering event
 		EventPrePOffered *pEvt = new EventPrePOffered(pPerson);
