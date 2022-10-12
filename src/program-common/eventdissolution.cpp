@@ -1,5 +1,6 @@
 #include "eventdissolution.h"
 #include "eventformation.h"
+#include "eventprepoffered.h"
 #include "evthazarddissolution.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
@@ -64,6 +65,24 @@ void EventDissolution::fire(Algorithm *pAlgorithm, State *pState, double t)
 		// Need to add a new formation event for these two
 		EventFormation *pFormationEvent = new EventFormation(pPerson1, pPerson2, t, t);
 		population.onNewEvent(pFormationEvent);
+	}
+
+	// Update PreP eligibility for both persons
+	bool schedulePrePOfferedEventP1 = pPerson1->hiv().updatePrePEligibility(t);
+	bool schedulePrePOfferedEventP2 = pPerson2->hiv().updatePrePEligibility(t);
+
+	// Check if either person has become eligible for PreP
+	// FIXME this normally shouldn't be necessary here.
+	if (schedulePrePOfferedEventP1) {
+		// Schedule PreP being offered to this person
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson1);
+		population.onNewEvent(pEvtPreP);
+	}
+
+	if (schedulePrePOfferedEventP2) {
+		// Schedule PreP being offered to this person
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson2);
+		population.onNewEvent(pEvtPreP);
 	}
 }
 

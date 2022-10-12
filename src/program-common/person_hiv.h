@@ -49,7 +49,9 @@ public:
 	double getCD4CountAtDeath() const												{ return m_cd4AtDeath; }
 	double getCD4Count(double t) const;
 
-	bool isEligibleForPreP() const;
+	bool isEligibleForPreP() const 													{ return m_isEligibleForPreP; }
+	bool updatePrePEligibility(double t);
+	double getTimePersonLastBecameEligibleForPreP() const 							{ return m_timeLastBecameEligible; }
 	bool isOnPreP() const 															{ return m_isOnPreP; }
 	void startPreP() 																{ m_isOnPreP = true; }
 	void stopPreP() 																{ m_isOnPreP = false; }
@@ -103,6 +105,8 @@ private:
 	double m_artAcceptanceThreshold;
 
 	double m_prepAcceptanceThreshold;
+	bool m_isEligibleForPreP;
+	double m_timeLastBecameEligible;
 	bool m_isOnPreP;
 
 	static double m_hivSeedWeibullShape;

@@ -2,6 +2,7 @@
 #include "configsettings.h"
 #include "configwriter.h"
 #include "eventmonitoring.h"
+#include "eventprepoffered.h"
 #include "configdistributionhelper.h"
 #include "gslrandomnumbergenerator.h"
 #include "jsonconfig.h"
@@ -72,9 +73,20 @@ void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 		pPerson->hiv().stopPreP();
 	}
 
+	// Update PreP eligibility
+	bool schedulePrePOfferedEvent = pPerson->hiv().updatePrePEligibility(t);
+
+	// Check if either person has become eligible for PreP
+	if (schedulePrePOfferedEvent) {
+		// Schedule PreP being offered to this person
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson);
+		population.onNewEvent(pEvtPreP);
+	}
+
 	// Schedule an initial monitoring event right away! (the 'true' is for 'right away')
 	EventMonitoring *pEvtMonitor = new EventMonitoring(pPerson, true);
 	population.onNewEvent(pEvtMonitor);
+
 }
 
 double EventDiagnosis::calculateInternalTimeInterval(const State *pState, double t0, double dt)

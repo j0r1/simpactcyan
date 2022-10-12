@@ -108,9 +108,6 @@ void EventFormation::fire(Algorithm *pAlgorithm, State *pState, double t)
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
 
-	bool p1_was_eligible_for_prep = pPerson1->hiv().isEligibleForPreP();
-	bool p2_was_eligible_for_prep = pPerson2->hiv().isEligibleForPreP();
-
 	pPerson1->addRelationship(pPerson2, t);
 	pPerson2->addRelationship(pPerson1, t);
 
@@ -171,14 +168,18 @@ void EventFormation::fire(Algorithm *pAlgorithm, State *pState, double t)
 		} 
 	}
 
+	// Update PreP eligibility for both persons
+	bool schedulePrePOfferedEventP1 = pPerson1->hiv().updatePrePEligibility(t);
+	bool schedulePrePOfferedEventP2 = pPerson2->hiv().updatePrePEligibility(t);
+
 	// Check if either person has become eligible for PreP
-	if ((!p1_was_eligible_for_prep) && (pPerson1->hiv().isEligibleForPreP())) {
+	if (schedulePrePOfferedEventP1) {
 		// Schedule PreP being offered to this person
 		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson1);
 		population.onNewEvent(pEvtPreP);
 	}
 
-	if ((!p2_was_eligible_for_prep) && (pPerson2->hiv().isEligibleForPreP())) {
+	if (schedulePrePOfferedEventP2) {
 		// Schedule PreP being offered to this person
 		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson2);
 		population.onNewEvent(pEvtPreP);

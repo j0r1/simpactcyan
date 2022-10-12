@@ -39,6 +39,8 @@ Person_HIV::Person_HIV(Person *pSelf) : m_pSelf(pSelf)
 
 	assert(m_pPrePAcceptDistribution);
 	m_prepAcceptanceThreshold = m_pPrePAcceptDistribution->pickNumber();
+	m_isEligibleForPreP = false;
+	m_timeLastBecameEligible = -1;
 	m_isOnPreP = false;
 
 	m_aidsDeath = false;
@@ -161,17 +163,30 @@ double Person_HIV::getCD4Count(double t) const
 	return CD4;
 }
 
-bool Person_HIV::isEligibleForPreP() const
+bool Person_HIV::updatePrePEligibility(double t)
 {
-	if (isDiagnosed()) { // PreP cannot be offered to individual's that have already been diagnosed with HIV
-		return false;
-	}
-	if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
-			(m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold)) {
-		return true;
+	bool schedulePrePOfferedEvent = false;
+	bool isEligibleNow = false;
+	if (!isDiagnosed()) { // PreP cannot be offered to individual's that have already been diagnosed with HIV
+		if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
+				(m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold)) {
+			 isEligibleNow = true;
+		}
 	}
 	// TODO condom use?
-	return false;
+
+	if (!isEligibleForPreP() && isEligibleNow) {
+		// Person has become eligible
+		m_isEligibleForPreP = true;
+		m_timeLastBecameEligible = t;
+		schedulePrePOfferedEvent = true;
+
+	} else if (isEligibleForPreP() && !isEligibleNow) {
+		// Person is no longer eligible
+		m_isEligibleForPreP = false;
+	}
+
+	return schedulePrePOfferedEvent;
 }
 
 double Person_HIV::getViralLoadFromSetPointViralLoad(double x) const
