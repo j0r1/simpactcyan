@@ -95,8 +95,8 @@ double EventDiagnosis::calculateInternalTimeInterval(const State *pState, double
 	// screening event
 	if (m_scheduleImmediately)
 	{
-		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
-		return hour;
+		double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
+		return minute;
 	}
 
 	Person *pPerson = getPerson(0);
@@ -115,8 +115,8 @@ double EventDiagnosis::solveForRealTimeInterval(const State *pState, double Tdif
 	// screening event
 	if (m_scheduleImmediately)
 	{
-		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
-		return hour;
+		double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
+		return minute;
 	}
 
 	Person *pPerson = getPerson(0);
