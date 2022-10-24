@@ -58,6 +58,10 @@ private:
 	static double s_beta;
 	static double s_tMax;
 	static double s_HSV2factor; 
+
+	static bool   s_routineTestingEnabled;
+	static double s_routineTestingInterval;
+	static UniformDistribution s_uniformDistribution;
 };
 
 #endif // EVENTDIAGNOSIS_H

@@ -26,6 +26,7 @@ private:
 	static double getTMax(const Person *pPerson);
 
 	static double s_baseline;
+	static double s_numPartnersFactor;
 	static double s_healthSeekingPropensityFactor;
 	static double s_beta; // Time since becoming eligible
 	static double s_tMax;
@@ -34,10 +35,11 @@ private:
 class HazardFunctionPrePOffered : public HazardFunctionExp
 {
 public:
-	HazardFunctionPrePOffered(Person *pPerson, double baseline, double healthseekingpropensityfactor, double beta);
+	HazardFunctionPrePOffered(Person *pPerson, double baseline, double numpartnersfactor, double healthseekingpropensityfactor, double beta);
 private:
 	Person *m_pPerson;
 	const double m_baseline;
+	const double m_numPartnersFactor;
 	const double m_healthSeekingPropensityFactor;
 	const double m_beta;
 };
