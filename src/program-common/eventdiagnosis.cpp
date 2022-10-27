@@ -12,7 +12,7 @@
 
 using namespace std;
 
-EventDiagnosis::EventDiagnosis(Person *pPerson, bool scheduleImmediately) : SimpactEvent(pPerson), m_scheduleImmediately(scheduleImmediately)
+EventDiagnosis::EventDiagnosis(Person *pPerson, bool scheduleImmediately, bool seedingEvent) : SimpactEvent(pPerson), m_scheduleImmediately(scheduleImmediately), m_seedingEvent(seedingEvent)
 {
 }
 
@@ -28,7 +28,11 @@ string EventDiagnosis::getDescription(double tNow) const
 void EventDiagnosis::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
 	Person *pPerson = getPerson(0);
-	writeEventLogStart(true, "diagnosis", tNow, pPerson, 0);
+	if (m_seedingEvent) {
+		writeEventLogStart(true, "diagnosis", tNow, pPerson, 0, true);
+	} else {
+		writeEventLogStart(true, "diagnosis", tNow, pPerson, 0);
+	}
 }
 
 void EventDiagnosis::markOtherAffectedPeople(const PopulationStateInterface &population)

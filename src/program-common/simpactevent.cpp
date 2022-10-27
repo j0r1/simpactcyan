@@ -14,10 +14,10 @@ void getPersonProperties(double t, const Person *pPerson, std::string &name, int
 }
 
 void SimpactEvent::writeEventLogStart(bool noExtraInfo, const std::string &eventName, double t, 
-		                      const Person *pPerson1, const Person *pPerson2)
+		                      const Person *pPerson1, const Person *pPerson2, bool seedingEvent)
 {
 	// time,eventname,name p1, id1, gender1, age1, name p2, id2, gender2, age2
-	string format = "%10.10f,%s,%s,%d,%d,%10.10f,%s,%d,%d,%10.10f";
+	string format = "%10.10f,%s,%s,%d,%d,%10.10f,%s,%d,%d,%10.10f,%d";
 	string name1 = "(none)";
 	string name2 = "(none)";
 	int id1 = -1;
@@ -26,6 +26,7 @@ void SimpactEvent::writeEventLogStart(bool noExtraInfo, const std::string &event
 	int gender2 = -1;
 	double age1 = -1;
 	double age2 = -1;
+	int seeding = 0;
 
 	if (pPerson1)
 		getPersonProperties(t, pPerson1, name1, id1, gender1, age1);
@@ -36,9 +37,13 @@ void SimpactEvent::writeEventLogStart(bool noExtraInfo, const std::string &event
 		getPersonProperties(t, pPerson2, name2, id2, gender2, age2);
 	}
 
+	if (seedingEvent) {
+		seeding = 1;
+	}
+
 	if (noExtraInfo)
-		LogEvent.print(format.c_str(), t, eventName.c_str(), name1.c_str(), id1, gender1, age1, name2.c_str(), id2, gender2, age2);
+		LogEvent.print(format.c_str(), t, eventName.c_str(), name1.c_str(), id1, gender1, age1, name2.c_str(), id2, gender2, age2, seeding);
 	else
-		LogEvent.printNoNewLine(format.c_str(), t, eventName.c_str(), name1.c_str(), id1, gender1, age1, name2.c_str(), id2, gender2, age2);
+		LogEvent.printNoNewLine(format.c_str(), t, eventName.c_str(), name1.c_str(), id1, gender1, age1, name2.c_str(), id2, gender2, age2, seeding);
 }
 

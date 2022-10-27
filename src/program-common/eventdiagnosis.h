@@ -27,7 +27,7 @@ private:
 class EventDiagnosis : public SimpactEvent
 {
 public:
-	EventDiagnosis(Person *pPerson, bool scheduleImmediately = false);
+	EventDiagnosis(Person *pPerson, bool scheduleImmediately = false, bool seedingEvent = false);
 	~EventDiagnosis();
 
 	std::string getDescription(double tNow) const;
@@ -47,6 +47,7 @@ private:
 	static double getTMax(const Person *pPerson);
 
 	bool m_scheduleImmediately;
+	bool m_seedingEvent;
 
 	static double s_baseline;
 	static double s_ageFactor;
