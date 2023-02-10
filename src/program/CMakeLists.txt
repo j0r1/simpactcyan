@@ -23,14 +23,18 @@ set(SOURCES_SIMPACT
 	../program-common/eventchlamydiaseed.cpp
 	../program-common/eventchlamydiatransmission.cpp
 	../program-common/eventchlamydiaprogression.cpp
+	../program-common/eventchlamydiadiagnosis.cpp
 	../program-common/eventgonorrheaseed.cpp
 	../program-common/eventgonorrheatransmission.cpp
 	../program-common/eventgonorrheaprogression.cpp
+	../program-common/eventgonorrheadiagnosis.cpp
 	../program-common/eventhsv2seed.cpp
 	../program-common/eventhsv2transmission.cpp
 	../program-common/eventsyphilisseed.cpp
 	../program-common/eventsyphilistransmission.cpp
 	../program-common/eventsyphilisprogression.cpp
+	../program-common/eventsyphilisdiagnosis.cpp
+	../program-common/eventtertiarysyphilis.cpp
 	../program-common/eventhivseed.cpp
 	../program-common/eventintervention.cpp
 	../program-common/eventaidsstage.cpp

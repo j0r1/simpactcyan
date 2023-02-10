@@ -5,6 +5,8 @@
 #include "eventdebut.h"
 #include "eventchronicstage.h"
 #include "eventgonorrheaseed.h"
+#include "eventchlamydiaseed.h"
+#include "eventsyphilisseed.h"
 #include "eventhivseed.h"
 #include "eventhsv2seed.h"
 #include "eventintervention.h"
@@ -213,9 +215,19 @@ bool_t SimpactPopulation::scheduleInitialEvents()
 		EventGonorrheaSeed *pEvt = new EventGonorrheaSeed(); // this is a global event
 		onNewEvent(pEvt);
 	}
-
-	// TODO seed other STIs
-
+	
+	if (EventChlamydiaSeed::getSeedTime() >= 0)
+	{
+	  EventChlamydiaSeed *pEvt = new EventChlamydiaSeed(); // this is a global event
+	  onNewEvent(pEvt);
+	}
+	
+	if (EventSyphilisSeed::getSeedTime() >= 0)
+	{
+	  EventSyphilisSeed *pEvt = new EventSyphilisSeed(); // this is a global event
+	  onNewEvent(pEvt);
+	}
+	
 	if (EventIntervention::hasNextIntervention()) // We need to schedule a first intervention event
 	{
 		// Note: the fire time will be determined by the event itself, in the

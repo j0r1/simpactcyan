@@ -25,7 +25,7 @@ public:
 	void obtainConfig(ConfigWriter &writer, const std::string &prefix);
 private:
 	double getA0(const SimpactPopulation &population, Person *pPerson1, Person *pPerson2);
-	double getTr(const SimpactPopulation &population, Person *pPerson1, Person *pPerson2, double t0, double lastDissTime);
+	double getTr(const SimpactPopulation &population, Person *pPerson1, Person *pPerson2, double t0, double lastDissTime); // time since rel possible?
 	double getTMax(Person *pPerson1, Person *pPerson2);
 
 	double m_a0;		// baseline_factor

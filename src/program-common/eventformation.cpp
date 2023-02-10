@@ -2,6 +2,9 @@
 #include "eventdissolution.h"
 #include "eventhivtransmission.h"
 #include "eventhsv2transmission.h"
+#include "eventgonorrheatransmission.h"
+#include "eventchlamydiatransmission.h"
+#include "eventsyphilistransmission.h"
 #include "eventdebut.h"
 #include "simpactpopulation.h"
 #include "simpactevent.h"
@@ -73,6 +76,19 @@ bool EventFormation::isUseless(const PopulationStateInterface &pop)
 	
 	if (pPerson1->hiv().getInfectionStage() == Person_HIV::AIDSFinal || pPerson2->hiv().getInfectionStage() == Person_HIV::AIDSFinal)
 		return true;
+	
+	// Formation event becomes useless if sexual roles are not compatible (only for MSM)
+	if (pPerson1->isMan() && pPerson2->isMan())
+	{
+	  int p1Role = pPerson1->getPreferredSexualRole();
+	  int p2Role = pPerson2->getPreferredSexualRole();
+	  
+	  // not compatible if both the same role and not versatile
+	  if (p1Role == p2Role && p1Role != 0)
+	  {
+	    return true;
+	  }
+	}
 
 	// Check if old formation events need to be dropped because a person moved
 
@@ -81,7 +97,7 @@ bool EventFormation::isUseless(const PopulationStateInterface &pop)
 
 	if (eyeCapFrac >= 1.0)
 	{
-		// Nothing to do, no relationships will be changed because everone
+		// Nothing to do, no relationships will be changed because everyone
 		// will have everyone else as a potential partner
 	}
 	else
@@ -167,6 +183,61 @@ void EventFormation::fire(Algorithm *pAlgorithm, State *pState, double t)
 			population.onNewEvent(pEvtTrans);
 		} 
 	}
+	
+	// Gonorrhea transmission event
+	if (pPerson1->gonorrhea().isInfected())
+	{
+	  if (!pPerson2->gonorrhea().isInfected())
+	  {
+	    EventGonorrheaTransmission *pEvtTrans = new EventGonorrheaTransmission(pPerson1, pPerson2);
+	    population.onNewEvent(pEvtTrans);
+	  }
+	}
+	else // pPerson1 not infected
+	{
+	  if (pPerson2->gonorrhea().isInfected())
+	  {
+	    EventGonorrheaTransmission *pEvtTrans = new EventGonorrheaTransmission(pPerson2, pPerson1);
+	    population.onNewEvent(pEvtTrans);
+	  }
+	}
+	
+	// Chlamydia transmission event
+	if (pPerson1->chlamydia().isInfected())
+	{
+	  if (!pPerson2->chlamydia().isInfected())
+	  {
+	    EventChlamydiaTransmission *pEvtTrans = new EventChlamydiaTransmission(pPerson1, pPerson2);
+	    population.onNewEvent(pEvtTrans);
+	  }
+	}
+	else // pPerson1 not infected
+	{
+	  if (pPerson2->chlamydia().isInfected())
+	  {
+	    EventChlamydiaTransmission *pEvtTrans = new EventChlamydiaTransmission(pPerson2, pPerson1);
+	    population.onNewEvent(pEvtTrans);
+	  }
+	}
+	
+	// Syphilis transmission event
+	if (pPerson1->syphilis().isInfected())
+	{
+	  if (!pPerson2->syphilis().isInfected())
+	  {
+	    EventSyphilisTransmission *pEvtTrans = new EventSyphilisTransmission(pPerson1, pPerson2);
+	    population.onNewEvent(pEvtTrans);
+	  }
+	}
+	else // pPerson1 not infected
+	{
+	  if (pPerson2->syphilis().isInfected())
+	  {
+	    EventSyphilisTransmission *pEvtTrans = new EventSyphilisTransmission(pPerson2, pPerson1);
+	    population.onNewEvent(pEvtTrans);
+	  }
+	}
+	
 
 	// Update PreP eligibility for both persons
 	bool schedulePrePOfferedEventP1 = pPerson1->hiv().updatePrePEligibility(t);

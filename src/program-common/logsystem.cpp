@@ -9,7 +9,8 @@ using namespace std;
 void LogSystem::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
 	string eventLogFile, personLogFile, relationLogFile, treatmentLogFile, settingsLogFile;
-	string locationLogFile, hivVLLogFile;
+	string locationLogFile, hivVLLogFile, gonorrheaLogFile, gonorrheatreatLogFile, chlamydiaLogFile, chlamydiatreatLogFile;
+	string syphilisLogFile, syphilistreatLogFile, syphilisstageLogFile;
 	bool_t r;
 
 	if (!(r = config.getKeyValue("logsystem.outfile.logevents", eventLogFile)) ||
@@ -18,7 +19,14 @@ void LogSystem::processConfig(ConfigSettings &config, GslRandomNumberGenerator *
 	    !(r = config.getKeyValue("logsystem.outfile.logtreatments", treatmentLogFile)) ||
 		!(r = config.getKeyValue("logsystem.outfile.logsettings", settingsLogFile)) ||
 		!(r = config.getKeyValue("logsystem.outfile.loglocation", locationLogFile)) ||
-		!(r = config.getKeyValue("logsystem.outfile.logviralloadhiv", hivVLLogFile)) 
+		!(r = config.getKeyValue("logsystem.outfile.logviralloadhiv", hivVLLogFile)) ||
+		!(r = config.getKeyValue("logsystem.outfile.loggonorrhea", gonorrheaLogFile)) ||
+		!(r = config.getKeyValue("logsystem.outfile.loggonorrheatreat", gonorrheatreatLogFile)) ||
+		!(r = config.getKeyValue("logsystem.outfile.logchlamydia", chlamydiaLogFile)) ||
+		!(r = config.getKeyValue("logsystem.outfile.logchlamydiatreat", chlamydiatreatLogFile)) ||
+		!(r = config.getKeyValue("logsystem.outfile.logsyphilis", syphilisLogFile)) ||
+		!(r = config.getKeyValue("logsystem.outfile.logsyphilistreat", syphilistreatLogFile)) ||
+		!(r = config.getKeyValue("logsystem.outfile.logsyphilisstage", syphilisstageLogFile))
 	    )
 		abortWithMessage(r.getErrorString());
 
@@ -63,12 +71,62 @@ void LogSystem::processConfig(ConfigSettings &config, GslRandomNumberGenerator *
 		if (!(r = logViralLoadHIV.open(hivVLLogFile)))
 			abortWithMessage("Unable to open HIV viral load log file: " + r.getErrorString());
 	}
+	
+	if (gonorrheaLogFile.length() > 0)
+	{
+	  if (!(r = logGonorrhea.open(gonorrheaLogFile)))
+	    abortWithMessage("Unable to open Gonorrhea log file: " + r.getErrorString());
+	}
+	
+	if (gonorrheatreatLogFile.length() > 0)
+	{
+	  if (!(r = logGonorrheaTreat.open(gonorrheatreatLogFile)))
+	    abortWithMessage("Unable to open Gonorrhea treatment log file: " + r.getErrorString());
+	}
+	
+	if (chlamydiaLogFile.length() > 0)
+	{
+	  if (!(r = logChlamydia.open(chlamydiaLogFile)))
+	    abortWithMessage("Unable to open Chlamydia log file: " + r.getErrorString());
+	}
+	
+	if (chlamydiatreatLogFile.length() > 0)
+	{
+	  if (!(r = logChlamydiaTreat.open(chlamydiatreatLogFile)))
+	    abortWithMessage("Unable to open Chlamydia treatment log file: " + r.getErrorString());
+	}
+	
+	if (syphilisLogFile.length() > 0)
+	{
+	  if (!(r = logSyphilis.open(syphilisLogFile)))
+	    abortWithMessage("Unable to open Syphilis log file: " + r.getErrorString());
+	}
+	
+	if (syphilistreatLogFile.length() > 0)
+	{
+	  if (!(r = logSyphilisTreat.open(syphilistreatLogFile)))
+	    abortWithMessage("Unable to open Syphilis treatment log file: " + r.getErrorString());
+	}
+	
+	if (syphilisstageLogFile.length() > 0)
+	{
+	  if (!(r = logSyphilisStage.open(syphilisstageLogFile)))
+	    abortWithMessage("Unable to open Syphilis stage log file: " + r.getErrorString());
+	}
 
-	logPersons.print("\"ID\",\"Gender\",\"TOB\",\"TOD\",\"IDF\",\"IDM\",\"TODebut\",\"FormEag\",\"FormEagMSM\",\"InfectTime\",\"InfectOrigID\",\"InfectType\",\"log10SPVL\",\"TreatTime\",\"XCoord\",\"YCoord\",\"AIDSDeath\",\"HSV2InfectTime\",\"HSV2InfectOriginID\",\"CD4atInfection\",\"CD4atDeath\",\"HealthSeekingPropensity\"");
+	logPersons.print("\"ID\",\"Gender\",\"TOB\",\"TOD\",\"IDF\",\"IDM\",\"TODebut\",\"FormEag\",\"FormEagMSM\",\"SexualRole\",\"InfectTime\",\"InfectOrigID\",\"InfectType\",\"log10SPVL\",\"TreatTime\",\"XCoord\",\"YCoord\",\"AIDSDeath\",\"HSV2InfectTime\",\"HSV2InfectOriginID\",\"CD4atInfection\",\"CD4atDeath\",\"HealthSeekingPropensity\",\"InfectSite\"");
 	logRelations.print("\"ID1\",\"ID2\",\"FormTime\",\"DisTime\",\"AgeGap\",\"MSM\"");
 	logTreatment.print("\"ID\",\"Gender\",\"TStart\",\"TEnd\",\"DiedNow\",\"CD4atDiagnosis\",\"CD4atARTstart\"");
 	logLocation.print("\"Time\",\"ID\",\"XCoord\",\"YCoord\"");
 	logViralLoadHIV.print("\"Time\",\"ID\",\"Desc\",\"Log10SPVL\",\"Log10VL\"");
+	logGonorrhea.print("\"ID\",\"InfectOrigID\",\"Gender\",\"SexualRole\",\"InfectTime\",\"InfectType\",\"InfectSite\",\"DiseaseStage\",\"Diagnosed\"");
+	logGonorrheaTreat.print("\"ID\",\"Gender\",\"RecoveryTime\",\"Treated\"");
+	logChlamydia.print("\"ID\",\"InfectOrigID\",\"Gender\",\"SexualRole\",\"InfectTime\",\"InfectType\",\"InfectSite\",\"DiseaseStage\",\"Diagnosed\"");
+	// logChlamydiaTreat.print("\"ID\",\"Gender\",\"RecoveryTime\",\"Treated\",\"Diagnosed\"");
+	logChlamydiaTreat.print("\"ID\",\"Gender\",\"RecoveryTime\",\"Treated\"");
+	logSyphilis.print("\"ID\",\"InfectOrigID\",\"Gender\",\"SexualRole\",\"InfectTime\",\"InfectType\",\"InfectSite\",\"DiseaseStage\",\"Diagnosed\"");
+	logSyphilisTreat.print("\"ID\",\"Gender\",\"RecoveryTime\",\"Treated\"");
+	logSyphilisStage.print("\"Time\",\"ID\",\"Stage\"");
 }
 
 void LogSystem::obtainConfig(ConfigWriter &config)
@@ -81,7 +139,14 @@ void LogSystem::obtainConfig(ConfigWriter &config)
 	    !(r = config.addKey("logsystem.outfile.logtreatments", logTreatment.getFileName())) ||
 		!(r = config.addKey("logsystem.outfile.logsettings", logSettings.getFileName())) ||
 		!(r = config.addKey("logsystem.outfile.loglocation", logLocation.getFileName())) ||
-		!(r = config.addKey("logsystem.outfile.logviralloadhiv", logViralLoadHIV.getFileName()))
+		!(r = config.addKey("logsystem.outfile.logviralloadhiv", logViralLoadHIV.getFileName())) ||
+		!(r = config.addKey("logsystem.outfile.loggonorrhea", logGonorrhea.getFileName())) ||
+		!(r = config.addKey("logsystem.outfile.loggonorrheatreat", logGonorrheaTreat.getFileName())) ||
+		!(r = config.addKey("logsystem.outfile.logchlamydia", logChlamydia.getFileName())) ||
+		!(r = config.addKey("logsystem.outfile.logchlamydiatreat", logChlamydiaTreat.getFileName())) ||
+		!(r = config.addKey("logsystem.outfile.logsyphilis", logSyphilis.getFileName())) ||
+		!(r = config.addKey("logsystem.outfile.logsyphilistreat", logSyphilisTreat.getFileName())) ||
+		!(r = config.addKey("logsystem.outfile.logsyphilisstage", logSyphilisStage.getFileName())) 
 	    )
 		abortWithMessage(r.getErrorString());
 }
@@ -93,6 +158,14 @@ LogFile LogSystem::logTreatment;
 LogFile LogSystem::logSettings;
 LogFile LogSystem::logLocation;
 LogFile LogSystem::logViralLoadHIV;
+LogFile LogSystem::logGonorrhea;
+LogFile LogSystem::logGonorrheaTreat;
+LogFile LogSystem::logChlamydia;
+LogFile LogSystem::logChlamydiaTreat;
+LogFile LogSystem::logSyphilis;
+LogFile LogSystem::logSyphilisTreat;
+LogFile LogSystem::logSyphilisStage;
+
 
 ConfigFunctions logSystemConfigFunctions(LogSystem::processConfig, LogSystem::obtainConfig, "00_LogSystem", "__first__");
 
@@ -106,8 +179,15 @@ JSONConfig logSystemJSONConfig(R"JSON(
                 ["logsystem.outfile.logtreatments", "${SIMPACT_OUTPUT_PREFIX}treatmentlog.csv" ],
 				["logsystem.outfile.logsettings", "${SIMPACT_OUTPUT_PREFIX}settingslog.csv" ],
 				["logsystem.outfile.loglocation", "${SIMPACT_OUTPUT_PREFIX}locationlog.csv" ],
-				["logsystem.outfile.logviralloadhiv", "${SIMPACT_OUTPUT_PREFIX}hivviralloadlog.csv" ]
-            ],
+				["logsystem.outfile.logviralloadhiv", "${SIMPACT_OUTPUT_PREFIX}hivviralloadlog.csv" ],
+    ["logsystem.outfile.loggonorrhea", "${SIMPACT_OUTPUT_PREFIX}gonorrhealog.csv" ],
+    ["logsystem.outfile.loggonorrheatreat", "${SIMPACT_OUTPUT_PREFIX}gonorrheatreatlog.csv" ],
+    ["logsystem.outfile.logchlamydia", "${SIMPACT_OUTPUT_PREFIX}chlamydialog.csv" ],
+    ["logsystem.outfile.logchlamydiatreat", "${SIMPACT_OUTPUT_PREFIX}chlamydiatreatlog.csv" ],
+    ["logsystem.outfile.logsyphilis", "${SIMPACT_OUTPUT_PREFIX}syphilislog.csv" ],
+    ["logsystem.outfile.logsyphilistreat", "${SIMPACT_OUTPUT_PREFIX}syphilistreatlog.csv" ],
+    ["logsystem.outfile.logsyphilisstage", "${SIMPACT_OUTPUT_PREFIX}syphilisstagelog.csv" ]
+                ],
             "info": null                          
         })JSON");
 

@@ -6,6 +6,7 @@
 #include "eventdebut.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
+#include "gslrandomnumbergenerator.h"
 #include "util.h"
 #include <cmath>
 #include <iostream>
@@ -17,12 +18,12 @@ using namespace std;
 // removed automatically.
 EventHIVTransmission::EventHIVTransmission(Person *pPerson1, Person *pPerson2) : SimpactEvent(pPerson1, pPerson2)
 {
-	// is about transmission from pPerson1 to pPerson2, so no ordering according to
-	// gender here
-	assert(pPerson1->hiv().isInfected() && !pPerson2->hiv().isInfected());
-
-	// Person one must not be in the _final_ AIDS stage yet
-	assert(pPerson1->hiv().getInfectionStage() != Person_HIV::AIDSFinal);
+  // is about transmission from pPerson1 to pPerson2, so no ordering according to
+  // gender here
+  assert(pPerson1->hiv().isInfected() && !pPerson2->hiv().isInfected());
+  
+  // Person one must not be in the _final_ AIDS stage yet
+  assert(pPerson1->hiv().getInfectionStage() != Person_HIV::AIDSFinal);
 }
 
 EventHIVTransmission::~EventHIVTransmission()
@@ -31,17 +32,17 @@ EventHIVTransmission::~EventHIVTransmission()
 
 string EventHIVTransmission::getDescription(double tNow) const
 {
-	return strprintf("Transmission event from %s to %s", getPerson(0)->getName().c_str(), getPerson(1)->getName().c_str());
+  return strprintf("Transmission event from %s to %s", getPerson(0)->getName().c_str(), getPerson(1)->getName().c_str());
 }
 
 void EventHIVTransmission::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
-	Person *pPerson1 = getPerson(0);
-	Person *pPerson2 = getPerson(1);
-	writeEventLogStart(false, "transmission", tNow, pPerson1, pPerson2);
-
-	double VspOrigin = pPerson1->hiv().getSetPointViralLoad();
-	LogEvent.print(",originSPVL,%10.10f", VspOrigin);
+  Person *pPerson1 = getPerson(0);
+  Person *pPerson2 = getPerson(1);
+  writeEventLogStart(false, "transmission", tNow, pPerson1, pPerson2);
+  
+  double VspOrigin = pPerson1->hiv().getSetPointViralLoad();
+  LogEvent.print(",originSPVL,%10.10f", VspOrigin);
 }
 
 // The dissolution event that makes this event useless involves the exact same people,
@@ -50,6 +51,7 @@ void EventHIVTransmission::writeLogs(const SimpactPopulation &pop, double tNow) 
 
 bool EventHIVTransmission::isUseless(const PopulationStateInterface &population) 
 {
+
 	// Transmission from pPerson1 to pPerson2
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
@@ -74,81 +76,136 @@ bool EventHIVTransmission::isUseless(const PopulationStateInterface &population)
 	assert(pPerson2->hasRelationshipWith(pPerson1));
 
 	return false;
+
 }
 
 void EventHIVTransmission::infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t, bool scheduleAll)
 {
-	assert(!pTarget->hiv().isInfected());
-
-	if (pOrigin == 0) // Seeding
-		pTarget->hiv().setInfected(t, 0, Person_HIV::Seed);
-	else
-	{
-		assert(pOrigin->hiv().isInfected());
-		pTarget->hiv().setInfected(t, pOrigin, Person_HIV::Partner);
-	}
-
-	// introduce AIDS based mortality
-
-	// Schedule an AIDS mortality event for person2
-	// TODO: should this be moved to the firing code of the final aids stage?
-	//
-	//       -> NOTE! It is currently best to do it this way: because of the fixed
-	//                time interval of the Acute stage, it is possible that the
-	//                mortality event fires already when in the acute stage. It
-	//                would not be possible if the AIDS mortality event is scheduled
-	EventAIDSMortality *pAidsEvt = new EventAIDSMortality(pTarget);
-	population.onNewEvent(pAidsEvt);
-	
-	if (scheduleAll)
-	{
-		// we're still in the acute stage and should schedule
-		// an event to mark the transition to the chronic stage
-
-		EventChronicStage *pEvtChronic = new EventChronicStage(pTarget);
-		population.onNewEvent(pEvtChronic);
-
-		// Once infected, a HIV diagnosis event will be scheduled, which can cause
-		// treatment of the person later on
-		EventDiagnosis *pEvtDiag = new EventDiagnosis(pTarget);
-		population.onNewEvent(pEvtDiag);
-	}
-
-	// Check relationships pTarget is in, and if the partner is not yet infected, schedule
-	// a transmission event.
-	int numRelations = pTarget->getNumberOfRelationships();
-	pTarget->startRelationshipIteration();
-	
-	for (int i = 0 ; i < numRelations ; i++)
-	{
-		double formationTime = -1;
-		Person *pPartner = pTarget->getNextRelationshipPartner(formationTime);
-
-		if (!pPartner->hiv().isInfected())
-		{
-			EventHIVTransmission *pEvtTrans = new EventHIVTransmission(pTarget, pPartner);
-			population.onNewEvent(pEvtTrans);
-		}
-	}
-
+  assert(!pTarget->hiv().isInfected());
+  
+  // For versatile men, sexual role depends on role of partner
+  GslRandomNumberGenerator *pRndGen = population.getRandomNumberGenerator();
+  
+  int pRole1 = pTarget->getPreferredSexualRole();
+  // if(pOrigin != 0) int pRole2 = pOrigin->getPreferredSexualRole();
+  
+  if(pOrigin == 0 && pRole1 == 0){ // for seeders
+    double randnum = pRndGen->pickRandomDouble();
+    if(randnum < 0.5){
+      pRole1 = 1; // receptive
+    }else{
+      pRole1 = 2; // insertive
+    }
+  }else if(pOrigin != 0 && pRole1 == 0){ // infected by partner
+    int pRole2 = pOrigin->getPreferredSexualRole();
+    if(pRole2 == 0){
+      double randnum = pRndGen->pickRandomDouble();
+      if(randnum < 0.5){
+        pRole1 = 1; // receptive
+      }else{
+        pRole1 = 2; // insertive
+      }
+    }else if(pRole2 == 2){
+      pRole1 = 1;
+    }else if(pRole2 == 1){
+      pRole1 = 2;
+    }
+  }
+  
+  
+  // if (pOrigin == 0) // Seeding
+  // 	pTarget->hiv().setInfected(t, 0, Person_HIV::Seed);
+  // else
+  // {
+  // 	assert(pOrigin->hiv().isInfected());
+  // 	pTarget->hiv().setInfected(t, pOrigin, Person_HIV::Partner);
+  // }
+  
+  if (pOrigin == 0){ // Seeding
+    if(pTarget->isMan()){
+      if(pRole1 == 1){
+        pTarget->hiv().setInfected(t, 0, Person_HIV::Seed, Person_HIV::Rectal);
+      }else if(pRole1 == 2){
+        pTarget->hiv().setInfected(t, 0, Person_HIV::Seed, Person_HIV::Urethral);
+      }
+    }else if(pTarget->isWoman()){
+      pTarget->hiv().setInfected(t, 0, Person_HIV::Seed, Person_HIV::Vaginal);
+    }
+  }else{
+    assert(pOrigin->hiv().isInfected());
+    if(pTarget->isMan() && pOrigin->isMan()){
+      if(pRole1 == 1){
+        pTarget->hiv().setInfected(t, pOrigin, Person_HIV::Partner, Person_HIV::Rectal);
+      }else if(pRole1 == 2){
+        pTarget->hiv().setInfected(t, pOrigin, Person_HIV::Partner, Person_HIV::Urethral);
+      }
+    }else if(pTarget->isMan() && pOrigin->isWoman()){
+      pTarget->hiv().setInfected(t, pOrigin, Person_HIV::Partner, Person_HIV::Urethral);
+    }else if(pTarget->isWoman()){
+      pTarget->hiv().setInfected(t, pOrigin, Person_HIV::Partner, Person_HIV::Vaginal);
+    }
+  }
+  // introduce AIDS based mortality
+  
+  // Schedule an AIDS mortality event for person2
+  // TODO: should this be moved to the firing code of the final aids stage?
+  //
+  //       -> NOTE! It is currently best to do it this way: because of the fixed
+  //                time interval of the Acute stage, it is possible that the
+  //                mortality event fires already when in the acute stage. It
+  //                would not be possible if the AIDS mortality event is scheduled
+  EventAIDSMortality *pAidsEvt = new EventAIDSMortality(pTarget);
+  population.onNewEvent(pAidsEvt);
+  
+  if (scheduleAll)
+  {
+    // we're still in the acute stage and should schedule
+    // an event to mark the transition to the chronic stage
+    
+    EventChronicStage *pEvtChronic = new EventChronicStage(pTarget);
+    population.onNewEvent(pEvtChronic);
+    
+    // Once infected, a HIV diagnosis event will be scheduled, which can cause
+    // treatment of the person later on
+    EventDiagnosis *pEvtDiag = new EventDiagnosis(pTarget);
+    population.onNewEvent(pEvtDiag);
+  }
+  
+  // Check relationships pTarget is in, and if the partner is not yet infected, schedule
+  // a transmission event.
+  int numRelations = pTarget->getNumberOfRelationships();
+  pTarget->startRelationshipIteration();
+  
+  for (int i = 0 ; i < numRelations ; i++)
+  {
+    double formationTime = -1;
+    Person *pPartner = pTarget->getNextRelationshipPartner(formationTime);
+    
+    if (!pPartner->hiv().isInfected())
+    {
+      EventHIVTransmission *pEvtTrans = new EventHIVTransmission(pTarget, pPartner);
+      population.onNewEvent(pEvtTrans);
+    }
+  }
+  
 #ifndef NDEBUG
-	double tDummy;
-	assert(pTarget->getNextRelationshipPartner(tDummy) == 0);
+  double tDummy;
+  assert(pTarget->getNextRelationshipPartner(tDummy) == 0);
 #endif // NDEBUG
 }
 
 void EventHIVTransmission::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
-	SimpactPopulation &population = SIMPACTPOPULATION(pState);
-	// Transmission from pPerson1 to pPerson2
-	Person *pPerson1 = getPerson(0);
-	Person *pPerson2 = getPerson(1);
-
-	// Person 1 should be infected but not in the final aids stage, person 2 should not be infected yet
-	assert(pPerson1->hiv().isInfected() && pPerson1->hiv().getInfectionStage() != Person_HIV::AIDSFinal);
-	assert(!pPerson2->hiv().isInfected());
-
-	infectPerson(population, pPerson1, pPerson2, t);
+  SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  // Transmission from pPerson1 to pPerson2
+  Person *pPerson1 = getPerson(0);
+  Person *pPerson2 = getPerson(1);
+  
+  // Person 1 should be infected but not in the final aids stage, person 2 should not be infected yet
+  assert(pPerson1->hiv().isInfected() && pPerson1->hiv().getInfectionStage() != Person_HIV::AIDSFinal);
+  assert(!pPerson2->hiv().isInfected());
+  
+  infectPerson(population, pPerson1, pPerson2, t);
 }
 
 double EventHIVTransmission::s_a = 0;
@@ -164,38 +221,62 @@ double EventHIVTransmission::s_g1 = 0;
 double EventHIVTransmission::s_g2 = 0;
 double EventHIVTransmission::s_h = 0;
 double EventHIVTransmission::s_i = 0;
+double EventHIVTransmission::s_r = 0;
 double EventHIVTransmission::s_tMaxAgeRefDiff = -1;
 
 double EventHIVTransmission::calculateInternalTimeInterval(const State *pState, double t0, double dt)
 {
-	const SimpactPopulation &population = SIMPACTPOPULATION(pState);
-	double h = calculateHazardFactor(population, t0);
-	return dt*h;
+  const SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  double h = calculateHazardFactor(population, t0);
+  return dt*h;
 }
 
 double EventHIVTransmission::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
 {
-	const SimpactPopulation &population = SIMPACTPOPULATION(pState);
-	double h = calculateHazardFactor(population, t0);
-
-	return Tdiff/h;
+  const SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  double h = calculateHazardFactor(population, t0);
+  
+  return Tdiff/h;
 }
 
 int EventHIVTransmission::getH(const Person *pPerson)
 {
-	assert(pPerson != 0);
-      
-	bool H1 = pPerson->isInfectedWithSTI();
-
- 	int H = 0;
- 	if (H1 == true)
-   		H = 1;
-	return H;
+  assert(pPerson != 0);
+  
+  bool H1 = pPerson->isInfectedWithSTI();
+  
+  int H = 0;
+  if (H1 == true)
+    H = 1;
+  return H;
 } 
+
+// get sexual role of susceptible partner: TO DO change to infection site as for gonorrhea
+int EventHIVTransmission::getR(const Person *pPerson1, const Person *pPerson2)
+{
+  assert(pPerson1 != 0);
+  assert(pPerson2 != 0);
+  
+  // heterosexual
+  int R = 0;
+  
+  if(pPerson1->isWoman()) // for women (always vaginal)
+    R = 0;
+  
+  // MSM
+  if(pPerson1->isMan() && pPerson2->isMan()){
+    
+    Person_HIV::InfectionSite originSite = pPerson2->hiv().getInfectionSite(); // infection site of origin
+    if(originSite == Person_HIV::Urethral)
+      R = 1;
+  }
+  return R;
+}
+
 
 double EventHIVTransmission::calculateHazardFactor(const SimpactPopulation &population, double t0)
 {
-	// Person1 is the infected person and his/her viral load (set-point or acute) determines
+  // Person1 is the infected person and his/her viral load (set-point or acute) determines
 	// the hazard
 	Person *pPerson1 = getPerson(0);
 	Person *pPerson2 = getPerson(1);
@@ -218,7 +299,7 @@ double EventHIVTransmission::calculateHazardFactor(const SimpactPopulation &popu
 	double logh = s_a + s_b * std::pow(V,-s_c) + s_d1*Pi + s_d2*Pj
 			+ s_e1*getH(pPerson1) + s_e2*getH(pPerson2)
 	+ s_g1*pPerson2->hiv().getHazardB0Parameter() + s_g2*pPerson2->hiv().getHazardB1Parameter()
-	+ s_h*CondomUse + s_i*PrePj;
+	+ s_h*CondomUse + s_i*PrePj + s_r*getR(pPerson2, pPerson1);
 
 	if (s_f1 != 0 && pPerson2->isWoman())
 	{
@@ -235,8 +316,8 @@ double EventHIVTransmission::calculateHazardFactor(const SimpactPopulation &popu
 		
 		logh += s_f1*std::exp(s_f2*ageDiff);
 	}
-
-	return std::exp(logh);
+    
+    return std::exp(logh);
 }
 
 void EventHIVTransmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
@@ -256,7 +337,8 @@ void EventHIVTransmission::processConfig(ConfigSettings &config, GslRandomNumber
 	    !(r = config.getKeyValue("hivtransmission.param.g2", s_g2)) ||
 		!(r = config.getKeyValue("hivtransmission.param.h", s_h)) ||
 		!(r = config.getKeyValue("hivtransmission.param.i", s_i)) ||
-		!(r = config.getKeyValue("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) )
+		!(r = config.getKeyValue("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) ||
+      !(r = config.getKeyValue("hivtransmission.param.r", s_r)))
 		
 		abortWithMessage(r.getErrorString());
 }
@@ -278,14 +360,15 @@ void EventHIVTransmission::obtainConfig(ConfigWriter &config)
 		!(r = config.addKey("hivtransmission.param.g2", s_g2)) ||
 		!(r = config.addKey("hivtransmission.param.h", s_h)) ||
 		!(r = config.addKey("hivtransmission.param.i", s_i)) ||
-		!(r = config.addKey("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff))
+		!(r = config.addKey("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) ||
+      !(r = config.addKey("hivtransmission.param.r", s_r))
 		)
 		
 		abortWithMessage(r.getErrorString());
 }
 
 ConfigFunctions hivTransmissionConfigFunctions(EventHIVTransmission::processConfig, EventHIVTransmission::obtainConfig, 
-		                                    "EventHIVTransmission");
+                                               "EventHIVTransmission");
 
 JSONConfig hivTransmissionJSONConfig(R"JSON(
         "EventHIVTransmission": { 
@@ -304,14 +387,15 @@ JSONConfig hivTransmissionJSONConfig(R"JSON(
 			["hivtransmission.param.g2", 0],
 			["hivtransmission.param.h", 0],
 			["hivtransmission.param.i", 0],
+      ["hivtransmission.param.r", 0],
                 ["hivtransmission.maxageref.diff", 1] ],
             "info": [ 
                 "The hazard of transmission is h = exp(a + b * V^(-c) + d1*Pi + d2*Pj + e1*Hi + e2*Hj + g1*b0_j + g2*b1_j + h*C i*PrePj), ",
                 "in case the uninfected partner is a man, or",
-                "h = exp(a + b * V^(-c) + d1*Pi + d2*Pj +e1*Hi + e2*Hj + f1*exp(f2(A(try)-Ad))+ g1*b0_j + g2*b1_j+ h*C + i*PrePj)",
+                "h = exp(a + b * V^(-c) + d1*Pi + d2*Pj +e1*Hi + e2*Hj + f1*exp(f2(A(try)-Ad))+ g1*b0_j + g2*b1_j+ h*C + i*PrePj + r*Receptive)",
                 "in case the uninfected partner is a woman. The value of V is the viral",
                 "load, which is not necessarily the set-point viral load but will differ",
                 "depending on the AIDS stage. C is 1 if a condom is used by either partner."
             ]
-        })JSON");
+})JSON");
 

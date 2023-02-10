@@ -51,12 +51,13 @@ void EventSeedBase::fire(SeedEventSettings &settings, double t, State *pState, T
 	{
 		Person *pPerson = ppPeople[i];
 		double age = pPerson->getAgeAt(t);
+		// int sexrole = pPerson->getPreferredSexualRole();
 		
 		if (age >= settings.m_seedMinAge && age <= settings.m_seedMaxAge)
 		{
 			if ( settings.m_seedGender == SeedEventSettings::Any || 
 			     (settings.m_seedGender == SeedEventSettings::Male && pPerson->isMan()) || 
-				 (settings.m_seedGender == SeedEventSettings::Female && pPerson->isWoman()) )
+			     (settings.m_seedGender == SeedEventSettings::Female && pPerson->isWoman()) )
 				possibleSeeders.push_back(pPerson);
 		}
 	}
@@ -103,7 +104,7 @@ void EventSeedBase::fire(SeedEventSettings &settings, double t, State *pState, T
 	}
 
 	if (!settings.m_useFraction && settings.m_stopOnShort && countSeeded != settings.m_seedAmount)
-		abortWithMessage(strprintf("Could not HSV2 seed the requested amount of people: %d were seeded, but %d requested", countSeeded, settings.m_seedAmount));
+		abortWithMessage(strprintf("Could not seed the requested amount of people: %d were seeded, but %d requested", countSeeded, settings.m_seedAmount));
 }
 
 void EventSeedBase::processConfig(SeedEventSettings &settings, ConfigSettings &config, GslRandomNumberGenerator *pRndGen, 

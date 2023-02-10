@@ -200,6 +200,7 @@ void logAllPersons(SimpactPopulation &pop)
 		pPerson->writeToPersonLog();
 		if (pPerson->hiv().isInfected() && pPerson->hiv().hasLoweredViralLoad())
 			pPerson->writeToTreatmentLog(infinity, false);
+		
 	}
 
 	// deceased

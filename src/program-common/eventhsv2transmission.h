@@ -23,6 +23,7 @@ public:
 	static void obtainConfig(ConfigWriter &config);
 
 	static void infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t);
+	
 protected:
 	double calculateInternalTimeInterval(const State *pState, double t0, double dt);
 	double solveForRealTimeInterval(const State *pState, double Tdiff, double t0);
@@ -40,11 +41,18 @@ protected:
     };
 
 	static double getTMax(const Person *pOrigin, const Person *pTarget);
-	static int getM(const Person *pPerson1);
 	static int getH(const Person *pPerson1);
+	static int getR(const Person *pPerson1, const Person *pPerson2);
+	static int getC(const Person *pPerson1);
+	static int getW(const Person *pPerson1);
+	
+	// static double s_a; // baseline
 	static double s_tMax;
-	static double s_c; 
-	static double s_d; 
+	static double s_d1; // increase if infectious partner is HIV+
+	static double s_d2; // increase if susceptible partner is HIV+
+	static double s_f; // increase when susceptible is receptive partner
+	static double s_h; // condom use
+	static double s_w; // female susceptible
 	static double s_e1;
 	static double s_e2;
 };

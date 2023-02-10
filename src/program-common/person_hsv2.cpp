@@ -1,12 +1,20 @@
 #include "person_hsv2.h"
-
-#include "person.h"
 #include "configsettings.h"
 #include "configwriter.h"
 #include "configdistributionhelper.h"
 #include "configfunctions.h"
 #include "jsonconfig.h"
+#include "person.h"
+// #include "personimpl.h"
+#include "debugwarning.h"
+#include "logsystem.h"
+// #include "eventhsv2transmission.h"
+#include "simpactevent.h"
+#include "discretedistribution2d.h"
+#include <stdlib.h>
+#include <limits>
 #include <vector>
+#include <cmath>
 #include <iostream>
 
 using namespace std;
@@ -21,19 +29,40 @@ Person_HSV2::Person_HSV2(Person *pSelf): Person_STI(pSelf), m_diseaseStage(Susce
 
 Person_HSV2::~Person_HSV2() {}
 
-void Person_HSV2::setInfected(double t, Person *pOrigin, InfectionType iType)
+bool Person_HSV2::isInfected() const
+{
+  // if (m_diseaseStage == Exposed || m_diseaseStage == Asymptomatic || m_diseaseStage == Symptomatic) {
+  if (m_diseaseStage != Susceptible) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool Person_HSV2::isInfectious() const {
+  // if (m_diseaseStage == Asymptomatic || m_diseaseStage == Symptomatic) {
+  if (m_diseaseStage != Susceptible) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void Person_HSV2::setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite)
 { 
+  assert(m_diseaseStage == Susceptible);
 	assert(iType != None);
 	assert(!(pOrigin == 0 && iType != Seed));
 
 	m_infectionTime = t; 
 	m_pInfectionOrigin = pOrigin;
 	m_infectionType = iType;
+	m_infectionSite = iSite;
 
 	m_diseaseStage = Infected;
 }
 
-void Person_HSV2::progress(double t)
+void Person_HSV2::progress(double t, bool treatInd)
 {
 	// No HSV2 progression: only disease stages are Susceptible and Infected
 }

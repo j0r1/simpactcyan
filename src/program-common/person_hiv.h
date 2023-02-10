@@ -4,6 +4,7 @@
 
 #include "aidstodutil.h"
 #include "util.h"
+#include <assert.h>
 
 class Person;
 class ProbabilityDistribution;
@@ -17,12 +18,14 @@ class Person_HIV
 public:
 	enum InfectionType { None, Partner, Mother, Seed };
 	enum InfectionStage { NoInfection, Acute, Chronic, AIDS, AIDSFinal };
-
+	enum InfectionSite { Vaginal, Rectal, Urethral};
+	
 	Person_HIV(Person *pSelf);
 	~Person_HIV();
 
 	InfectionType getInfectionType() const											{ return m_infectionType; }
-	void setInfected(double t, Person *pOrigin, InfectionType iType);
+	InfectionSite getInfectionSite() const                      { return m_infectionSite; }
+	void setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite);
 	bool isInfected() const															{ if (m_infectionStage == NoInfection) return false; return true; }
 	double getInfectionTime() const													{ assert(isInfected()); return m_infectionTime; }
 	Person *getInfectionOrigin() const												{ assert(isInfected()); return m_pInfectionOrigin; }
@@ -86,6 +89,8 @@ private:
 	Person *m_pInfectionOrigin;
 	InfectionType m_infectionType;
 	InfectionStage m_infectionStage;
+	InfectionSite m_infectionSite;
+
 	int m_diagnoseCount;
 	bool m_aidsDeath;
 	double m_log10SurvTimeOffset;

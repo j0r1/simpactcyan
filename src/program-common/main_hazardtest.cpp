@@ -128,8 +128,8 @@ void runHazardTests(SimpactPopulation &pop)
 	{
 		Man *pMan = new Man(-30);
 		Woman *pWoman = new Woman(-20);
-		pMan->hiv().setInfected(-10, 0, Person_HIV::Seed);
-		pWoman->hiv().setInfected(-15, 0, Person_HIV::Seed);
+		pMan->hiv().setInfected(-10, 0, Person_HIV::Seed, Person_HIV::Urethral);
+		pWoman->hiv().setInfected(-15, 0, Person_HIV::Seed, Person_HIV::Vaginal);
 
 		pMan->addRelationship(pWoman, 0.1);
 		pWoman->addRelationship(pMan, 0.1);

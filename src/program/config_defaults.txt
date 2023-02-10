@@ -5,6 +5,7 @@ treatment.enabled                                            = yes
 logsystem.filename.events                                    = logevents.csv
 logsystem.filename.persons                                   = logpersons.csv
 logsystem.filename.relations                                 = logrelations.csv
+logsystem.filename.sti                                       = logsti.csv
 
 population.nummen                                            = 100
 population.numwomen                                          = 100
