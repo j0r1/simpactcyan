@@ -12,6 +12,7 @@
 #include "evthazardformationagegap.h"
 #include "evthazardformationagegaprefyear.h"
 #include "eventconception.h"
+#include "eventprepoffered.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
 #include "util.h"
@@ -237,6 +238,24 @@ void EventFormation::fire(Algorithm *pAlgorithm, State *pState, double t)
 	  }
 	}
 	
+
+	// Update PreP eligibility for both persons
+	bool schedulePrePOfferedEventP1 = pPerson1->hiv().updatePrePEligibility(t);
+	bool schedulePrePOfferedEventP2 = pPerson2->hiv().updatePrePEligibility(t);
+
+	// Check if either person has become eligible for PreP
+	if (schedulePrePOfferedEventP1) {
+		// Schedule PreP being offered to this person
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson1);
+		population.onNewEvent(pEvtPreP);
+	}
+
+	if (schedulePrePOfferedEventP2) {
+		// Schedule PreP being offered to this person
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson2);
+		population.onNewEvent(pEvtPreP);
+	}
+
 }
 
 double EventFormation::calculateInternalTimeInterval(const State *pState, double t0, double dt)

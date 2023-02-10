@@ -56,11 +56,6 @@ void EventDebut::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// No relationships will be scheduled if the person is already in the final AIDS stage
 	if (pPerson->hiv().getInfectionStage() != Person_HIV::AIDSFinal)
 		population.initializeFormationEvents(pPerson, false, false, t);
-
-	if (!pPerson->hiv().isInfected()) {
-		EventPrePOffered *pEvt = new EventPrePOffered(pPerson);
-		population.onNewEvent(pEvt);
-	}
 }
 
 double EventDebut::m_debutAge = -1;

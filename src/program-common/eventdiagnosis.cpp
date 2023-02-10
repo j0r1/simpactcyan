@@ -2,6 +2,7 @@
 #include "configsettings.h"
 #include "configwriter.h"
 #include "eventmonitoring.h"
+#include "eventprepoffered.h"
 #include "configdistributionhelper.h"
 #include "gslrandomnumbergenerator.h"
 #include "jsonconfig.h"
@@ -11,7 +12,7 @@
 
 using namespace std;
 
-EventDiagnosis::EventDiagnosis(Person *pPerson, bool scheduleImmediately) : SimpactEvent(pPerson), m_scheduleImmediately(scheduleImmediately)
+EventDiagnosis::EventDiagnosis(Person *pPerson, bool scheduleImmediately, bool seedingEvent) : SimpactEvent(pPerson), m_scheduleImmediately(scheduleImmediately), m_seedingEvent(seedingEvent)
 {
 }
 
@@ -27,7 +28,11 @@ string EventDiagnosis::getDescription(double tNow) const
 void EventDiagnosis::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
 	Person *pPerson = getPerson(0);
-	writeEventLogStart(true, "diagnosis", tNow, pPerson, 0);
+	if (m_seedingEvent) {
+		writeEventLogStart(true, "diagnosis", tNow, pPerson, 0, true);
+	} else {
+		writeEventLogStart(true, "diagnosis", tNow, pPerson, 0);
+	}
 }
 
 void EventDiagnosis::markOtherAffectedPeople(const PopulationStateInterface &population)
@@ -72,9 +77,20 @@ void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 		pPerson->hiv().stopPreP();
 	}
 
+	// Update PreP eligibility
+	bool schedulePrePOfferedEvent = pPerson->hiv().updatePrePEligibility(t);
+
+	// Check if either person has become eligible for PreP
+	if (schedulePrePOfferedEvent) {
+		// Schedule PreP being offered to this person
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson);
+		population.onNewEvent(pEvtPreP);
+	}
+
 	// Schedule an initial monitoring event right away! (the 'true' is for 'right away')
 	EventMonitoring *pEvtMonitor = new EventMonitoring(pPerson, true);
 	population.onNewEvent(pEvtMonitor);
+
 }
 
 double EventDiagnosis::calculateInternalTimeInterval(const State *pState, double t0, double dt)
@@ -83,8 +99,8 @@ double EventDiagnosis::calculateInternalTimeInterval(const State *pState, double
 	// screening event
 	if (m_scheduleImmediately)
 	{
-		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
-		return hour;
+		double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
+		return minute;
 	}
 
 	Person *pPerson = getPerson(0);
@@ -94,7 +110,19 @@ double EventDiagnosis::calculateInternalTimeInterval(const State *pState, double
 			           s_isDiagnosedFactor, s_healthSeekingPropensityFactor, s_beta, s_HSV2factor);
 	TimeLimitedHazardFunction h(h0, tMax);
 
-	return h.calculateInternalTimeInterval(t0, dt);
+	double internalTimeInterval = h.calculateInternalTimeInterval(t0, dt);
+
+	if (s_routineTestingEnabled) {
+		double timeFromInfectionToTest = s_uniformDistribution.pickNumber();
+		double timeOfTest = pPerson->hiv().getInfectionTime() + timeFromInfectionToTest;
+		double timeUntilTest = timeOfTest - t0;
+
+		if (timeUntilTest < internalTimeInterval) {
+			return timeUntilTest;
+		}
+	}
+
+	return internalTimeInterval;
 }
 
 double EventDiagnosis::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
@@ -103,8 +131,8 @@ double EventDiagnosis::solveForRealTimeInterval(const State *pState, double Tdif
 	// screening event
 	if (m_scheduleImmediately)
 	{
-		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
-		return hour;
+		double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
+		return minute;
 	}
 
 	Person *pPerson = getPerson(0);
@@ -114,7 +142,19 @@ double EventDiagnosis::solveForRealTimeInterval(const State *pState, double Tdif
 			           s_isDiagnosedFactor, s_healthSeekingPropensityFactor, s_beta, s_HSV2factor);
 	TimeLimitedHazardFunction h(h0, tMax);
 
-	return h.solveForRealTimeInterval(t0, Tdiff);
+	double realTimeInterval = h.solveForRealTimeInterval(t0, Tdiff);
+
+	if (s_routineTestingEnabled) {
+		double timeFromInfectionToTest = s_uniformDistribution.pickNumber();
+		double timeOfTest = pPerson->hiv().getInfectionTime() + timeFromInfectionToTest;
+		double timeUntilTest = timeOfTest - t0;
+
+		if (timeUntilTest < realTimeInterval) {
+			return timeUntilTest;
+		}
+	}
+
+	return realTimeInterval;
 }
 
 double EventDiagnosis::getTMax(const Person *pPerson)
@@ -137,6 +177,10 @@ double EventDiagnosis::s_beta = 0;
 double EventDiagnosis::s_HSV2factor = 0;
 double EventDiagnosis::s_tMax = 0;
 
+bool EventDiagnosis::s_routineTestingEnabled = false;
+double EventDiagnosis::s_routineTestingInterval = 0;
+UniformDistribution EventDiagnosis::s_uniformDistribution = UniformDistribution(0, 1, 0);
+
 
 void EventDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
@@ -151,9 +195,13 @@ void EventDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenera
 		!(r = config.getKeyValue("diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
 	    !(r = config.getKeyValue("diagnosis.beta", s_beta)) ||
 	    !(r = config.getKeyValue("diagnosis.t_max", s_tMax))||
-	    !(r = config.getKeyValue("diagnosis.HSV2factor", s_HSV2factor))
+	    !(r = config.getKeyValue("diagnosis.HSV2factor", s_HSV2factor)) ||
+		!(r = config.getKeyValue("diagnosis.routinetesting.enabled", s_routineTestingEnabled)) ||
+		!(r = config.getKeyValue("diagnosis.routinetesting.interval", s_routineTestingInterval))
 	   )
 		abortWithMessage(r.getErrorString());
+
+	s_uniformDistribution = UniformDistribution(0, s_routineTestingInterval, pRndGen);
 }
 
 void EventDiagnosis::obtainConfig(ConfigWriter &config)
@@ -169,7 +217,9 @@ void EventDiagnosis::obtainConfig(ConfigWriter &config)
 		!(r = config.addKey("diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
 	    !(r = config.addKey("diagnosis.beta", s_beta)) ||
 	    !(r = config.addKey("diagnosis.t_max", s_tMax)) ||
-	    !(r = config.addKey("diagnosis.HSV2factor", s_HSV2factor))
+	    !(r = config.addKey("diagnosis.HSV2factor", s_HSV2factor)) ||
+		!(r = config.addKey("diagnosis.routinetesting.enabled", s_routineTestingEnabled)) ||
+		!(r = config.addKey("diagnosis.routinetesting.interval", s_routineTestingInterval))
 	   )
 		abortWithMessage(r.getErrorString());
 }
@@ -241,7 +291,9 @@ JSONConfig diagnosisJSONConfig(R"JSON(
                 [ "diagnosis.beta", 0 ],
 				[ "diagnosis.healthseekingpropensityfactor", 0 ],
 		     	[ "diagnosis.HSV2factor", 0 ],
-                [ "diagnosis.t_max", 200 ]	
+                [ "diagnosis.t_max", 200 ],
+				[ "diagnosis.routinetesting.enabled", "no"],
+				[ "diagnosis.routinetesting.interval", 10]	
             ],
             "info": [
                 "When a person gets infected or drops out of treatment, a diagnosis event is ",
@@ -258,4 +310,3 @@ JSONConfig diagnosisJSONConfig(R"JSON(
 				"and H is the health-seeking propensity of the person."
             ]
         })JSON");
-

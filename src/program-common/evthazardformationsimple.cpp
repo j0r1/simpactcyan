@@ -75,7 +75,9 @@ double EvtHazardFormationSimple::calculateInternalTimeInterval(const SimpactPopu
 	HazardFunctionFormationSimple h0(pPerson1, pPerson2, tr, a0, m_a1, m_a2, m_a3, m_a4, m_a5, m_Dp, m_b);
 	TimeLimitedHazardFunction h(h0, tMax);
 
-	return h.calculateInternalTimeInterval(t0, dt);
+	double internal_dt = h.calculateInternalTimeInterval(t0, dt);
+
+	return internal_dt;
 
 	//return ExponentialHazardToInternalTime(pPerson1, pPerson2, t0, dt, tr, a0, m_a1, m_a2, m_a3, m_a4, m_a5, m_Dp, m_b, true, tMax);
 }
@@ -98,7 +100,14 @@ double EvtHazardFormationSimple::solveForRealTimeInterval(const SimpactPopulatio
 	HazardFunctionFormationSimple h0(pPerson1, pPerson2, tr, a0, m_a1, m_a2, m_a3, m_a4, m_a5, m_Dp, m_b);
 	TimeLimitedHazardFunction h(h0, tMax);
 
-	return h.solveForRealTimeInterval(t0, Tdiff);
+	double real_dt = h.solveForRealTimeInterval(t0, Tdiff);
+
+	if (real_dt != real_dt) {
+
+		cerr << "REAL: " << real_dt << endl;
+	}
+
+	return real_dt;
 	//return ExponentialHazardToRealTime(pPerson1, pPerson2, t0, Tdiff, tr, a0, m_a1, m_a2, m_a3, m_a4, m_a5, m_Dp, m_b, true, tMax);
 }
 
@@ -106,10 +115,22 @@ double EvtHazardFormationSimple::getA0(const SimpactPopulation &population, Pers
 {
 	double lastKnownPopSizeTime = 0;
 	double n = population.getLastKnownPopulationSize(lastKnownPopSizeTime);
-	double a0i = pPerson1->getFormationEagernessParameter();
-	double a0j = pPerson2->getFormationEagernessParameter();
+	double a0i, a0j;
+
+	if (m_msm)
+	{
+		a0i = pPerson1->getFormationEagernessParameterMSM();
+		a0j = pPerson2->getFormationEagernessParameterMSM();
+	}
+	else
+	{
+		a0i = pPerson1->getFormationEagernessParameter();
+		a0j = pPerson2->getFormationEagernessParameter();
+	}
+
 	double a0_base = m_a0 + (a0i + a0j)*m_a6 + std::abs(a0i-a0j)*m_a7;
 	a0_base += m_aDist * pPerson1->getDistanceTo(pPerson2);
+
 
 	double eyeCapsFraction = population.getEyeCapsFraction();
 	// reduces to old code if eyeCapsFraction == 1

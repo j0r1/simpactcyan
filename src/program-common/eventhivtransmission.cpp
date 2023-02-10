@@ -51,30 +51,32 @@ void EventHIVTransmission::writeLogs(const SimpactPopulation &pop, double tNow) 
 
 bool EventHIVTransmission::isUseless(const PopulationStateInterface &population) 
 {
-  // Transmission from pPerson1 to pPerson2
-  Person *pPerson1 = getPerson(0);
-  Person *pPerson2 = getPerson(1);
-  
-  // If person2 already became HIV positive, there no sense in further transmission
-  if (pPerson2->hiv().isInfected())
-    return true;
-  
-  // Event is useless if the relationship between the two people is over
-  if (!pPerson1->hasRelationshipWith(pPerson2))
-  {
-    assert(!pPerson2->hasRelationshipWith(pPerson1));
-    return true;
-  }
-  
-  // Event also gecomes useless if the first person (origin) is now in the _final_ AIDS stage
-  if (pPerson1->hiv().getInfectionStage() == Person_HIV::AIDSFinal)
-    return true;
-  
-  // Make sure the two lists are consistent: if person1 has a relationship with person2, person2
-  // should also have a relationship with person1
-  assert(pPerson2->hasRelationshipWith(pPerson1));
-  
-  return false;
+
+	// Transmission from pPerson1 to pPerson2
+	Person *pPerson1 = getPerson(0);
+	Person *pPerson2 = getPerson(1);
+
+	// If person2 already became HIV positive, there no sense in further transmission
+	if (pPerson2->hiv().isInfected())
+		return true;
+
+	// Event is useless if the relationship between the two people is over
+	if (!pPerson1->hasRelationshipWith(pPerson2))
+	{
+		assert(!pPerson2->hasRelationshipWith(pPerson1));
+		return true;
+	}
+
+	// Event also becomes useless if the first person (origin) is now in the _final_ AIDS stage
+	if (pPerson1->hiv().getInfectionStage() == Person_HIV::AIDSFinal)
+		return true;
+
+	// Make sure the two lists are consistent: if person1 has a relationship with person2, person2
+	// should also have a relationship with person1
+	assert(pPerson2->hasRelationshipWith(pPerson1));
+
+	return false;
+
 }
 
 void EventHIVTransmission::infectPerson(SimpactPopulation &population, Person *pOrigin, Person *pTarget, double t, bool scheduleAll)
@@ -217,8 +219,7 @@ double EventHIVTransmission::s_f1 = 0;
 double EventHIVTransmission::s_f2 = 0;
 double EventHIVTransmission::s_g1 = 0;
 double EventHIVTransmission::s_g2 = 0;
-double EventHIVTransmission::s_h1 = 0;
-double EventHIVTransmission::s_h2 = 0;
+double EventHIVTransmission::s_h = 0;
 double EventHIVTransmission::s_i = 0;
 double EventHIVTransmission::s_r = 0;
 double EventHIVTransmission::s_tMaxAgeRefDiff = -1;
@@ -272,131 +273,129 @@ int EventHIVTransmission::getR(const Person *pPerson1, const Person *pPerson2)
   return R;
 }
 
+
 double EventHIVTransmission::calculateHazardFactor(const SimpactPopulation &population, double t0)
 {
-  // Person1 is the infected person (origin) and his/her viral load (set-point or acute) determines
-  // the hazard
-  Person *pPerson1 = getPerson(0);
-  Person *pPerson2 = getPerson(1);
-  
-  double Pi = pPerson1->getNumberOfRelationships();
-  double Pj = pPerson2->getNumberOfRelationships();
-  
-  double V = pPerson1->hiv().getViralLoad();
-  assert(V > 0);
-  
-  int PrePj = pPerson2->hiv().isOnPreP();
-  
-  double CondomUseP1 = pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator());
-  double CondomUseP2 = pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator());
-  
-  assert(s_a != 0);
-  assert(s_b != 0);
-  assert(s_c != 0);
-  
-  double logh = s_a + s_b * std::pow(V,-s_c) + s_d1*Pi + s_d2*Pj
-    + s_e1*getH(pPerson1) + s_e2*getH(pPerson2)
-    + s_g1*pPerson2->hiv().getHazardB0Parameter() + s_g2*pPerson2->hiv().getHazardB1Parameter()
-    + s_h1*CondomUseP1 + s_h2*CondomUseP2 + s_i*PrePj + s_r*getR(pPerson2, pPerson1);
-    
-    if (s_f1 != 0 && pPerson2->isWoman())
-    {
-      double ageRefYear = population.getReferenceYear();
-      
-      // Make sure we're up-to-date to use our approximation
-      if (t0 - ageRefYear < -1e-8)
-        abortWithMessage("EventHIVTransmission: t0 is smaller than ageRefYear");
-      if (t0 - ageRefYear > s_tMaxAgeRefDiff+1e-8)
-        abortWithMessage("EventHIVTransmission: t0 - ageRefYear exceeds maximum specified difference");
-      
-      // Here we use the reference year as an approximation
-      double ageDiff = pPerson2->getAgeAt(ageRefYear) - EventDebut::getDebutAge();
-      
-      logh += s_f1*std::exp(s_f2*ageDiff);
-    }
+  // Person1 is the infected person and his/her viral load (set-point or acute) determines
+	// the hazard
+	Person *pPerson1 = getPerson(0);
+	Person *pPerson2 = getPerson(1);
+
+	double Pi = pPerson1->getNumberOfRelationships();
+	double Pj = pPerson2->getNumberOfRelationships();
+
+	double V = pPerson1->hiv().getViralLoad();
+	assert(V > 0);
+	
+	int PrePj = pPerson2->hiv().isOnPreP();
+
+	bool CondomUse = (pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+			(pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()));
+
+	assert(s_a != 0);
+	assert(s_b != 0);
+	assert(s_c != 0);
+
+	double logh = s_a + s_b * std::pow(V,-s_c) + s_d1*Pi + s_d2*Pj
+			+ s_e1*getH(pPerson1) + s_e2*getH(pPerson2)
+	+ s_g1*pPerson2->hiv().getHazardB0Parameter() + s_g2*pPerson2->hiv().getHazardB1Parameter()
+	+ s_h*CondomUse + s_i*PrePj + s_r*getR(pPerson2, pPerson1);
+
+	if (s_f1 != 0 && pPerson2->isWoman())
+	{
+		double ageRefYear = population.getReferenceYear();
+
+		// Make sure we're up-to-date to use our approximation
+		if (t0 - ageRefYear < -1e-8)
+			abortWithMessage("EventHIVTransmission: t0 is smaller than ageRefYear");
+		if (t0 - ageRefYear > s_tMaxAgeRefDiff+1e-8)
+			abortWithMessage("EventHIVTransmission: t0 - ageRefYear exceeds maximum specified difference");
+
+		// Here we use the reference year as an approximation
+		double ageDiff = pPerson2->getAgeAt(ageRefYear) - EventDebut::getDebutAge();
+		
+		logh += s_f1*std::exp(s_f2*ageDiff);
+	}
     
     return std::exp(logh);
 }
 
 void EventHIVTransmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
-  bool_t r;
-  
-  if (!(r = config.getKeyValue("hivtransmission.param.a", s_a)) ||
-      !(r = config.getKeyValue("hivtransmission.param.b", s_b)) ||
-      !(r = config.getKeyValue("hivtransmission.param.c", s_c)) ||
-      !(r = config.getKeyValue("hivtransmission.param.d1", s_d1)) ||
-      !(r = config.getKeyValue("hivtransmission.param.d2", s_d2)) ||
-      !(r = config.getKeyValue("hivtransmission.param.e1", s_e1)) || 
-      !(r = config.getKeyValue("hivtransmission.param.e2", s_e2)) || 
-      !(r = config.getKeyValue("hivtransmission.param.f1", s_f1)) ||
-      !(r = config.getKeyValue("hivtransmission.param.f2", s_f2)) ||
-      !(r = config.getKeyValue("hivtransmission.param.g1", s_g1)) ||
-      !(r = config.getKeyValue("hivtransmission.param.g2", s_g2)) ||
-      !(r = config.getKeyValue("hivtransmission.param.h1", s_h1)) ||
-      !(r = config.getKeyValue("hivtransmission.param.h2", s_h2)) ||
-      !(r = config.getKeyValue("hivtransmission.param.i", s_i)) ||
-      !(r = config.getKeyValue("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) ||
+	bool_t r;
+
+	if (!(r = config.getKeyValue("hivtransmission.param.a", s_a)) ||
+	    !(r = config.getKeyValue("hivtransmission.param.b", s_b)) ||
+	    !(r = config.getKeyValue("hivtransmission.param.c", s_c)) ||
+	    !(r = config.getKeyValue("hivtransmission.param.d1", s_d1)) ||
+	    !(r = config.getKeyValue("hivtransmission.param.d2", s_d2)) ||
+	    !(r = config.getKeyValue("hivtransmission.param.e1", s_e1)) || 
+	    !(r = config.getKeyValue("hivtransmission.param.e2", s_e2)) || 
+	    !(r = config.getKeyValue("hivtransmission.param.f1", s_f1)) ||
+	    !(r = config.getKeyValue("hivtransmission.param.f2", s_f2)) ||
+	    !(r = config.getKeyValue("hivtransmission.param.g1", s_g1)) ||
+	    !(r = config.getKeyValue("hivtransmission.param.g2", s_g2)) ||
+		!(r = config.getKeyValue("hivtransmission.param.h", s_h)) ||
+		!(r = config.getKeyValue("hivtransmission.param.i", s_i)) ||
+		!(r = config.getKeyValue("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) ||
       !(r = config.getKeyValue("hivtransmission.param.r", s_r)))
-      
-      abortWithMessage(r.getErrorString());
+		
+		abortWithMessage(r.getErrorString());
 }
 
 void EventHIVTransmission::obtainConfig(ConfigWriter &config)
 {
-  bool_t r;
-  
-  if (!(r = config.addKey("hivtransmission.param.a", s_a)) ||
-      !(r = config.addKey("hivtransmission.param.b", s_b)) ||
-      !(r = config.addKey("hivtransmission.param.c", s_c)) ||
-      !(r = config.addKey("hivtransmission.param.d1", s_d1)) ||
-      !(r = config.addKey("hivtransmission.param.d2", s_d2)) ||
-      !(r = config.addKey("hivtransmission.param.e1", s_e1)) || 
-      !(r = config.addKey("hivtransmission.param.e2", s_e2)) || 
-      !(r = config.addKey("hivtransmission.param.f1", s_f1)) ||
-      !(r = config.addKey("hivtransmission.param.f2", s_f2)) ||
-      !(r = config.addKey("hivtransmission.param.g1", s_g1)) ||
-      !(r = config.addKey("hivtransmission.param.g2", s_g2)) ||
-      !(r = config.addKey("hivtransmission.param.h1", s_h1)) ||
-      !(r = config.addKey("hivtransmission.param.h2", s_h2)) ||
-      !(r = config.addKey("hivtransmission.param.i", s_i)) ||
-      !(r = config.addKey("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) ||
+	bool_t r;
+
+	if (!(r = config.addKey("hivtransmission.param.a", s_a)) ||
+	    !(r = config.addKey("hivtransmission.param.b", s_b)) ||
+	    !(r = config.addKey("hivtransmission.param.c", s_c)) ||
+	    !(r = config.addKey("hivtransmission.param.d1", s_d1)) ||
+	    !(r = config.addKey("hivtransmission.param.d2", s_d2)) ||
+		!(r = config.addKey("hivtransmission.param.e1", s_e1)) || 
+	    !(r = config.addKey("hivtransmission.param.e2", s_e2)) || 
+		!(r = config.addKey("hivtransmission.param.f1", s_f1)) ||
+		!(r = config.addKey("hivtransmission.param.f2", s_f2)) ||
+		!(r = config.addKey("hivtransmission.param.g1", s_g1)) ||
+		!(r = config.addKey("hivtransmission.param.g2", s_g2)) ||
+		!(r = config.addKey("hivtransmission.param.h", s_h)) ||
+		!(r = config.addKey("hivtransmission.param.i", s_i)) ||
+		!(r = config.addKey("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) ||
       !(r = config.addKey("hivtransmission.param.r", s_r))
-  )
-    
-    abortWithMessage(r.getErrorString());
+		)
+		
+		abortWithMessage(r.getErrorString());
 }
 
 ConfigFunctions hivTransmissionConfigFunctions(EventHIVTransmission::processConfig, EventHIVTransmission::obtainConfig, 
                                                "EventHIVTransmission");
 
 JSONConfig hivTransmissionJSONConfig(R"JSON(
-    "EventHIVTransmission": { 
-  "depends": null,
-  "params": [ 
-  ["hivtransmission.param.a", -1.3997],
-  ["hivtransmission.param.b", -12.0220],
-  ["hivtransmission.param.c", 0.1649],
-  ["hivtransmission.param.d1", 0],
-  ["hivtransmission.param.d2", 0], 
-  ["hivtransmission.param.e1", 0],
-  ["hivtransmission.param.e2", 0],
-  ["hivtransmission.param.f1", 0], 
-  ["hivtransmission.param.f2", 0],
-  ["hivtransmission.param.g1", 0],
-  ["hivtransmission.param.g2", 0],
-  ["hivtransmission.param.h1", 0],
-  ["hivtransmission.param.h2", 0],
-  ["hivtransmission.param.i", 0],
-  ["hivtransmission.param.r", 0],
-  ["hivtransmission.maxageref.diff", 1] ],
+        "EventHIVTransmission": { 
+            "depends": null,
+            "params": [ 
+                ["hivtransmission.param.a", -1.3997],
+                ["hivtransmission.param.b", -12.0220],
+                ["hivtransmission.param.c", 0.1649],
+                ["hivtransmission.param.d1", 0],
+                ["hivtransmission.param.d2", 0], 
+		     ["hivtransmission.param.e1", 0],
+             	["hivtransmission.param.e2", 0],
+                ["hivtransmission.param.f1", 0], 
+                ["hivtransmission.param.f2", 0],
+			["hivtransmission.param.g1", 0],
+			["hivtransmission.param.g2", 0],
+			["hivtransmission.param.h", 0],
+			["hivtransmission.param.i", 0],
+      ["hivtransmission.param.r", 0],
+                ["hivtransmission.maxageref.diff", 1] ],
             "info": [ 
-  "The hazard of transmission is h = exp(a + b * V^(-c) + d1*Pi + d2*Pj + e1*Hi + e2*Hj + g1*b0_j + g2*b1_j + h1*Ci + h2*Cj + i*PrePj), ",
-  "in case the uninfected partner is a man, or",
-  "h = exp(a + b * V^(-c) + d1*Pi + d2*Pj +e1*Hi + e2*Hj + f1*exp(f2(A(try)-Ad))+ g1*b0_j + g2*b1_j+ h1*Ci + h2*Cj + i*PrePj)",
-  "in case the uninfected partner is a woman. The value of V is the viral",
-  "load, which is not necessarily the set-point viral load but will differ",
-  "depending on the AIDS stage. Ci and Cj are the condom use of the infectious and susceptible partner respectively."
+                "The hazard of transmission is h = exp(a + b * V^(-c) + d1*Pi + d2*Pj + e1*Hi + e2*Hj + g1*b0_j + g2*b1_j + h*C i*PrePj), ",
+                "in case the uninfected partner is a man, or",
+                "h = exp(a + b * V^(-c) + d1*Pi + d2*Pj +e1*Hi + e2*Hj + f1*exp(f2(A(try)-Ad))+ g1*b0_j + g2*b1_j+ h*C + i*PrePj + r*Receptive)",
+                "in case the uninfected partner is a woman. The value of V is the viral",
+                "load, which is not necessarily the set-point viral load but will differ",
+                "depending on the AIDS stage. C is 1 if a condom is used by either partner."
             ]
 })JSON");
 

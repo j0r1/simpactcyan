@@ -97,8 +97,8 @@ double EventMonitoring::getNewInternalTimeDifference(GslRandomNumberGenerator *p
 	// diagnosis event
 	if (m_scheduleImmediately)
 	{
-		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
-		return hour * pRndGen->pickRandomDouble();
+		double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
+		return minute;
 	}
 
 	assert(s_pRecheckInterval);

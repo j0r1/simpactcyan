@@ -186,7 +186,7 @@ void EventHIVSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 		Person *pPerson = seeded[seedIdx];
 
 		if (std::find(diagnosedNames.begin(), diagnosedNames.end(), pPerson->getName()) == diagnosedNames.end()) {
-			EventDiagnosis *pEvt = new EventDiagnosis(pPerson, true); // Schedule immediately
+			EventDiagnosis *pEvt = new EventDiagnosis(pPerson, true, true); // Schedule immediately
 			population.onNewEvent(pEvt);
 
 			numDiagnosed--;

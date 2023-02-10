@@ -24,7 +24,7 @@ public:
 	virtual void writeLogs(const SimpactPopulation &pop, double fireTime) const = 0;
 
 	static void writeEventLogStart(bool noExtraInfo, const std::string &eventName, double t, 
-			               const Person *pPerson1, const Person *pPerson2);
+			               const Person *pPerson1, const Person *pPerson2, bool seedingEvent = false);
 };
 
 #endif // SIMPACTEVENT_H

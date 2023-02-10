@@ -64,8 +64,8 @@ double EventAIDSStage::getNewInternalTimeDifference(GslRandomNumberGenerator *pR
 	// screening event
 	if (m_scheduleImmediately)
 	{
-		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
-		return hour;
+		double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
+		return minute;
 	}
 
 	double currentTime = pState->getTime();
@@ -82,8 +82,8 @@ double EventAIDSStage::calculateInternalTimeInterval(const State *pState, double
 	// screening event
 	if (m_scheduleImmediately)
 	{
-		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
-		return hour;
+		double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
+		return minute;
 	}
 
 	checkFireTime(t0);
@@ -96,8 +96,8 @@ double EventAIDSStage::solveForRealTimeInterval(const State *pState, double Tdif
 	// screening event
 	if (m_scheduleImmediately)
 	{
-		double hour = 1.0/(365.0*24.0); // an hour in a unit of a year
-		return hour;
+		double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
+		return minute;
 	}
 
 	checkFireTime(t0);

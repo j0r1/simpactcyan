@@ -3,6 +3,7 @@
 #include "configwriter.h"
 #include "eventprepoffered.h"
 #include "eventprepscreening.h"
+#include "eventprepdropout.h"
 #include "jsonconfig.h"
 
 using namespace std;
@@ -42,8 +43,10 @@ void EventPrePOffered::fire(Algorithm *pAlgorithm, State *pState, double t)
 		pPerson->hiv().startPreP();
 		// Schedule PreP screening immediately
 		EventPrePScreening *pEvt = new EventPrePScreening(pPerson, true);
+		population.onNewEvent(pEvt);
 
-		// TODO schedule PreP dropout?
+		// Schedule PreP dropout
+		EventPrePDropout *pEvtDropout = new EventPrePDropout(pPerson);
 		population.onNewEvent(pEvt);
 	} else {
 		// Schedule new offering event
@@ -57,7 +60,8 @@ void EventPrePOffered::processConfig(ConfigSettings &config, GslRandomNumberGene
 	bool_t r;
 
 	if (!(r = config.getKeyValue("prepoffered.baseline", s_baseline)) ||
-			!(r = config.getKeyValue("prepoffered.diagpartnersfactor", s_diagpartnersfactor)) ||
+			!(r = config.getKeyValue("prepoffered.numpartnersfactor", s_numPartnersFactor)) ||
+			!(r = config.getKeyValue("prepoffered.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
 			!(r = config.getKeyValue("prepoffered.beta", s_beta)) ||
 			!(r = config.getKeyValue("prepoffered.t_max", s_tMax))
 		)
@@ -69,7 +73,8 @@ void EventPrePOffered::obtainConfig(ConfigWriter &config)
 	bool_t r;
 
 	if (!(r = config.addKey("prepoffered.baseline", s_baseline)) ||
-			!(r = config.addKey("prepoffered.diagpartnersfactor", s_diagpartnersfactor)) ||
+			!(r = config.addKey("prepoffered.numpartnersfactor", s_numPartnersFactor)) ||
+			!(r = config.addKey("prepoffered.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
 			!(r = config.addKey("prepoffered.beta", s_beta)) ||
 			!(r = config.addKey("prepoffered.t_max", s_tMax))
 		)
@@ -78,10 +83,14 @@ void EventPrePOffered::obtainConfig(ConfigWriter &config)
 
 bool EventPrePOffered::isUseless(const PopulationStateInterface &pop)
 {
-	// PreP offering event becomes useless if person has been diagnosed with HIV
+	// PreP offering event becomes useless if person has been diagnosed with HIV / is no longer eligible
 	Person *pPerson = getPerson(0);
 
 	if (pPerson->hiv().isDiagnosed()) {
+		return true;
+	}
+
+	if (!pPerson->hiv().isEligibleForPreP()) {
 		return true;
 	}
 
@@ -93,7 +102,7 @@ double EventPrePOffered::calculateInternalTimeInterval(const State *pState, doub
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 
-	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_diagpartnersfactor, s_beta);
+	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_numPartnersFactor, s_healthSeekingPropensityFactor, s_beta);
 	TimeLimitedHazardFunction h(h0, tMax);
 
 	return h.calculateInternalTimeInterval(t0, dt);
@@ -104,7 +113,7 @@ double EventPrePOffered::solveForRealTimeInterval(const State *pState, double Td
 	Person *pPerson = getPerson(0);
 	double tMax = getTMax(pPerson);
 
-	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_diagpartnersfactor, s_beta);
+	HazardFunctionPrePOffered h0(pPerson, s_baseline, s_numPartnersFactor, s_healthSeekingPropensityFactor, s_beta);
 	TimeLimitedHazardFunction h(h0, tMax);
 
 	return h.solveForRealTimeInterval(t0, Tdiff);
@@ -120,7 +129,8 @@ double EventPrePOffered::getTMax(const Person *pPerson)
 }
 
 double EventPrePOffered::s_baseline = 0;
-double EventPrePOffered::s_diagpartnersfactor = 0;
+double EventPrePOffered::s_numPartnersFactor = 0;
+double EventPrePOffered::s_healthSeekingPropensityFactor = 0;
 double EventPrePOffered::s_beta = 0;
 double EventPrePOffered::s_tMax = 200;
 
@@ -128,20 +138,21 @@ double EventPrePOffered::s_tMax = 200;
 //
 // = exp(A + B*t) with
 //
-//  A = baseline + s_diatpartnersfactor*Dp - beta*t_debut
+//  A = baseline + s_healthSeekingPropensityFactor * H - beta*t_eligible
 //  B = beta
 //
-// wit Dp the number of diagnosed partners
-HazardFunctionPrePOffered::HazardFunctionPrePOffered(Person *pPerson, double baseline, double diagpartnersfactor, double beta)
-	: m_baseline(baseline), m_diagpartnersfactor(diagpartnersfactor), m_beta(beta)
+// wi H the individual health-seeking propensity of the person, and t_eligibile the time at which they became eligible for PreP
+HazardFunctionPrePOffered::HazardFunctionPrePOffered(Person *pPerson, double baseline, double numpartnersfactor, double healthseekingpropensityfactor, double beta)
+	: m_baseline(baseline), m_numPartnersFactor(numpartnersfactor), m_healthSeekingPropensityFactor(healthseekingpropensityfactor), m_beta(beta)
 {
 	assert(pPerson != 0);
 	m_pPerson = pPerson;
 
-	double tdebut = pPerson->getDebutTime();
-	int Dp = pPerson->getNumberOfDiagnosedPartners();
+	double teligible = pPerson->hiv().getTimePersonLastBecameEligibleForPreP();
+	int H = pPerson->getHealthSeekingPropensity();
+	int P = pPerson->getNumberOfRelationships();
 
-	double A = baseline + diagpartnersfactor * Dp - beta * tdebut;
+	double A = baseline + numpartnersfactor * P + healthseekingpropensityfactor * H - beta * teligible;
 	double B = beta;
 
 	setAB(A, B);
@@ -154,7 +165,8 @@ JSONConfig prepOfferedJSONConfig(R"JSON(
             "depends": null,
             "params": [
                 [ "prepoffered.baseline", 0 ],
-				[ "prepoffered.diagpartnersfactor", 0],
+				[ "prepoffered.numpartnersfactor", 0],
+				[ "prepoffered.healthseekingpropensityfactor", 0],
                 [ "prepoffered.beta", 0 ],
                 [ "prepoffered.t_max", 200 ]
             ],

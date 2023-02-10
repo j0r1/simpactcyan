@@ -195,13 +195,6 @@ bool_t SimpactPopulation::scheduleInitialEvents()
 			// Person is not yet sexually active
 			EventDebut *pEvt = new EventDebut(pPerson);
 			onNewEvent(pEvt);
-		} else {
-			// Person is already sexually active
-			if (!pPerson->hiv().isInfected())
-			{
-				EventPrePOffered *pEvt = new EventPrePOffered(pPerson);
-				onNewEvent(pEvt);
-			}
 		}
 	}
 
