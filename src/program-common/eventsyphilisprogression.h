@@ -19,13 +19,17 @@ public:
 
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);
+	
 private:
 	double getNewInternalTimeDifference(GslRandomNumberGenerator *pRndGen, const State *pState);
-
-	static ProbabilityDistribution *s_pExposedStageDurationDistribution;
+  
+  bool isUseless(const PopulationStateInterface &population) override;
+  
+	// static ProbabilityDistribution *s_pExposedStageDurationDistribution;
 	static ProbabilityDistribution *s_pPrimaryStageDurationDistribution;
 	static ProbabilityDistribution *s_pSecondaryStageDurationDistribution;
 	static ProbabilityDistribution *s_pLatentStageDurationDistribution;
+	
 };
 
 #endif // EVENTSYPHILISPROGRESSION_H

@@ -99,13 +99,13 @@ public:
 	Person_HIV &hiv()																{ return m_hiv; }
 	const Person_HIV &hiv() const 													{ return m_hiv; }
 
+	// STI stuff
 	Person_Chlamydia &chlamydia() 													{ return m_chlamydia; }
 	const Person_Chlamydia &chlamydia() const										{ return m_chlamydia; }
 
 	Person_Gonorrhea &gonorrhea() 													{ return m_gonorrhea; }
 	const Person_Gonorrhea &gonorrhea() const										{ return m_gonorrhea; }
 
-	// HSV2 stuff
 	Person_HSV2 &hsv2()																{ return m_hsv2; }
 	const Person_HSV2 &hsv2() const													{ return m_hsv2; }
 
@@ -119,6 +119,10 @@ public:
 	void setHealthSeekingPropensity(double healthSeekingPropensity) 				{ m_health_seeking_propensity = healthSeekingPropensity; }
 
 	SexualRolePreference getPreferredSexualRole() const 							{ return m_sexual_role_preference; }
+	
+	// STI treatment acceptance
+	double getTreatAcceptanceThreshold() const        {return m_treatAcceptanceThreshold;}
+	
 
 	// This is a per person value
 	double getSurvivalTimeLog10Offset() const										{ return m_hiv.getSurvivalTimeLog10Offset(); }
@@ -127,6 +131,12 @@ public:
 	static void obtainConfig(ConfigWriter &config);
 
 	void writeToPersonLog();
+	void writeToGonorrheaLog();
+	void writeToChlamydiaLog();
+	void writeToGonorrheaTreatLog();
+	void writeToChlamydiaTreatLog();
+	void writeToSyphilisLog();
+	void writeToSyphilisTreatLog();
 	void writeToTreatmentLog(double dropoutTime, bool justDied);
 	void writeToLocationLog(double tNow);
 
@@ -136,7 +146,9 @@ public:
 
 	double getDistanceTo(Person *pPerson);
 	static ProbabilityDistribution2D *getPopulationDistribution()					{ return m_pPopDist; }
-private:
+// private:
+
+protected:
 	Person_Family m_family;
 	Person_Relations m_relations;
 	Person_HIV m_hiv;
@@ -152,7 +164,8 @@ private:
 	double m_condom_use_threshold;
 	bool m_uses_condom;
 	double m_health_seeking_propensity;
-
+	double m_treatAcceptanceThreshold;
+	
 	SexualRolePreference m_sexual_role_preference;
 
 	PersonImpl *m_pPersonImpl;
@@ -162,7 +175,8 @@ private:
 	static double m_popDistHeight;
 
 	static ProbabilityDistribution *m_pHealthSeekingPropensityDist;
-
+	static ProbabilityDistribution *m_pTreatAcceptDist;
+	
 	static ProbabilityDistribution *m_pCondomUseDist;
 	static double m_concordanceCondomUseFactor;
 	static double m_artCondomUseFactor;

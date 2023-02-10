@@ -1,6 +1,7 @@
 #include "eventhsv2transmission.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
+#include "gslrandomnumbergenerator.h"
 #include "util.h"
 #include <cmath>
 #include <iostream>
@@ -14,7 +15,7 @@ EventHSV2Transmission::EventHSV2Transmission(Person *pPerson1, Person *pPerson2)
 {
   // is about transmission from pPerson1 to pPerson2, so no ordering according to
   // gender here
-  assert(pPerson1->hsv2().isInfected() && !pPerson2->hsv2().isInfected());
+  assert(pPerson1->hsv2().isInfectious() && !pPerson2->hsv2().isInfected());
 }
 
 EventHSV2Transmission::~EventHSV2Transmission()
@@ -36,7 +37,6 @@ void EventHSV2Transmission::writeLogs(const SimpactPopulation &pop, double tNow)
 // The dissolution event that makes this event useless involves the exact same people,
 // so this function will automatically make sure that this conception event is discarded
 // (this function is definitely called for those people)
-
 bool EventHSV2Transmission::isUseless(const PopulationStateInterface &population)
 {
   // Transmission from pPerson1 to pPerson2
@@ -46,6 +46,14 @@ bool EventHSV2Transmission::isUseless(const PopulationStateInterface &population
   // If person2 already became HSV2 positive, there no sense in further transmission
   if (pPerson2->hsv2().isInfected())
     return true;
+  
+  if (!pPerson1->hsv2().isInfectious())
+    return true;
+  
+  // If someone is in final AIDS stage
+  if (pPerson1->hiv().getInfectionStage() == Person_HIV::AIDSFinal || pPerson2->hiv().getInfectionStage() == Person_HIV::AIDSFinal) {
+    return true;
+  }
   
   // Event is useless if the relationship between the two people is over
   if (!pPerson1->hasRelationshipWith(pPerson2))
@@ -65,40 +73,63 @@ void EventHSV2Transmission::infectPerson(SimpactPopulation &population, Person *
 {
   assert(!pTarget->hsv2().isInfected());
   
-  int pRole = pTarget->getPreferredSexualRole();
-  if(pRole == 0){
-    double randnum = rand();
-    if(randnum < 0.5){
-      pRole = 1;
-    } else {
-      pRole = 2;
+  // Set Infection Type and Site (depending on sexual role)
+  
+  // For versatile men, sexual role depends on role of partner
+  GslRandomNumberGenerator *pRndGen = population.getRandomNumberGenerator();
+  
+  int pRole1 = pTarget->getPreferredSexualRole();
+  // if(pOrigin != 0) int pRole2 = pOrigin->getPreferredSexualRole();
+  
+  if(pTarget->isMan()){
+    if(pOrigin == 0 && pRole1 == 0){ // for seeders
+      double randnum = pRndGen->pickRandomDouble();
+      if(randnum < 0.5){
+        pRole1 = 1; // receptive
+      }else{
+        pRole1 = 2; // insertive
+      }
+    }
+    else if(pOrigin != 0){
+      if(pOrigin->isMan()){
+        Person_HSV2::InfectionSite originSite = pOrigin->hsv2().getInfectionSite();
+        if(originSite == Person_HSV2::Rectal){
+          pRole1 = 2;
+        }else if(originSite == Person_HSV2::Urethral){
+          pRole1 = 1;
+        }
+      }
     }
   }
   
-  if (pOrigin == 0){ // Seeding
-    if(pTarget->isMan() && pRole == 1){
-      pTarget->hsv2().setInfected(t, 0, Person_HSV2::Seed, Person_Gonorrhea::Rectal);
+  if (pOrigin == 0){ 
+    if(pTarget->isMan()){
+      if(pRole1 == 1){
+        pTarget->hsv2().setInfected(t, 0, Person_HSV2::Seed, Person_HSV2::Rectal);
+      }else if(pRole1 == 2){
+        pTarget->hsv2().setInfected(t, 0, Person_HSV2::Seed, Person_HSV2::Urethral);
+      }
+    }else if(pTarget->isWoman()){ // women
+      pTarget->hsv2().setInfected(t, 0, Person_HSV2::Seed, Person_HSV2::Vaginal);
     }
-    else if(pTarget->isMan() && pRole == 2){
-      pTarget->hsv2().setInfected(t, 0, Person_HSV2::Seed, Person_Gonorrhea::Urethral);
+  }else{
+    assert(pOrigin->hsv2().isInfectious());
+    
+    if(pTarget->isMan() && pOrigin->isMan()){
+      if(pRole1 == 1){
+        pTarget->hsv2().setInfected(t, pOrigin, Person_HSV2::Partner, Person_HSV2::Rectal);
+      }else if(pRole1 == 2){
+        pTarget->hsv2().setInfected(t, pOrigin, Person_HSV2::Partner, Person_HSV2::Urethral);
+      }
     }
-    else{
-      pTarget->hsv2().setInfected(t, 0, Person_HSV2::Seed, Person_Gonorrhea::Vaginal);
-    }
-  }
-  else
-  {
-    assert(pOrigin->hsv2().isInfected());
-    if(pTarget->isMan() && pRole == 1){
-      pTarget->hsv2().setInfected(t, pOrigin, Person_HSV2::Partner, Person_HSV2::Rectal);
-    }
-    else if(pTarget->isMan() && pRole == 2){
+    else if(pTarget->isMan() && pOrigin->isWoman()){ // heterosexual relationship
       pTarget->hsv2().setInfected(t, pOrigin, Person_HSV2::Partner, Person_HSV2::Urethral);
     }
-    else{
+    else if(pTarget->isWoman()){ // women
       pTarget->hsv2().setInfected(t, pOrigin, Person_HSV2::Partner, Person_HSV2::Vaginal);
     }
   }
+  
   
   // Check relationships pTarget is in, and if the partner is not yet infected, schedule
   // a transmission event.
@@ -162,8 +193,11 @@ double EventHSV2Transmission::solveForRealTimeInterval(const State *pState, doub
 }
 
 double EventHSV2Transmission::s_tMax = 200;
-double EventHSV2Transmission::s_c = 0; 
-double EventHSV2Transmission::s_d = 0; 
+double EventHSV2Transmission::s_d1 = 0;
+double EventHSV2Transmission::s_d2 = 0;
+double EventHSV2Transmission::s_f = 0;
+double EventHSV2Transmission::s_h = 0;
+double EventHSV2Transmission::s_w = 0;
 double EventHSV2Transmission::s_e1 = 0;
 double EventHSV2Transmission::s_e2 = 0;
 double EventHSV2Transmission::HazardFunctionHSV2Transmission::s_b = 0;
@@ -173,8 +207,11 @@ void EventHSV2Transmission::processConfig(ConfigSettings &config, GslRandomNumbe
   bool_t r;
   
   if (!(r = config.getKeyValue("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
-      !(r = config.getKeyValue("hsv2transmission.hazard.c", s_c)) ||
-      !(r = config.getKeyValue("hsv2transmission.hazard.d", s_d)) ||
+      !(r = config.getKeyValue("hsv2transmission.hazard.d1", s_d1)) ||
+      !(r = config.getKeyValue("hsv2transmission.hazard.d2", s_d2)) ||
+      !(r = config.getKeyValue("hsv2transmission.hazard.f", s_f)) ||
+      !(r = config.getKeyValue("hsv2transmission.hazard.h", s_h)) ||
+      !(r = config.getKeyValue("hsv2transmission.hazard.w", s_w)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.e1", s_e1)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.e2", s_e2)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.t_max", s_tMax))
@@ -187,14 +224,19 @@ void EventHSV2Transmission::obtainConfig(ConfigWriter &config)
   bool_t r;
   
   if (!(r = config.addKey("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
-      !(r = config.addKey("hsv2transmission.hazard.c", s_c))||
-      !(r = config.addKey("hsv2transmission.hazard.d", s_d))||
+      !(r = config.addKey("hsv2transmission.hazard.d1", s_d1)) ||
+      !(r = config.addKey("hsv2transmission.hazard.d2", s_d2)) ||
+      !(r = config.addKey("hsv2transmission.hazard.f", s_f)) ||
+      !(r = config.addKey("hsv2transmission.hazard.h", s_h)) ||
+      !(r = config.addKey("hsv2transmission.hazard.w", s_w)) ||
       !(r = config.addKey("hsv2transmission.hazard.e1", s_e1))||
       !(r = config.addKey("hsv2transmission.hazard.e2", s_e2))||
       !(r = config.addKey("hsv2transmission.hazard.t_max", s_tMax))
   )
     abortWithMessage(r.getErrorString());
 }
+
+double calculateHazardFactor(const SimpactPopulation &population, double t0);
 
 double EventHSV2Transmission::getTMax(const Person *pPerson1, const Person *pPerson2)
 {
@@ -213,25 +255,57 @@ double EventHSV2Transmission::getTMax(const Person *pPerson1, const Person *pPer
   return tMax;
 }
 
-int EventHSV2Transmission::getM(const Person *pPerson1)
-{
-  assert(pPerson1 != 0);
-  bool M1 = pPerson1->isMan();
-  int M = 0; 
-  if (M1 == true)
-    M = 1;
-  return M;
-}
 
-int EventHSV2Transmission::getH(const Person *pPerson1)
-{
-  assert(pPerson1 != 0);  
+// get HIV status 
+int EventHSV2Transmission::getH(const Person *pPerson1){
+  assert(pPerson1 != 0);
   bool H1 = pPerson1->hiv().isInfected();
   int H = 0;
   if (H1 == true)
     H = 1;
   return H;
-} 
+}
+
+// get condom use: TO DO
+int EventHSV2Transmission::getC(const Person *pPerson1){
+  assert(pPerson1 != 0);
+  // bool C1 = 
+  int C = 0;
+  
+  return C;
+}
+
+// get sexual role (infection site) of susceptible partner: TO DO (how to do without the randomness, get sexRole assigned per relationship?)
+int EventHSV2Transmission::getR(const Person *pPerson1, const Person*pPerson2){
+  assert(pPerson1 != 0);
+  assert(pPerson2 != 0);
+  
+  // heterosexual
+  int R = 0;
+  
+  if(pPerson1->isWoman()) // for women (always vaginal)
+    R = 0;
+  
+  // MSM
+  if(pPerson1->isMan() && pPerson2->isMan()){
+    
+    Person_HSV2::InfectionSite originSite = pPerson2->hsv2().getInfectionSite(); // infection site of origin
+    if(originSite == Person_HSV2::Urethral)
+      R = 1;
+  }
+  
+  return R;
+}
+
+int EventHSV2Transmission::getW(const Person *pPerson1){
+  assert(pPerson1 != 0);
+  int W = 0;
+  if(pPerson1->isWoman())
+    W = 1;
+  
+  return W;
+}
+
 
 EventHSV2Transmission::HazardFunctionHSV2Transmission::HazardFunctionHSV2Transmission(const Person *pPerson1, 
                                                                                       const Person *pPerson2)
@@ -247,7 +321,15 @@ double EventHSV2Transmission::HazardFunctionHSV2Transmission::getA(const Person 
 {
   assert(pOrigin);
   assert(pTarget);
-  return pOrigin->hsv2().getHazardAParameter() - s_b*pOrigin->hsv2().getInfectionTime() + s_c*EventHSV2Transmission::getM(pOrigin) + s_d*EventHSV2Transmission::getH(pOrigin) + s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter(); 
+  // return pOrigin->hsv2().getHazardAParameter() - s_b*pOrigin->hsv2().getInfectionTime() + s_c*EventHSV2Transmission::getM(pOrigin) + 
+  //   s_d*EventHSV2Transmission::getH(pOrigin) + s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter(); 
+  
+  return pOrigin->hsv2().getHazardAParameter() - s_b * pOrigin->hsv2().getInfectionTime() + 
+    s_d1*EventHSV2Transmission::getH(pOrigin) + s_d2*EventHSV2Transmission::getH(pTarget) + 
+    s_f*EventHSV2Transmission::getR(pTarget, pOrigin) + s_w*EventHSV2Transmission::getW(pTarget) +
+    // TO DO condom use (now set to always 0)
+    s_h*EventHSV2Transmission::getC(pTarget) + 
+    s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter();
 }
 
 ConfigFunctions hsv2TransmissionConfigFunctions(EventHSV2Transmission::processConfig, EventHSV2Transmission::obtainConfig, 
@@ -258,8 +340,11 @@ JSONConfig hsv2TransmissionJSONConfig(R"JSON(
   "depends": null,
   "params": [ 
   [ "hsv2transmission.hazard.b", 0 ],
-  [ "hsv2transmission.hazard.c", 0 ],
-  [ "hsv2transmission.hazard.d", 0 ],
+  [ "hsv2transmission.hazard.d1", 0 ],
+  [ "hsv2transmission.hazard.d2", 0 ],
+  [ "hsv2transmission.hazard.f", 0 ],
+  [ "hsv2transmission.hazard.h", 0 ],
+  [ "hsv2transmission.hazard.w", 0],
   [ "hsv2transmission.hazard.e1", 0 ],
   [ "hsv2transmission.hazard.e2", 0 ],
   [ "hsv2transmission.hazard.t_max", 200 ]

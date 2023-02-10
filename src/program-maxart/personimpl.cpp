@@ -60,6 +60,23 @@ JSONConfig personImplJSONConfig(R"JSON(
 				[ "person.sexualrole.dist", "distTypes", [ "discrete.inline", [ [ "floor", "yes" ], [ "xvalues", "0, 1, 2, 3" ], [ "yvalues", "1, 0, 0, 0" ] ] ] ]
 			],
 			"info": [ "TODO" ]
-
+		},
+		"PersonTreatAcceptance": {
+		  "depends": null,
+		  "params": [
+		  [ "person.sti.treat.accept.threshold.dist", "distTypes", ["fixed", [ ["value", 0.5 ] ] ] ]
+		  ],
+              "info": [
+		  "This parameter specifies a distribution from which a number will be chosen",
+		  "for each person, and which serves as the threshold to take STI treatment.",
+		  "When eligible for treatment, a random number will be chosen uniformly from",
+		  "[0,1], and treatment will only be started if this number is smaller than the",
+		  "threshold. By default, everyone will just have a 50/50 chance of starting",
+		  "treatment when possible. ",
+		  "",
+		  "If this distribution returns a low value (close to zero), it means that ",
+		  "there's little chance of accepting treatment; if the value is higher (close to",
+		  "one), treatment will almost always be accepted."
+              ]
 		})JSON");
 

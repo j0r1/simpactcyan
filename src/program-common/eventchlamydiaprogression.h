@@ -22,11 +22,19 @@ public:
 
 private:
 	double getNewInternalTimeDifference(GslRandomNumberGenerator *pRndGen, const State *pState);
+  
+  bool isUseless(const PopulationStateInterface &population) override;
+  
+  bool isWillingToTreatSTI(double t, GslRandomNumberGenerator *pRndGen);
+  
+  static ProbabilityDistribution *s_pInfectionDurationDistributionRectal;
+  static ProbabilityDistribution *s_pInfectionDurationDistributionUrethral;
+  static ProbabilityDistribution *s_pInfectionDurationDistributionVaginal; 
 
-	static ProbabilityDistribution *s_pExposedStageDurationDistribution;
-	static ProbabilityDistribution *s_pSymptomaticInfectionDurationDistribution;
-	static ProbabilityDistribution *s_pAsymptomaticInfectionDurationDistribution;
-	static ProbabilityDistribution *s_pImmunityDurationDistribution;
+	// static ProbabilityDistribution *s_pExposedStageDurationDistribution;
+	// static ProbabilityDistribution *s_pSymptomaticInfectionDurationDistribution;
+	// static ProbabilityDistribution *s_pAsymptomaticInfectionDurationDistribution;
+	// static ProbabilityDistribution *s_pImmunityDurationDistribution;
 };
 
 #endif // EVENTCHLAMYDIAPROGRESSION_H

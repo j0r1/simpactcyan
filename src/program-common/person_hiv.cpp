@@ -21,6 +21,7 @@ Person_HIV::Person_HIV(Person *pSelf) : m_pSelf(pSelf)
 	m_pInfectionOrigin = 0;
 	m_infectionType = None;
 	m_infectionStage = NoInfection;
+	m_infectionSite = Vaginal;
 	m_diagnoseCount = 0;
 
 	m_Vsp = 0;
@@ -53,7 +54,7 @@ Person_HIV::~Person_HIV()
 {
 }
 
-void Person_HIV::setInfected(double t, Person *pOrigin, InfectionType iType)
+void Person_HIV::setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite)
 { 
 	assert(m_infectionStage == NoInfection); 
 	assert(iType != None);
@@ -62,6 +63,7 @@ void Person_HIV::setInfected(double t, Person *pOrigin, InfectionType iType)
 	m_infectionTime = t; 
 	m_pInfectionOrigin = pOrigin;
 	m_infectionType = iType;
+	m_infectionSite = iSite;
 
 	// Always start in the acute stage
 	m_infectionStage = Acute;
@@ -220,7 +222,7 @@ double Person_HIV::pickInheritedSetPointViralLoad(const Person *pOrigin)
 void Person_HIV::writeToViralLoadLog(double tNow, const string &description) const
 {
 	assert(m_pSelf);
-
+  
 	int id = (int)m_pSelf->getPersonID();
 	double currentVl = getViralLoad();
 

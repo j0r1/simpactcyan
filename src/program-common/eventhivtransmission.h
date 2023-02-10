@@ -44,9 +44,11 @@ protected:
 	static double s_h1;		/// Influence of condom use of infectious person
 	static double s_h2;  	/// Influence of condom use of susceptible person
 	static double s_i; 		/// Impact of PreP use of susceptible person.
+	static double s_r;    /// impact of the susceptible being the receptive partner (for MSM)
 	static double s_tMaxAgeRefDiff;
 
 	static int getH(const Person *pPerson);
+	static int getR(const Person *pPerson1, const Person *pPerson2);
 };
 
 #endif // EVENTHIVTRANSMISSION_H

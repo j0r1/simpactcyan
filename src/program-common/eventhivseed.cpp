@@ -10,6 +10,7 @@
 #include "util.h"
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -202,7 +203,7 @@ void EventHIVSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 	}
 
 	if (!s_settings.m_useFraction && s_settings.m_stopOnShort && countSeeded != s_settings.m_seedAmount)
-		abortWithMessage(strprintf("Could not HSV2 seed the requested amount of people: %d were seeded, but %d requested", countSeeded, s_settings.m_seedAmount));
+		abortWithMessage(strprintf("Could not HIV seed the requested amount of people: %d were seeded, but %d requested", countSeeded, s_settings.m_seedAmount));
 }
 
 HIVSeedEventSettings EventHIVSeed::s_settings;

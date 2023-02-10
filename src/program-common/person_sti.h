@@ -4,6 +4,11 @@
 #include <assert.h>
 
 class Person;
+class ConfigSettings;
+class ConfigWriter;
+class GslRandomNumberGenerator;
+class ProbabilityDistribution;
+
 
 class Person_STI {
 public:
@@ -21,14 +26,20 @@ public:
   InfectionSite getInfectionSite() const { return m_infectionSite; }
   double getInfectionTime() const { assert(isInfected()); return m_infectionTime; }
   Person *getInfectionOrigin() const { assert(isInfected()); return m_pInfectionOrigin; }
+  double getRecoveryTime() const                          { return m_recoveryTime; }
+  bool isTreated() const                                  { return m_treated; }
   
   virtual void setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite) = 0;
-  virtual void progress(double t) = 0;
+  virtual void progress(double t, bool treatInd) = 0;
+  
+  
   
 protected:
   const Person *m_pSelf;
   
   double m_infectionTime;
+  double m_recoveryTime;
+  bool m_treated;
   Person *m_pInfectionOrigin;
   InfectionType m_infectionType;
   InfectionSite m_infectionSite;
