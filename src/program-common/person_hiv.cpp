@@ -186,6 +186,10 @@ bool Person_HIV::updatePrePEligibility(double t)
 	} else if (isEligibleForPreP() && !isEligibleNow) {
 		// Person is no longer eligible
 		m_isEligibleForPreP = false;
+	  // Stop if already on PrEP
+	  if(m_pSelf->hiv().isOnPreP()){
+	    m_pSelf->hiv().stopPreP();
+	  }
 	}
 
 	return schedulePrePOfferedEvent;

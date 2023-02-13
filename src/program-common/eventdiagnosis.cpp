@@ -80,12 +80,12 @@ void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// Update PreP eligibility
 	bool schedulePrePOfferedEvent = pPerson->hiv().updatePrePEligibility(t);
 
-	// Check if either person has become eligible for PreP
-	if (schedulePrePOfferedEvent) {
-		// Schedule PreP being offered to this person
-		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson);
-		population.onNewEvent(pEvtPreP);
-	}
+	// // Check if either person has become eligible for PreP
+	// if (schedulePrePOfferedEvent) {
+	// 	// Schedule PreP being offered to this person
+	// 	EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson);
+	// 	population.onNewEvent(pEvtPreP);
+	// }
 
 	// Schedule an initial monitoring event right away! (the 'true' is for 'right away')
 	EventMonitoring *pEvtMonitor = new EventMonitoring(pPerson, true);
