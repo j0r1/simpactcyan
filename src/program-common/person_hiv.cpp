@@ -1,4 +1,5 @@
 #include "person_hiv.h"
+#include "person.h"
 #include "vspmodellogweibullwithnoise.h"
 #include "vspmodellogdist.h"
 #include "configsettings.h"
@@ -171,7 +172,8 @@ bool Person_HIV::updatePrePEligibility(double t)
 	bool isEligibleNow = false;
 	if (!isDiagnosed()) { // PreP cannot be offered to individual's that have already been diagnosed with HIV
 		if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
-				(m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold)) {
+				(m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold) ||
+				(m_pSelf->getSTIDiagnoseCount() >= m_diagSTIPrePThreshold)) {
 			 isEligibleNow = true;
 		}
 	}
@@ -276,6 +278,7 @@ double Person_HIV::m_maxViralLoad = -1; // this one is read from the config file
 
 int Person_HIV::m_numPartnersPrePThreshold = 0;
 int Person_HIV::m_numDiagPartnersPrePThreshold = 0;
+int Person_HIV::m_diagSTIPrePThreshold = 0;
 
 VspModel *Person_HIV::m_pVspModel = 0;
 ProbabilityDistribution *Person_HIV::m_pCD4StartDistribution = 0;
@@ -305,7 +308,8 @@ void Person_HIV::processConfig(ConfigSettings &config, GslRandomNumberGenerator 
 	    !(r = config.getKeyValue("person.vsp.tofinalaids.x", m_finalAidsFromSetPointParamX, m_aidsFromSetPointParamX)) ||
 	    !(r = config.getKeyValue("person.vsp.maxvalue", m_maxViralLoad, 0)) ||
 		!(r = config.getKeyValue("person.prep.eligibility.threshold.numpartners", m_numPartnersPrePThreshold)) ||
-		!(r = config.getKeyValue("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold)))
+		!(r = config.getKeyValue("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold))||
+		!(r = config.getKeyValue("person.prep.eligibility.threshold.stidiagnoses", m_diagSTIPrePThreshold)))
 		abortWithMessage(r.getErrorString());
 
 
@@ -388,7 +392,8 @@ void Person_HIV::obtainConfig(ConfigWriter &config)
 	    !(r = config.addKey("person.vsp.tofinalaids.x", m_finalAidsFromSetPointParamX)) ||
 	    !(r = config.addKey("person.vsp.maxvalue", m_maxViralLoad)) ||
 		!(r = config.addKey("person.prep.eligibility.threshold.numpartners", m_numPartnersPrePThreshold)) ||
-		!(r = config.addKey("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold)) )
+		!(r = config.addKey("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold)) ||
+		!(r = config.addKey("person.prep.eligibility.threshold.stidiagnoses", m_diagSTIPrePThreshold)) )
 		abortWithMessage(r.getErrorString());
 
 	addDistributionToConfig(m_pCD4StartDistribution, config, "person.cd4.start");
@@ -566,7 +571,8 @@ JSONConfig personHIVJSONConfig(R"JSON(
 			"depends": null,
 			"params": [
 				["person.prep.eligibility.threshold.numpartners", 0],
-                ["person.prep.eligibility.threshold.numdiagpartners", 0] 
+                ["person.prep.eligibility.threshold.numdiagpartners", 0],
+                ["person.prep.eligibility.threshold.stidiagnoses", 0]
 			],
 			"info": [ "TODO" ]
 		},

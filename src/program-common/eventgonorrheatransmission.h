@@ -42,7 +42,7 @@ protected:
   static double getTMax(const Person *pOrigin, const Person *pTarget);
   static int getH(const Person *pPerson1);
   static int getR(const Person *pPerson1, const Person *pPerson2);
-  static int getC(const Person *pPerson1);
+  static int getC(const Person *pPerson1, const Person *pPerson2);
   static int getW(const Person *pPerson1);
   
   static double s_a; // baseline

@@ -34,7 +34,7 @@ public:
 	double getRecoveryTime() const                          { return m_recoveryTime; }
 	bool isTreated() const                                 { return m_treated; }
 	bool isDiagnosed() const                                { return m_diagnosed; }
-	
+
 	Person *getInfectionOrigin() const { assert(isInfected()); return m_pInfectionOrigin; }
 	
 	void setInfected(double t, Person *pOrigin, InfectionType iType, InfectionSite iSite);

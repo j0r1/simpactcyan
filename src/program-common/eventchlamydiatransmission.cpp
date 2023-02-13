@@ -4,6 +4,7 @@
 #include "eventchlamydiaprogression.h"
 #include "eventchlamydiadiagnosis.h"
 #include "gslrandomnumbergenerator.h"
+#include "simpactpopulation.h"
 
 using namespace std;
 
@@ -258,15 +259,16 @@ int EventChlamydiaTransmission::getH(const Person *pPerson1){
 
 // get condom use: TO DO
 int EventChlamydiaTransmission::getC(const Person *pPerson1, const Person *pPerson2){
+  
   assert(pPerson1 != 0);
   assert(pPerson2 != 0);
   
   int C = 0;
   // if one of both persons uses condom
-  if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
-     (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
-    C = 1;
-  }
+  // if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+  //    (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
+  //   C = 1;
+  // }
   
   return C;
 }
@@ -275,7 +277,7 @@ int EventChlamydiaTransmission::getC(const Person *pPerson1, const Person *pPers
 int EventChlamydiaTransmission::getR(const Person *pPerson1, const Person *pPerson2){
   assert(pPerson1 != 0);
   assert(pPerson2 != 0);
-
+  
   int R = 0; // for women & insertive MSM
   Person_Chlamydia::InfectionSite originSite = pPerson2->chlamydia().getInfectionSite();
   if(!(pPerson1->isWoman()) && originSite == Person_Chlamydia::Urethral){ // if susceptible is not a woman and infectious partner is insertive

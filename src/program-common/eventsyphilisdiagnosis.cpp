@@ -80,6 +80,8 @@ void EventSyphilisDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t
   
   // Mark person as diagnosed
   pPerson->syphilis().diagnose(t);
+  double tLast = pPerson->getTimeLastSTI();
+  pPerson->increaseSTIDiagnoseCount(t, tLast);
   
   // If accepting treatment --> immediate recovery
   if(isWillingToTreatSTI(t, pRndGen))

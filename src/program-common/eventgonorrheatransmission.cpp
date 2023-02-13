@@ -262,16 +262,16 @@ int EventGonorrheaTransmission::getH(const Person *pPerson1){
 }
 
 // get condom use: TO DO
-int EventGonorrheaTransmission::getC(const Person *pPerson1){
+int EventGonorrheaTransmission::getC(const Person *pPerson1, const Person *pPerson2){
   assert(pPerson1 != 0);
   assert(pPerson2 != 0);
   
   int C = 0;
   // if one of both persons uses condom
-  if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
-     (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
-    C = 1;
-  }
+  // if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+  //    (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
+  //   C = 1;
+  // }
   
   return C;
 }

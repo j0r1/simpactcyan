@@ -124,6 +124,7 @@ private:
 
 	static int m_numPartnersPrePThreshold;
 	static int m_numDiagPartnersPrePThreshold;
+	static int m_diagSTIPrePThreshold;
 
 	static VspModel *m_pVspModel;
 

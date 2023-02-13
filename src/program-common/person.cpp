@@ -46,8 +46,11 @@ m_health_seeking_propensity(0), m_sexual_role_preference(SexualRolePreference::V
     m_sexual_role_preference = static_cast<SexualRolePreference>(sexrole);	  
   }// for Women this is 0 (Variable) by default then?
   
-  
   m_pPersonImpl = new PersonImpl(*this);
+  
+  m_STIdiagnoseCount = 0;
+  m_timeLastDiagnosis = -10;
+  
 }
 
 Person::~Person()
@@ -69,6 +72,20 @@ double Person::m_artCondomUseFactor = 1;
 double Person::m_prepCondomUseFactor = 1;
 
 ProbabilityDistribution *Person::m_pSexualRoleDist = 0;
+
+void Person::increaseSTIDiagnoseCount(double tNow, double lastSTItime){
+  
+  // if last STI more than one year ago
+  if(lastSTItime < (tNow - 1)){
+    m_STIdiagnoseCount = 1;
+    m_timeLastDiagnosis = tNow;
+  }else{
+    m_STIdiagnoseCount++;
+    // m_STIdiagnoseCount++;
+    m_timeLastDiagnosis = tNow;
+  }
+    
+}
 
 
 bool Person::usesCondom(bool isPartnerDiagnosed, GslRandomNumberGenerator *pRndGen) const

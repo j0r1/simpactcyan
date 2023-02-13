@@ -101,7 +101,7 @@ bool EventPrePOffered::isUseless(const PopulationStateInterface &pop)
 double EventPrePOffered::calculateInternalTimeInterval(const State *pState, double t0, double dt)
 {
   // For first time offering PrEP (after meeting eligibility criteria)
-  if (m_scheduleImmediately){
+  if (m_scheduleImmediately && s_baseline > (-10000)){
     double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
     return minute;
   }
@@ -118,7 +118,7 @@ double EventPrePOffered::calculateInternalTimeInterval(const State *pState, doub
 double EventPrePOffered::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
 {
   // For first time offering PrEP (after meeting eligibility criteria)
-  if (m_scheduleImmediately){
+  if (m_scheduleImmediately && s_baseline > (-10000)){
     double minute = 1.0/(365.0*24.0*60.0); // a minute in a unit of a year
     return minute;
   }
