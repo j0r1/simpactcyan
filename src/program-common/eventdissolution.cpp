@@ -75,13 +75,13 @@ void EventDissolution::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// FIXME this normally shouldn't be necessary here.
 	if (schedulePrePOfferedEventP1) {
 		// Schedule PreP being offered to this person
-		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson1);
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson1, false);
 		population.onNewEvent(pEvtPreP);
 	}
 
 	if (schedulePrePOfferedEventP2) {
 		// Schedule PreP being offered to this person
-		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson2);
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson2, false);
 		population.onNewEvent(pEvtPreP);
 	}
 }

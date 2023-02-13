@@ -35,7 +35,7 @@ void EventPrePDropout::fire(Algorithm *pAlgorithm, State *pState, double t)
 
 	// If still eligible for PreP, schedule new EventPrePOffered
 	if (pPerson->hiv().isEligibleForPreP()) {
-		EventPrePOffered *pEvtPrep = new EventPrePOffered(pPerson);
+		EventPrePOffered *pEvtPrep = new EventPrePOffered(pPerson, false);
 		population.onNewEvent(pEvtPrep);
 	}
 }
