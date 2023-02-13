@@ -260,8 +260,14 @@ int EventSyphilisTransmission::getH(const Person *pPerson1){
 // get condom use: TO DO
 int EventSyphilisTransmission::getC(const Person *pPerson1){
   assert(pPerson1 != 0);
-  // bool C1 = 
+  assert(pPerson2 != 0);
+  
   int C = 0;
+  // if one of both persons uses condom
+  if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+     (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
+    C = 1;
+  }
   
   return C;
 }
@@ -304,8 +310,7 @@ double EventSyphilisTransmission::HazardFunctionSyphilisTransmission::getA(const
   return s_a - s_b * pOrigin->syphilis().getInfectionTime() + 
     s_d1*EventSyphilisTransmission::getH(pOrigin) + s_d2*EventSyphilisTransmission::getH(pTarget) + 
     s_f*EventSyphilisTransmission::getR(pTarget, pOrigin) + s_w*EventSyphilisTransmission::getW(pTarget) +
-    // TO DO condom use (now set to always 0)
-    s_h*EventSyphilisTransmission::getC(pTarget);
+    s_h*EventSyphilisTransmission::getC(pTarget, pOrigin);
 }
 
 ConfigFunctions syphilisTransmissionConfigFunctions(EventSyphilisTransmission::processConfig,

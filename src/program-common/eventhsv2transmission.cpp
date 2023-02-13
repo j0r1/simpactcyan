@@ -269,8 +269,14 @@ int EventHSV2Transmission::getH(const Person *pPerson1){
 // get condom use: TO DO
 int EventHSV2Transmission::getC(const Person *pPerson1){
   assert(pPerson1 != 0);
-  // bool C1 = 
+  assert(pPerson2 != 0);
+  
   int C = 0;
+  // if one of both persons uses condom
+  if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+     (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
+    C = 1;
+  }
   
   return C;
 }
@@ -327,8 +333,7 @@ double EventHSV2Transmission::HazardFunctionHSV2Transmission::getA(const Person 
   return pOrigin->hsv2().getHazardAParameter() - s_b * pOrigin->hsv2().getInfectionTime() + 
     s_d1*EventHSV2Transmission::getH(pOrigin) + s_d2*EventHSV2Transmission::getH(pTarget) + 
     s_f*EventHSV2Transmission::getR(pTarget, pOrigin) + s_w*EventHSV2Transmission::getW(pTarget) +
-    // TO DO condom use (now set to always 0)
-    s_h*EventHSV2Transmission::getC(pTarget) + 
+    s_h*EventHSV2Transmission::getC(pTarget, pOrigin) + 
     s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter();
 }
 

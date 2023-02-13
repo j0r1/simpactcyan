@@ -41,7 +41,8 @@ void EventPrePOffered::fire(Algorithm *pAlgorithm, State *pState, double t)
 	if (isWillingToTakePreP) {
 		// Start PreP
 		pPerson->hiv().startPreP();
-		// Schedule PreP screening immediately
+	  writeEventLogStart(true, "prepstarted", t, pPerson, 0);
+	  // Schedule PreP screening immediately
 		EventPrePScreening *pEvt = new EventPrePScreening(pPerson, true);
 		population.onNewEvent(pEvt);
 

@@ -257,10 +257,16 @@ int EventChlamydiaTransmission::getH(const Person *pPerson1){
 }
 
 // get condom use: TO DO
-int EventChlamydiaTransmission::getC(const Person *pPerson1){
+int EventChlamydiaTransmission::getC(const Person *pPerson1, const Person *pPerson2){
   assert(pPerson1 != 0);
-  // bool C1 = 
+  assert(pPerson2 != 0);
+  
   int C = 0;
+  // if one of both persons uses condom
+  if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+     (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
+    C = 1;
+  }
   
   return C;
 }
@@ -306,8 +312,7 @@ double EventChlamydiaTransmission::HazardFunctionChlamydiaTransmission::getA(con
   return s_a - s_b * pOrigin->chlamydia().getInfectionTime() + 
     s_d1*EventChlamydiaTransmission::getH(pOrigin) + s_d2*EventChlamydiaTransmission::getH(pTarget) + 
     s_f*EventChlamydiaTransmission::getR(pTarget, pOrigin) + s_w*EventChlamydiaTransmission::getW(pTarget) +
-    // TO DO condom use (now set to always 0)
-    s_h*EventChlamydiaTransmission::getC(pTarget);
+    s_h*EventChlamydiaTransmission::getC(pTarget, pOrigin);
 }
 
 ConfigFunctions chlamydiaTransmissionConfigFunctions(EventChlamydiaTransmission::processConfig,
