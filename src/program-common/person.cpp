@@ -570,6 +570,16 @@ void Person::writeToTreatmentLog(double dropoutTime, bool justDied)
                      dropoutTime, justDiedInt, lastCD4AtDiagnosis, lastCD4AtTreatmentStart);
 }
 
+void Person::writeToPrepLog(double tDropout, const std::string &description) const
+{
+  int id = (int)getPersonID();
+  
+  double lastPrepStartTime = m_hiv.getStartTimePreP();
+  
+  LogPrep.print("%d,%10.10f,%10.10f,%s", id, lastPrepStartTime, tDropout, description.c_str());
+  
+}
+
 Man::Man(double dateOfBirth) : Person(dateOfBirth, Male)
 {
 }

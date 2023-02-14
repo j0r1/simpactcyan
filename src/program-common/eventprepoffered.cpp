@@ -4,6 +4,7 @@
 #include "eventprepoffered.h"
 #include "eventprepscreening.h"
 #include "eventprepdropout.h"
+#include "person.h"
 #include "jsonconfig.h"
 
 using namespace std;

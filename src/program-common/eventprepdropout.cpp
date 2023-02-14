@@ -28,6 +28,7 @@ void EventPrePDropout::writeLogs(const SimpactPopulation &pop, double tNow) cons
 {
 	Person *pPerson = getPerson(0);
 	writeEventLogStart(true, "prepdropout", tNow, pPerson, 0);
+	pPerson->writeToPrepLog(tNow, "PrEP dropout");
 }
 
 void EventPrePDropout::fire(Algorithm *pAlgorithm, State *pState, double t)

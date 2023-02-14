@@ -123,6 +123,7 @@ private:
 	static double m_aidsFromSetPointParamX;
 	static double m_finalAidsFromSetPointParamX;
 	static double m_maxViralLoad;
+	static double m_supprViralLoad;
 
 	static int m_numPartnersPrePThreshold;
 	static int m_numDiagPartnersPrePThreshold;

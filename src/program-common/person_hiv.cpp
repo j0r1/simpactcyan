@@ -172,9 +172,29 @@ bool Person_HIV::updatePrePEligibility(double t)
   bool schedulePrePOfferedEvent = false;
   bool isEligibleNow = false;
   if (!isDiagnosed()) { // PreP cannot be offered to individual's that have already been diagnosed with HIV
+    
+    // Check if HIV+ partners that are not virally suppressed
+    int numRelations = m_pSelf->getNumberOfRelationships();
+    int S = 0;
+    double tDummy = 0;
+    m_pSelf->startRelationshipIteration();
+    for (int i = 0 ; i < numRelations ; i++)
+    {
+      Person *pPartner = m_pSelf->getNextRelationshipPartner(tDummy);
+      if(pPartner->hiv().isInfected()){
+        double vlPartner = pPartner->hiv().getViralLoad();
+        if (vlPartner >= m_supprViralLoad){
+          S++;
+        }        
+      }
+    }
+    assert(m_pSelf->getNextRelationshipPartner(tDummy) == 0);
+    
+    // Check if eligible for PrEP
     if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
         (m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold) ||
-        (m_pSelf->getSTIDiagnoseCount() >= m_diagSTIPrePThreshold)) {
+        (S > 0)) {//||
+        // (m_pSelf->getSTIDiagnoseCount() >= m_diagSTIPrePThreshold)) {
       isEligibleNow = true;
     }
   }
@@ -192,7 +212,7 @@ bool Person_HIV::updatePrePEligibility(double t)
     // Stop if already on PrEP
     if(m_pSelf->hiv().isOnPreP()){
       m_pSelf->hiv().stopPreP();
-      // writeEventLogStart(true, "prepstopped", t, m_pSelf, 0);
+      m_pSelf->writeToPrepLog(t, "Ineligible");
     }
   }
   
@@ -277,6 +297,7 @@ double Person_HIV::m_aidsFromSetPointParamX = -1;
 double Person_HIV::m_finalAidsFromSetPointParamX = -1;
 
 double Person_HIV::m_maxViralLoad = -1; // this one is read from the config file
+double Person_HIV::m_supprViralLoad = -1;
 
 int Person_HIV::m_numPartnersPrePThreshold = 0;
 int Person_HIV::m_numDiagPartnersPrePThreshold = 0;
@@ -307,8 +328,10 @@ void Person_HIV::processConfig(ConfigSettings &config, GslRandomNumberGenerator 
   if (!(r = config.getKeyValue("person.vsp.model.type", VspModelName, supportedModels)) ||
       !(r = config.getKeyValue("person.vsp.toacute.x", m_acuteFromSetPointParamX, 0)) ||
       !(r = config.getKeyValue("person.vsp.toaids.x", m_aidsFromSetPointParamX, 0)) ||
-      !(r = config.getKeyValue("person.vsp.tofinalaids.x", m_finalAidsFromSetPointParamX, m_aidsFromSetPointParamX)) ||
+      // !(r = config.getKeyValue("person.vsp.tofinalaids.x", m_finalAidsFromSetPointParamX, m_aidsFromSetPointParamX)) ||
+      !(r = config.getKeyValue("person.vsp.tofinalaids.x", m_finalAidsFromSetPointParamX, 0)) ||
       !(r = config.getKeyValue("person.vsp.maxvalue", m_maxViralLoad, 0)) ||
+      !(r = config.getKeyValue("person.hiv.undetectable.vl", m_supprViralLoad, 0)) ||
       !(r = config.getKeyValue("person.prep.eligibility.threshold.numpartners", m_numPartnersPrePThreshold)) ||
       !(r = config.getKeyValue("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold))||
       !(r = config.getKeyValue("person.prep.eligibility.threshold.stidiagnoses", m_diagSTIPrePThreshold)))
@@ -393,6 +416,7 @@ void Person_HIV::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("person.vsp.toaids.x", m_aidsFromSetPointParamX)) ||
       !(r = config.addKey("person.vsp.tofinalaids.x", m_finalAidsFromSetPointParamX)) ||
       !(r = config.addKey("person.vsp.maxvalue", m_maxViralLoad)) ||
+      !(r = config.addKey("person.hiv.undetectable.vl", m_supprViralLoad)) ||
       !(r = config.addKey("person.prep.eligibility.threshold.numpartners", m_numPartnersPrePThreshold)) ||
       !(r = config.addKey("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold)) ||
       !(r = config.addKey("person.prep.eligibility.threshold.stidiagnoses", m_diagSTIPrePThreshold)) )
@@ -455,7 +479,9 @@ JSONConfig personHIVJSONConfig(R"JSON(
   "depends": null,
   "params": [ 
   [ "person.hiv.b0.dist", "distTypes", [ "fixed", [ [ "value", 0 ]   ] ] ],
-  [ "person.hiv.b1.dist", "distTypes", [ "fixed", [ [ "value", 0 ]   ] ] ]],
+  [ "person.hiv.b1.dist", "distTypes", [ "fixed", [ [ "value", 0 ]   ] ] ],
+  [ "person.hiv.undetectable.vl", 200]
+  ],
             "info": [
   "The 'b0' parameter in the HIV transmission hazard is chosen from this",
   "distribution, allowing transmission to",
@@ -574,7 +600,7 @@ JSONConfig personHIVJSONConfig(R"JSON(
   "params": [
   ["person.prep.eligibility.threshold.numpartners", 0],
   ["person.prep.eligibility.threshold.numdiagpartners", 0],
-  ["person.prep.eligibility.threshold.stidiagnoses", 0]
+  ["person.prep.eligibility.threshold.stidiagnoses", 10000]
   ],
             "info": [ "TODO" ]
 },

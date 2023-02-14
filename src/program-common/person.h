@@ -142,7 +142,8 @@ public:
 	void writeToSyphilisTreatLog();
 	void writeToTreatmentLog(double dropoutTime, bool justDied);
 	void writeToLocationLog(double tNow);
-
+	void writeToPrepLog(double t, const std::string &description) const;
+	
 	Point2D getLocation() const														{ return m_location; }
 	void setLocation(Point2D loc, double tNow)										{ m_location = loc; m_locationTime = tNow; }
 	double getLocationTime() const													{ return m_locationTime; }

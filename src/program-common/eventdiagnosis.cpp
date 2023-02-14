@@ -76,6 +76,7 @@ void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 	if (pPerson->hiv().isOnPreP()) {
 		pPerson->hiv().stopPreP();
 	  writeEventLogStart(true, "prepstopped", t, pPerson, 0);
+	  pPerson->writeToPrepLog(t, "HIV diagnosis");
 	}
 
 	// Update PreP eligibility

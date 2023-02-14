@@ -45,6 +45,7 @@ protected:
 	static double s_i; 		/// Impact of PreP use of susceptible person.
 	static double s_r;    /// impact of the susceptible being the receptive partner (for MSM)
 	static double s_tMaxAgeRefDiff;
+	static double s_undetectableVL;
 
 	static int getH(const Person *pPerson);
 	static int getR(const Person *pPerson1, const Person *pPerson2);
