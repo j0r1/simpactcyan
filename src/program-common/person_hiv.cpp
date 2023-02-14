@@ -44,7 +44,8 @@ Person_HIV::Person_HIV(Person *pSelf) : m_pSelf(pSelf)
 	m_isEligibleForPreP = false;
 	m_timeLastBecameEligible = -1;
 	m_isOnPreP = false;
-
+	m_startTimePreP = -1;
+	
 	m_aidsDeath = false;
 
 	assert(m_pLogSurvTimeOffsetDistribution);

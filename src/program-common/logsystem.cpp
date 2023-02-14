@@ -114,7 +114,7 @@ void LogSystem::processConfig(ConfigSettings &config, GslRandomNumberGenerator *
 	    abortWithMessage("Unable to open Syphilis stage log file: " + r.getErrorString());
 	}
 
-	logPersons.print("\"ID\",\"Gender\",\"TOB\",\"TOD\",\"IDF\",\"IDM\",\"TODebut\",\"FormEag\",\"FormEagMSM\",\"SexualRole\",\"InfectTime\",\"InfectOrigID\",\"InfectType\",\"log10SPVL\",\"TreatTime\",\"XCoord\",\"YCoord\",\"AIDSDeath\",\"HSV2InfectTime\",\"HSV2InfectOriginID\",\"CD4atInfection\",\"CD4atDeath\",\"HealthSeekingPropensity\",\"InfectSite\"");
+	logPersons.print("\"ID\",\"Gender\",\"TOB\",\"TOD\",\"IDF\",\"IDM\",\"TODebut\",\"FormEag\",\"FormEagMSM\",\"SexualRole\",\"InfectTime\",\"InfectOrigID\",\"InfectType\",\"log10SPVL\",\"TreatTime\",\"XCoord\",\"YCoord\",\"AIDSDeath\",\"HSV2InfectTime\",\"HSV2InfectOriginID\",\"CD4atInfection\",\"CD4atDeath\",\"HealthSeekingPropensity\",\"InfectSite\",\"NumSTIDiag12m\"");
 	logRelations.print("\"ID1\",\"ID2\",\"FormTime\",\"DisTime\",\"AgeGap\",\"MSM\"");
 	logTreatment.print("\"ID\",\"Gender\",\"TStart\",\"TEnd\",\"DiedNow\",\"CD4atDiagnosis\",\"CD4atARTstart\"");
 	logLocation.print("\"Time\",\"ID\",\"XCoord\",\"YCoord\"");

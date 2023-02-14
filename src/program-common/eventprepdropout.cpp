@@ -3,14 +3,19 @@
 #include "configsettings.h"
 #include "configwriter.h"
 #include "configdistributionhelper.h"
-#include "gslrandomnumbergenerator.h"
+// #include "gslrandomnumbergenerator.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
-#include "util.h"
+#include "person_hiv.h"
+// #include "util.h"
 
 using namespace std;
 
-EventPrePDropout::EventPrePDropout(Person *pPerson): SimpactEvent(pPerson) {}
+EventPrePDropout::EventPrePDropout(Person *pPerson, double prepStartTime): SimpactEvent(pPerson) 
+  {
+    assert(prepStartTime >= 0);
+    m_prepStartTime = prepStartTime;
+  }
 
 EventPrePDropout::~EventPrePDropout() {}
 
@@ -43,20 +48,28 @@ void EventPrePDropout::fire(Algorithm *pAlgorithm, State *pState, double t)
 double EventPrePDropout::getNewInternalTimeDifference(GslRandomNumberGenerator *pRndGen, const State *pState)
 {
 	// TODO: this is just a temporaty solution, until a real hazard has been defined
+// 	const SimpactPopulation &population = SIMPACTPOPULATION(pState);
+//   Person *pPerson = getPerson(0);
+//   
+//   assert(pPerson != 0);
+//   assert(getNumberOfPersons() == 1);
+//   assert(pPerson->hiv().isOnPreP());
+  
+  
+  int count = 0;
+  int maxCount = 1024;
+  double dt = -1;
+  
+  assert(s_pPrePDropoutDistribution);
+  
+  while (dt < 0 && count++ < maxCount)
+    dt = s_pPrePDropoutDistribution->pickNumber();
+  
+  if (dt < 0)
+    abortWithMessage("EventDropout: couldn't find a positive time interval for next event");
+  
+  return dt;
 
-	int count = 0;
-	int maxCount = 1024;
-	double dt = -1;
-
-	assert(s_pPrePDropoutDistribution);
-
-	while (dt < 0 && count++ < maxCount)
-		dt = s_pPrePDropoutDistribution->pickNumber();
-
-	if (dt < 0)
-		abortWithMessage("EventPrePDropout: couldn't find a positive time interval for next event");
-
-	return dt;
 }
 
 double EventPrePDropout::calculateInternalTimeInterval(const State *pState, double t0, double dt)
@@ -82,6 +95,7 @@ void EventPrePDropout::processConfig(ConfigSettings &config, GslRandomNumberGene
 
 void EventPrePDropout::obtainConfig(ConfigWriter &config)
 {
+  assert(s_pPrePDropoutDistribution);
 	addDistributionToConfig(s_pPrePDropoutDistribution, config, "prepdropout.interval");
 }
 

@@ -26,7 +26,7 @@ string EventPrePScreening::getDescription(double tNow) const
 void EventPrePScreening::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
 	Person *pPerson = getPerson(0);
-	writeEventLogStart(false, "prepscreening", tNow, pPerson, 0);
+	writeEventLogStart(true, "prepscreening", tNow, pPerson, 0);
 }
 
 void EventPrePScreening::fire(Algorithm *pAlgorithm, State *pState, double t)

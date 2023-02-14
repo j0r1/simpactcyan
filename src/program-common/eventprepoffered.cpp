@@ -40,15 +40,16 @@ void EventPrePOffered::fire(Algorithm *pAlgorithm, State *pState, double t)
 
 	if (isWillingToTakePreP) {
 		// Start PreP
-		pPerson->hiv().startPreP();
+		pPerson->hiv().startPreP(t);
 	  writeEventLogStart(true, "prepstarted", t, pPerson, 0);
+
 	  // Schedule PreP screening immediately
 		EventPrePScreening *pEvt = new EventPrePScreening(pPerson, true);
 		population.onNewEvent(pEvt);
 
 		// Schedule PreP dropout
-		EventPrePDropout *pEvtDropout = new EventPrePDropout(pPerson);
-		population.onNewEvent(pEvt);
+		EventPrePDropout *pEvtDropout = new EventPrePDropout(pPerson, t);
+		population.onNewEvent(pEvtDropout);
 	} else {
 		// Schedule new offering event
 		EventPrePOffered *pEvt = new EventPrePOffered(pPerson, false);
