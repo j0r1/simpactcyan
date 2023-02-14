@@ -167,7 +167,7 @@ double EventChlamydiaTransmission::calculateInternalTimeInterval(const State *pS
   Person *pTarget = getPerson(1);
   double tMax = getTMax(pOrigin, pTarget);
   
-  HazardFunctionChlamydiaTransmission h0(pOrigin, pTarget);
+  HazardFunctionChlamydiaTransmission h0(pOrigin, pTarget, pState);
   TimeLimitedHazardFunction h(h0, tMax);
   
   return h.calculateInternalTimeInterval(t0, dt);
@@ -179,7 +179,7 @@ double EventChlamydiaTransmission::solveForRealTimeInterval(const State *pState,
   Person *pTarget = getPerson(1);
   double tMax = getTMax(pOrigin, pTarget);
   
-  HazardFunctionChlamydiaTransmission h0(pOrigin, pTarget);
+  HazardFunctionChlamydiaTransmission h0(pOrigin, pTarget, pState);
   TimeLimitedHazardFunction h(h0, tMax);
   
   return h.solveForRealTimeInterval(t0, Tdiff);
@@ -257,22 +257,6 @@ int EventChlamydiaTransmission::getH(const Person *pPerson1){
   return H;
 }
 
-// get condom use: TO DO
-int EventChlamydiaTransmission::getC(const Person *pPerson1, const Person *pPerson2){
-  
-  assert(pPerson1 != 0);
-  assert(pPerson2 != 0);
-  
-  int C = 0;
-  // if one of both persons uses condom
-  // if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
-  //    (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
-  //   C = 1;
-  // }
-  
-  return C;
-}
-
 // get sexual role (infection site) of susceptible partner == infection site of infectious partner (pOrigin)
 int EventChlamydiaTransmission::getR(const Person *pPerson1, const Person *pPerson2){
   assert(pPerson1 != 0);
@@ -298,8 +282,9 @@ int EventChlamydiaTransmission::getW(const Person *pPerson1){
 
 
 EventChlamydiaTransmission::HazardFunctionChlamydiaTransmission::HazardFunctionChlamydiaTransmission(const Person *pPerson1,
-                                                                                                     const Person *pPerson2)
-  : HazardFunctionExp(getA(pPerson1, pPerson2), s_b)
+                                                                                                     const Person *pPerson2,
+                                                                                                     const State *pState)
+  : HazardFunctionExp(getA(pPerson1, pPerson2, pState), s_b)
 {
 }
 
@@ -307,14 +292,20 @@ EventChlamydiaTransmission::HazardFunctionChlamydiaTransmission::~HazardFunction
 {
 }
 
-double EventChlamydiaTransmission::HazardFunctionChlamydiaTransmission::getA(const Person *pOrigin, const Person *pTarget)
+double EventChlamydiaTransmission::HazardFunctionChlamydiaTransmission::getA(const Person *pOrigin, const Person *pTarget, const State *pState)
 {
   assert(pOrigin);
   assert(pTarget);
+  
+  const SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  
+  bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+                    (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
+  
   return s_a - s_b * pOrigin->chlamydia().getInfectionTime() + 
     s_d1*EventChlamydiaTransmission::getH(pOrigin) + s_d2*EventChlamydiaTransmission::getH(pTarget) + 
     s_f*EventChlamydiaTransmission::getR(pTarget, pOrigin) + s_w*EventChlamydiaTransmission::getW(pTarget) +
-    s_h*EventChlamydiaTransmission::getC(pTarget, pOrigin);
+    s_h*CondomUse;
 }
 
 ConfigFunctions chlamydiaTransmissionConfigFunctions(EventChlamydiaTransmission::processConfig,

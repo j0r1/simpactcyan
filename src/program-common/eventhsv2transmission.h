@@ -33,17 +33,17 @@ protected:
     class HazardFunctionHSV2Transmission : public HazardFunctionExp
     {
     public:
-        HazardFunctionHSV2Transmission(const Person *pPerson1, const Person *pPerson2);
+        HazardFunctionHSV2Transmission(const Person *pPerson1, const Person *pPerson2, const State *pState);
         ~HazardFunctionHSV2Transmission();
 
-        static double getA(const Person *pPerson1, const Person *pPerson2);
+        static double getA(const Person *pPerson1, const Person *pPerson2, const State *pState);
         static double s_b;
     };
 
 	static double getTMax(const Person *pOrigin, const Person *pTarget);
 	static int getH(const Person *pPerson1);
 	static int getR(const Person *pPerson1, const Person *pPerson2);
-	static int getC(const Person *pPerson1, const Person *pPerson2);
+	// static int getC(const Person *pPerson1, const Person *pPerson2);
 	static int getW(const Person *pPerson1);
 	
 	// static double s_a; // baseline

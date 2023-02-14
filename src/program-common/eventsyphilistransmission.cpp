@@ -169,7 +169,7 @@ double EventSyphilisTransmission::calculateInternalTimeInterval(const State *pSt
   Person *pTarget = getPerson(1);
   double tMax = getTMax(pOrigin, pTarget);
   
-  HazardFunctionSyphilisTransmission h0(pOrigin, pTarget);
+  HazardFunctionSyphilisTransmission h0(pOrigin, pTarget, pState);
   TimeLimitedHazardFunction h(h0, tMax);
   
   return h.calculateInternalTimeInterval(t0, dt);
@@ -181,7 +181,7 @@ double EventSyphilisTransmission::solveForRealTimeInterval(const State *pState, 
   Person *pTarget = getPerson(1);
   double tMax = getTMax(pOrigin, pTarget);
   
-  HazardFunctionSyphilisTransmission h0(pOrigin, pTarget);
+  HazardFunctionSyphilisTransmission h0(pOrigin, pTarget, pState);
   TimeLimitedHazardFunction h(h0, tMax);
   
   return h.solveForRealTimeInterval(t0, Tdiff);
@@ -257,21 +257,6 @@ int EventSyphilisTransmission::getH(const Person *pPerson1){
   return H;
 }
 
-// get condom use: TO DO
-int EventSyphilisTransmission::getC(const Person *pPerson1, const Person *pPerson2){
-  assert(pPerson1 != 0);
-  assert(pPerson2 != 0);
-  
-  int C = 0;
-  // if one of both persons uses condom
-  // if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
-  //    (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
-  //   C = 1;
-  // }
-  
-  return C;
-}
-
 // get sexual role (infection site) of susceptible partner: TO DO (how to do without the randomness, get sexRole assigned per relationship?)
 int EventSyphilisTransmission::getR(const Person *pPerson1, const Person*pPerson2){
   assert(pPerson1 != 0);
@@ -297,20 +282,27 @@ int EventSyphilisTransmission::getW(const Person *pPerson1){
 
 
 EventSyphilisTransmission::HazardFunctionSyphilisTransmission::HazardFunctionSyphilisTransmission(const Person *pPerson1,
-                                                                                                  const Person *pPerson2)
-  : HazardFunctionExp(getA(pPerson1, pPerson2), s_b)
+                                                                                                  const Person *pPerson2,
+                                                                                                  const State *pState)
+  : HazardFunctionExp(getA(pPerson1, pPerson2, pState), s_b)
 {}
 
 EventSyphilisTransmission::HazardFunctionSyphilisTransmission::~HazardFunctionSyphilisTransmission() {}
 
-double EventSyphilisTransmission::HazardFunctionSyphilisTransmission::getA(const Person *pOrigin, const Person *pTarget)
+double EventSyphilisTransmission::HazardFunctionSyphilisTransmission::getA(const Person *pOrigin, const Person *pTarget, const State *pState)
 {
   assert(pOrigin);
   assert(pTarget);
+  
+  const SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  
+  bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+                    (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
+  
   return s_a - s_b * pOrigin->syphilis().getInfectionTime() + 
     s_d1*EventSyphilisTransmission::getH(pOrigin) + s_d2*EventSyphilisTransmission::getH(pTarget) + 
     s_f*EventSyphilisTransmission::getR(pTarget, pOrigin) + s_w*EventSyphilisTransmission::getW(pTarget) +
-    s_h*EventSyphilisTransmission::getC(pTarget, pOrigin);
+    s_h*CondomUse;
 }
 
 ConfigFunctions syphilisTransmissionConfigFunctions(EventSyphilisTransmission::processConfig,

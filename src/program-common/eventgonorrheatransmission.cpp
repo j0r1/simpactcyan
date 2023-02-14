@@ -173,7 +173,7 @@ double EventGonorrheaTransmission::calculateInternalTimeInterval(const State *pS
   Person *pTarget = getPerson(1);
   double tMax = getTMax(pOrigin, pTarget);
   
-  HazardFunctionGonorrheaTransmission h0(pOrigin, pTarget);
+  HazardFunctionGonorrheaTransmission h0(pOrigin, pTarget, pState);
   TimeLimitedHazardFunction h(h0, tMax);
   
   return h.calculateInternalTimeInterval(t0, dt);
@@ -185,7 +185,7 @@ double EventGonorrheaTransmission::solveForRealTimeInterval(const State *pState,
   Person *pTarget = getPerson(1);
   double tMax = getTMax(pOrigin, pTarget);
   
-  HazardFunctionGonorrheaTransmission h0(pOrigin, pTarget);
+  HazardFunctionGonorrheaTransmission h0(pOrigin, pTarget, pState);
   TimeLimitedHazardFunction h(h0, tMax);
   
   return h.solveForRealTimeInterval(t0, Tdiff);
@@ -262,19 +262,19 @@ int EventGonorrheaTransmission::getH(const Person *pPerson1){
 }
 
 // get condom use: TO DO
-int EventGonorrheaTransmission::getC(const Person *pPerson1, const Person *pPerson2){
-  assert(pPerson1 != 0);
-  assert(pPerson2 != 0);
-  
-  int C = 0;
-  // if one of both persons uses condom
-  // if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
-  //    (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
-  //   C = 1;
-  // }
-  
-  return C;
-}
+// int EventGonorrheaTransmission::getC(const Person *pPerson1, const Person *pPerson2){
+//   assert(pPerson1 != 0);
+//   assert(pPerson2 != 0);
+//   
+//   int C = 0;
+//   // if one of both persons uses condom
+//   // if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+//   //    (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
+//   //   C = 1;
+//   // }
+//   
+//   return C;
+// }
 
 // get sexual role (infection site) of susceptible partner: TO DO (how to do without the randomness, get sexRole assigned per relationship?)
 int EventGonorrheaTransmission::getR(const Person *pPerson1, const Person*pPerson2){
@@ -300,8 +300,9 @@ int EventGonorrheaTransmission::getW(const Person *pPerson1){
 }
 
 EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::HazardFunctionGonorrheaTransmission(const Person *pPerson1,
-                                                                                                     const Person *pPerson2)
-  : HazardFunctionExp(getA(pPerson1, pPerson2), s_b)
+                                                                                                     const Person *pPerson2, 
+                                                                                                     const State *pState)
+  : HazardFunctionExp(getA(pPerson1, pPerson2, pState), s_b)
 {
 }
 
@@ -309,14 +310,20 @@ EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::~HazardFunction
 {
 }
 
-double EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::getA(const Person *pOrigin, const Person *pTarget)
+double EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::getA(const Person *pOrigin, const Person *pTarget, const State *pState)
 {
   assert(pOrigin);
   assert(pTarget);
+  
+  const SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  
+  bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+    (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
+  
   return s_a - s_b*pOrigin->gonorrhea().getInfectionTime() + 
     s_d1*EventGonorrheaTransmission::getH(pOrigin) + s_d2*EventGonorrheaTransmission::getH(pTarget) + 
     s_f*EventGonorrheaTransmission::getR(pTarget, pOrigin) + s_w*EventGonorrheaTransmission::getW(pTarget) +
-    s_h*EventGonorrheaTransmission::getC(pTarget, pOrigin);
+    s_h*CondomUse;
 }
 
 ConfigFunctions gonorrheaTransmissionConfigFunctions(EventGonorrheaTransmission::processConfig,

@@ -252,7 +252,7 @@ int EventHIVTransmission::getH(const Person *pPerson)
 } 
 
 // get sexual role of susceptible partner: TO DO change to infection site as for gonorrhea
-int EventHIVTransmission::getR(const Person *pPerson1, const Person *pPerson2)
+int EventHIVTransmission::getR(const Person *pPerson1, const Person *pPerson2) // P1 = susceptible, P2 = infectious
 {
   assert(pPerson1 != 0);
   assert(pPerson2 != 0);

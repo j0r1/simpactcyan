@@ -32,17 +32,17 @@ protected:
 	class HazardFunctionChlamydiaTransmission : public HazardFunctionExp
 	{
 	public:
-		HazardFunctionChlamydiaTransmission(const Person *pPerson1, const Person *pPerson2);
+		HazardFunctionChlamydiaTransmission(const Person *pPerson1, const Person *pPerson2, const State *pState);
 		~HazardFunctionChlamydiaTransmission();
 
-		static double getA(const Person *pPerson1, const Person *pPerson2);
+		static double getA(const Person *pPerson1, const Person *pPerson2, const State *pState);
 		static double s_b;
 	};
 
 	static double getTMax(const Person *pOrigin, const Person *pTarget);
 	static int getH(const Person *pPerson1);
 	static int getR(const Person *pPerson1, const Person *pPerson2);
-	static int getC(const Person *pPerson1, const Person *pPerson2);
+	// static int getC(const Person *pPerson1, const Person *pPerson2);
 	static int getW(const Person *pPerson1);
 	
 	static double s_a; // baseline
