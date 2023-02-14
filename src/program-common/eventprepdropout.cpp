@@ -46,6 +46,18 @@ void EventPrePDropout::fire(Algorithm *pAlgorithm, State *pState, double t)
 	}
 }
 
+bool EventPrePDropout::isUseless(const PopulationStateInterface&population)
+{
+  // Event becomes useless if person no longer on PrEP
+  Person *pPerson1 = getPerson(0);
+  
+  if(!pPerson1->hiv().isOnPreP()){
+    return true;
+  }
+
+  return false;
+}
+
 double EventPrePDropout::getNewInternalTimeDifference(GslRandomNumberGenerator *pRndGen, const State *pState)
 {
 	// TODO: this is just a temporaty solution, until a real hazard has been defined
