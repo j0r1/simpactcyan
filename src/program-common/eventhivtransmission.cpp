@@ -3,6 +3,7 @@
 #include "eventaidsmortality.h"
 #include "eventchronicstage.h"
 #include "eventdiagnosis.h"
+#include "eventprepoffered.h"
 #include "eventdebut.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
@@ -61,8 +62,8 @@ bool EventHIVTransmission::isUseless(const PopulationStateInterface &population)
 		return true;
 	
 	// If person1 has undetectable viral load
-	if (pPerson1->hiv().getViralLoad() < s_undetectableVL)
-	  return true;
+	// if (pPerson1->hiv().getViralLoad() < s_undetectableVL)
+	//   return true;
 
 	// Event is useless if the relationship between the two people is over
 	if (!pPerson1->hasRelationshipWith(pPerson2))
@@ -176,7 +177,7 @@ void EventHIVTransmission::infectPerson(SimpactPopulation &population, Person *p
   }
   
   // Check relationships pTarget is in, and if the partner is not yet infected, schedule
-  // a transmission event.
+  // a transmission event, as well as PrEP offered event.
   int numRelations = pTarget->getNumberOfRelationships();
   pTarget->startRelationshipIteration();
   
@@ -189,6 +190,7 @@ void EventHIVTransmission::infectPerson(SimpactPopulation &population, Person *p
     {
       EventHIVTransmission *pEvtTrans = new EventHIVTransmission(pTarget, pPartner);
       population.onNewEvent(pEvtTrans);
+
     }
   }
   

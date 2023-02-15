@@ -171,9 +171,10 @@ bool Person_HIV::updatePrePEligibility(double t)
 {
   bool schedulePrePOfferedEvent = false;
   bool isEligibleNow = false;
+  
   if (!isDiagnosed()) { // PreP cannot be offered to individual's that have already been diagnosed with HIV
     
-    // Check if HIV+ partners that are not virally suppressed
+    // Get number of diagnosed HIV+ partners that are not virally suppressed (but also not in final AIDS stage)
     int numRelations = m_pSelf->getNumberOfRelationships();
     int S = 0;
     double tDummy = 0;
@@ -181,14 +182,14 @@ bool Person_HIV::updatePrePEligibility(double t)
     for (int i = 0 ; i < numRelations ; i++)
     {
       Person *pPartner = m_pSelf->getNextRelationshipPartner(tDummy);
-      if(pPartner->hiv().isInfected()){
+      if(pPartner->hiv().isDiagnosed() && !(pPartner->hiv().getInfectionStage() == Person_HIV::AIDSFinal)){
         double vlPartner = pPartner->hiv().getViralLoad();
         if (vlPartner >= m_supprViralLoad){
           S++;
         }        
       }
     }
-    assert(m_pSelf->getNextRelationshipPartner(tDummy) == 0);
+    // assert(m_pSelf->getNextRelationshipPartner(tDummy) == 0);
     
     // Check if eligible for PrEP
     if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
@@ -480,7 +481,7 @@ JSONConfig personHIVJSONConfig(R"JSON(
   "params": [ 
   [ "person.hiv.b0.dist", "distTypes", [ "fixed", [ [ "value", 0 ]   ] ] ],
   [ "person.hiv.b1.dist", "distTypes", [ "fixed", [ [ "value", 0 ]   ] ] ],
-  [ "person.hiv.undetectable.vl", 200]
+  [ "person.hiv.undetectable.vl", 0]
   ],
             "info": [
   "The 'b0' parameter in the HIV transmission hazard is chosen from this",

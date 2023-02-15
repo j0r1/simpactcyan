@@ -42,27 +42,30 @@ void EventPrePScreening::fire(Algorithm *pAlgorithm, State *pState, double t)
 
 	// if STI infected, immediate diagnosis + treatment
 	if(pPerson->chlamydia().isInfected()){
-	  // EventChlamydiaDiagnosis *pEvtChlamydiaDiagnosis = new EventChlamydiaDiagnosis(pPerson, true);
-	  pPerson->chlamydia().diagnose(t);
-	  writeEventLogStart(true, "chlamydia diagnosis", t, pPerson, 0);
-	  pPerson->chlamydia().progress(t, true);
-	  writeEventLogStart(true, "(chlamydia treatment)", t, pPerson, 0);
+	  EventChlamydiaDiagnosis *pEvtChlamydiaDiagnosis = new EventChlamydiaDiagnosis(pPerson, true);
+	  population.onNewEvent(pEvtChlamydiaDiagnosis);
+	  // pPerson->chlamydia().diagnose(t);
+	  // writeEventLogStart(true, "chlamydia diagnosis", t, pPerson, 0);
+	  // pPerson->chlamydia().progress(t, true);
+	  // writeEventLogStart(true, "(chlamydia treatment)", t, pPerson, 0);
 	 }
 	
 	if(pPerson->gonorrhea().isInfected()){
-	  // EventChlamydiaDiagnosis *pEvtChlamydiaDiagnosis = new EventChlamydiaDiagnosis(pPerson, true);
-	  pPerson->gonorrhea().diagnose(t);
-	  writeEventLogStart(true, "gonorrhea diagnosis", t, pPerson, 0);
-	  pPerson->gonorrhea().progress(t, true);
-	  writeEventLogStart(true, "(gonorrhea treatment)", t, pPerson, 0);
+	  EventGonorrheaDiagnosis *pEvtGonorrheaDiagnosis = new EventGonorrheaDiagnosis(pPerson, true);
+	  population.onNewEvent(pEvtGonorrheaDiagnosis);
+	  // pPerson->gonorrhea().diagnose(t);
+	  // writeEventLogStart(true, "gonorrhea diagnosis", t, pPerson, 0);
+	  // pPerson->gonorrhea().progress(t, true);
+	  // writeEventLogStart(true, "(gonorrhea treatment)", t, pPerson, 0);
 	}
 	
 	if(pPerson->syphilis().isInfected()){
-	  // EventChlamydiaDiagnosis *pEvtChlamydiaDiagnosis = new EventChlamydiaDiagnosis(pPerson, true);
-	  pPerson->syphilis().diagnose(t);
-	  writeEventLogStart(true, "syphilis diagnosis", t, pPerson, 0);
-	  pPerson->syphilis().progress(t, true);
-	  writeEventLogStart(true, "(syphilis treatment)", t, pPerson, 0);
+	  EventSyphilisDiagnosis *pEvtSyphilisDiagnosis = new EventSyphilisDiagnosis(pPerson, true);
+	  population.onNewEvent(pEvtSyphilisDiagnosis);
+	  // pPerson->syphilis().diagnose(t);
+	  // writeEventLogStart(true, "syphilis diagnosis", t, pPerson, 0);
+	  // pPerson->syphilis().progress(t, true);
+	  // writeEventLogStart(true, "(syphilis treatment)", t, pPerson, 0);
 	}
 	
 
