@@ -31,6 +31,7 @@ public:
   GonorrheaDiseaseStage getDiseaseStage() const             { return m_diseaseStage; }
   double getInfectionTime() const													{ assert(isInfected()); return m_infectionTime; }
   double getRecoveryTime() const                          { return m_recoveryTime; }
+  // double getDiagnosisTime() const                         { return m_diagTime; }
   bool isTreated() const                                 { return m_treated; }
   bool isDiagnosed() const                                { return m_diagnosed; }
   
@@ -48,6 +49,7 @@ protected:
   double m_recoveryTime;
   bool m_treated;
   bool m_diagnosed;
+  // double m_diagTime;
   Person *m_pInfectionOrigin;
   
   GonorrheaDiseaseStage m_diseaseStage;

@@ -174,7 +174,7 @@ double EventHSV2Transmission::calculateInternalTimeInterval(const State *pState,
   Person *pTarget = getPerson(1);
   double tMax = getTMax(pOrigin, pTarget);
   
-  HazardFunctionHSV2Transmission h0(pOrigin, pTarget);
+  HazardFunctionHSV2Transmission h0(pOrigin, pTarget, pState);
   TimeLimitedHazardFunction h(h0, tMax);
   
   return h.calculateInternalTimeInterval(t0, dt);
@@ -186,7 +186,7 @@ double EventHSV2Transmission::solveForRealTimeInterval(const State *pState, doub
   Person *pTarget = getPerson(1);
   double tMax = getTMax(pOrigin, pTarget);
   
-  HazardFunctionHSV2Transmission h0(pOrigin, pTarget);
+  HazardFunctionHSV2Transmission h0(pOrigin, pTarget, pState);
   TimeLimitedHazardFunction h(h0, tMax);
   
   return h.solveForRealTimeInterval(t0, Tdiff);
@@ -266,15 +266,6 @@ int EventHSV2Transmission::getH(const Person *pPerson1){
   return H;
 }
 
-// get condom use: TO DO
-int EventHSV2Transmission::getC(const Person *pPerson1){
-  assert(pPerson1 != 0);
-  // bool C1 = 
-  int C = 0;
-  
-  return C;
-}
-
 // get sexual role (infection site) of susceptible partner: TO DO (how to do without the randomness, get sexRole assigned per relationship?)
 int EventHSV2Transmission::getR(const Person *pPerson1, const Person*pPerson2){
   assert(pPerson1 != 0);
@@ -308,8 +299,9 @@ int EventHSV2Transmission::getW(const Person *pPerson1){
 
 
 EventHSV2Transmission::HazardFunctionHSV2Transmission::HazardFunctionHSV2Transmission(const Person *pPerson1, 
-                                                                                      const Person *pPerson2)
-  : HazardFunctionExp(getA(pPerson1, pPerson2), s_b)
+                                                                                      const Person *pPerson2,
+                                                                                      const State *pState)
+  : HazardFunctionExp(getA(pPerson1, pPerson2, pState), s_b)
 {
 }
 
@@ -317,18 +309,20 @@ EventHSV2Transmission::HazardFunctionHSV2Transmission::~HazardFunctionHSV2Transm
 {
 }
 
-double EventHSV2Transmission::HazardFunctionHSV2Transmission::getA(const Person *pOrigin, const Person *pTarget)
+double EventHSV2Transmission::HazardFunctionHSV2Transmission::getA(const Person *pOrigin, const Person *pTarget, const State *pState)
 {
   assert(pOrigin);
   assert(pTarget);
-  // return pOrigin->hsv2().getHazardAParameter() - s_b*pOrigin->hsv2().getInfectionTime() + s_c*EventHSV2Transmission::getM(pOrigin) + 
-  //   s_d*EventHSV2Transmission::getH(pOrigin) + s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter(); 
+
+  const SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  
+  bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
+                    (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
   
   return pOrigin->hsv2().getHazardAParameter() - s_b * pOrigin->hsv2().getInfectionTime() + 
     s_d1*EventHSV2Transmission::getH(pOrigin) + s_d2*EventHSV2Transmission::getH(pTarget) + 
     s_f*EventHSV2Transmission::getR(pTarget, pOrigin) + s_w*EventHSV2Transmission::getW(pTarget) +
-    // TO DO condom use (now set to always 0)
-    s_h*EventHSV2Transmission::getC(pTarget) + 
+    s_h*CondomUse + 
     s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter();
 }
 

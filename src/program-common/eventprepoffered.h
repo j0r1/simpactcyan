@@ -9,13 +9,13 @@ class ConfigWriter;
 
 class EventPrePOffered : public SimpactEvent {
 public:
-	EventPrePOffered(Person *pPerson);
+	EventPrePOffered(Person *pPerson, bool scheduleImmediately = false);
 	~EventPrePOffered();
 
 	std::string getDescription(double tNow) const;
 	void writeLogs(const SimpactPopulation &pop, double tNow) const;
 	void fire(Algorithm *pAlgorithm, State *pState, double t);
-
+	
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);
 protected:
@@ -24,6 +24,8 @@ private:
 	double calculateInternalTimeInterval(const State *pState, double t0, double dt);
 	double solveForRealTimeInterval(const State *pState, double Tdiff, double t0);
 	static double getTMax(const Person *pPerson);
+	
+	bool m_scheduleImmediately;
 
 	static double s_baseline;
 	static double s_numPartnersFactor;

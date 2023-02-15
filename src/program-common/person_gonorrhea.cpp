@@ -39,6 +39,7 @@ Person_Gonorrhea::~Person_Gonorrhea() {}
 void Person_Gonorrhea::diagnose(double t)
 {
   m_diagnosed = true;
+  // m_diagTime = t;
 }
 
 bool Person_Gonorrhea::isInfected() const
@@ -111,8 +112,7 @@ void Person_Gonorrhea::progress(double t, bool treatInd) // recovery (= progress
     m_infectionType = None;
     m_infectionSite = Vaginal;
     m_treated = treatInd;
-    
-    
+    // m_diagTime = -1e200;
     
   }
   

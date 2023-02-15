@@ -246,13 +246,13 @@ void EventFormation::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// Check if either person has become eligible for PreP
 	if (schedulePrePOfferedEventP1) {
 		// Schedule PreP being offered to this person
-		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson1);
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson1, true);
 		population.onNewEvent(pEvtPreP);
 	}
 
 	if (schedulePrePOfferedEventP2) {
 		// Schedule PreP being offered to this person
-		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson2);
+		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson2, true);
 		population.onNewEvent(pEvtPreP);
 	}
 

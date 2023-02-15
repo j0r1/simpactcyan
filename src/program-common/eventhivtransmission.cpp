@@ -3,6 +3,7 @@
 #include "eventaidsmortality.h"
 #include "eventchronicstage.h"
 #include "eventdiagnosis.h"
+#include "eventprepoffered.h"
 #include "eventdebut.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
@@ -59,6 +60,10 @@ bool EventHIVTransmission::isUseless(const PopulationStateInterface &population)
 	// If person2 already became HIV positive, there no sense in further transmission
 	if (pPerson2->hiv().isInfected())
 		return true;
+	
+	// If person1 has undetectable viral load
+	// if (pPerson1->hiv().getViralLoad() < s_undetectableVL)
+	//   return true;
 
 	// Event is useless if the relationship between the two people is over
 	if (!pPerson1->hasRelationshipWith(pPerson2))
@@ -172,7 +177,7 @@ void EventHIVTransmission::infectPerson(SimpactPopulation &population, Person *p
   }
   
   // Check relationships pTarget is in, and if the partner is not yet infected, schedule
-  // a transmission event.
+  // a transmission event, as well as PrEP offered event.
   int numRelations = pTarget->getNumberOfRelationships();
   pTarget->startRelationshipIteration();
   
@@ -185,6 +190,7 @@ void EventHIVTransmission::infectPerson(SimpactPopulation &population, Person *p
     {
       EventHIVTransmission *pEvtTrans = new EventHIVTransmission(pTarget, pPartner);
       population.onNewEvent(pEvtTrans);
+
     }
   }
   
@@ -223,6 +229,7 @@ double EventHIVTransmission::s_h = 0;
 double EventHIVTransmission::s_i = 0;
 double EventHIVTransmission::s_r = 0;
 double EventHIVTransmission::s_tMaxAgeRefDiff = -1;
+double EventHIVTransmission::s_undetectableVL = 0;
 
 double EventHIVTransmission::calculateInternalTimeInterval(const State *pState, double t0, double dt)
 {
@@ -252,7 +259,7 @@ int EventHIVTransmission::getH(const Person *pPerson)
 } 
 
 // get sexual role of susceptible partner: TO DO change to infection site as for gonorrhea
-int EventHIVTransmission::getR(const Person *pPerson1, const Person *pPerson2)
+int EventHIVTransmission::getR(const Person *pPerson1, const Person *pPerson2) // P1 = susceptible, P2 = infectious
 {
   assert(pPerson1 != 0);
   assert(pPerson2 != 0);
@@ -338,6 +345,7 @@ void EventHIVTransmission::processConfig(ConfigSettings &config, GslRandomNumber
 		!(r = config.getKeyValue("hivtransmission.param.h", s_h)) ||
 		!(r = config.getKeyValue("hivtransmission.param.i", s_i)) ||
 		!(r = config.getKeyValue("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) ||
+		!(r = config.getKeyValue("hivtransmission.undetectable.vl", s_undetectableVL)) ||
       !(r = config.getKeyValue("hivtransmission.param.r", s_r)))
 		
 		abortWithMessage(r.getErrorString());
@@ -361,6 +369,7 @@ void EventHIVTransmission::obtainConfig(ConfigWriter &config)
 		!(r = config.addKey("hivtransmission.param.h", s_h)) ||
 		!(r = config.addKey("hivtransmission.param.i", s_i)) ||
 		!(r = config.addKey("hivtransmission.maxageref.diff", s_tMaxAgeRefDiff)) ||
+		!(r = config.addKey("hivtransmission.undetectable.vl",s_undetectableVL)) ||
       !(r = config.addKey("hivtransmission.param.r", s_r))
 		)
 		
@@ -388,7 +397,8 @@ JSONConfig hivTransmissionJSONConfig(R"JSON(
 			["hivtransmission.param.h", 0],
 			["hivtransmission.param.i", 0],
       ["hivtransmission.param.r", 0],
-                ["hivtransmission.maxageref.diff", 1] ],
+                ["hivtransmission.maxageref.diff", 1],
+                ["hivtransmission.undetectable.vl", 200]],
             "info": [ 
                 "The hazard of transmission is h = exp(a + b * V^(-c) + d1*Pi + d2*Pj + e1*Hi + e2*Hj + g1*b0_j + g2*b1_j + h*C i*PrePj), ",
                 "in case the uninfected partner is a man, or",

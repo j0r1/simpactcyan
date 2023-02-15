@@ -80,9 +80,11 @@ void EventGonorrheaDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double 
   
   // Mark person as diagnosed
   pPerson->gonorrhea().diagnose(t);
+  double tLast = pPerson->getTimeLastSTI();
+  pPerson->increaseSTIDiagnoseCount(t, tLast);
 
-  // If accepting treatment --> immediate recovery
-  if(isWillingToTreatSTI(t, pRndGen))
+  // If accepting treatment or on PrEP --> immediate recovery
+  if(isWillingToTreatSTI(t, pRndGen) || pPerson->hiv().isOnPreP())
   {
     pPerson->gonorrhea().progress(t, true);
     pPerson->writeToGonorrheaTreatLog();

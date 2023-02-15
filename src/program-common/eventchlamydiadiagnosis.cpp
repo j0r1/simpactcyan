@@ -2,6 +2,7 @@
 #include "eventchlamydiaprogression.h"
 #include "eventchlamydiatransmission.h"
 #include "person_chlamydia.h"
+#include "person.h"
 #include "configsettings.h"
 #include "configwriter.h"
 #include "configdistributionhelper.h"
@@ -81,6 +82,8 @@ void EventChlamydiaDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double 
   // Mark person as diagnosed
   pPerson->chlamydia().diagnose(t);
   // pPerson->writeToChlamydiaTreatLog();
+  double tLast = pPerson->getTimeLastSTI();
+  pPerson->increaseSTIDiagnoseCount(t, tLast);
   
   // If accepting treatment --> immediate recovery
   if(isWillingToTreatSTI(t, pRndGen))

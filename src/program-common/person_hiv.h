@@ -56,9 +56,10 @@ public:
 	bool updatePrePEligibility(double t);
 	double getTimePersonLastBecameEligibleForPreP() const 							{ return m_timeLastBecameEligible; }
 	bool isOnPreP() const 															{ return m_isOnPreP; }
-	void startPreP() 																{ m_isOnPreP = true; }
+	void startPreP(double t) 																{ m_isOnPreP = true; m_startTimePreP = t;}
 	void stopPreP() 																{ m_isOnPreP = false; }
-
+	double getStartTimePreP() const   { return m_startTimePreP; }
+	
 	double getLastCD4CountAtDiagnosis() const 										{ assert(isInfected()); return m_lastCD4AtDiagnosis; }
 	double getLastCD4CountAtARTStart() const										{ assert(isInfected()); assert(m_VspLowered); return m_lastCD4AtTreatmentStart; }
 
@@ -113,7 +114,8 @@ private:
 	bool m_isEligibleForPreP;
 	double m_timeLastBecameEligible;
 	bool m_isOnPreP;
-
+	double m_startTimePreP;
+	
 	static double m_hivSeedWeibullShape;
 	static double m_hivSeedWeibullScale;
 	static double m_VspHeritabilitySigmaFraction;
@@ -121,9 +123,11 @@ private:
 	static double m_aidsFromSetPointParamX;
 	static double m_finalAidsFromSetPointParamX;
 	static double m_maxViralLoad;
+	static double m_supprViralLoad;
 
 	static int m_numPartnersPrePThreshold;
 	static int m_numDiagPartnersPrePThreshold;
+	static int m_diagSTIPrePThreshold;
 
 	static VspModel *m_pVspModel;
 

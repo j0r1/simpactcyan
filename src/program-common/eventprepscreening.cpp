@@ -5,6 +5,9 @@
 #include "configsettings.h"
 #include "configwriter.h"
 #include "eventdiagnosis.h"
+#include "eventchlamydiadiagnosis.h"
+#include "eventgonorrheadiagnosis.h"
+#include "eventsyphilisdiagnosis.h"
 #include "gslrandomnumbergenerator.h"
 #include "jsonconfig.h"
 #include "probabilitydistribution.h"
@@ -23,7 +26,7 @@ string EventPrePScreening::getDescription(double tNow) const
 void EventPrePScreening::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
 	Person *pPerson = getPerson(0);
-	writeEventLogStart(false, "prepscreening", tNow, pPerson, 0);
+	writeEventLogStart(true, "prepscreening", tNow, pPerson, 0);
 }
 
 void EventPrePScreening::fire(Algorithm *pAlgorithm, State *pState, double t)
@@ -34,10 +37,37 @@ void EventPrePScreening::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// if HIV infected, and not yet diagnosed, immediately schedule diagnosis
 	if (pPerson->hiv().isInfected() && (!pPerson->hiv().isDiagnosed())) {
 		EventDiagnosis *pEvtDiagnosis = new EventDiagnosis(pPerson, true);
-		population.onNewEvent(pEvtDiagnosis);
+		population.onNewEvent(pEvtDiagnosis); // stopPrEP() is done in diagnosis event
 	}
 
-	// TODO if STI infected, immediately schedule treatment
+	// if STI infected, immediate diagnosis + treatment
+	if(pPerson->chlamydia().isInfected()){
+	  EventChlamydiaDiagnosis *pEvtChlamydiaDiagnosis = new EventChlamydiaDiagnosis(pPerson, true);
+	  population.onNewEvent(pEvtChlamydiaDiagnosis);
+	  // pPerson->chlamydia().diagnose(t);
+	  // writeEventLogStart(true, "chlamydia diagnosis", t, pPerson, 0);
+	  // pPerson->chlamydia().progress(t, true);
+	  // writeEventLogStart(true, "(chlamydia treatment)", t, pPerson, 0);
+	 }
+	
+	if(pPerson->gonorrhea().isInfected()){
+	  EventGonorrheaDiagnosis *pEvtGonorrheaDiagnosis = new EventGonorrheaDiagnosis(pPerson, true);
+	  population.onNewEvent(pEvtGonorrheaDiagnosis);
+	  // pPerson->gonorrhea().diagnose(t);
+	  // writeEventLogStart(true, "gonorrhea diagnosis", t, pPerson, 0);
+	  // pPerson->gonorrhea().progress(t, true);
+	  // writeEventLogStart(true, "(gonorrhea treatment)", t, pPerson, 0);
+	}
+	
+	if(pPerson->syphilis().isInfected()){
+	  EventSyphilisDiagnosis *pEvtSyphilisDiagnosis = new EventSyphilisDiagnosis(pPerson, true);
+	  population.onNewEvent(pEvtSyphilisDiagnosis);
+	  // pPerson->syphilis().diagnose(t);
+	  // writeEventLogStart(true, "syphilis diagnosis", t, pPerson, 0);
+	  // pPerson->syphilis().progress(t, true);
+	  // writeEventLogStart(true, "(syphilis treatment)", t, pPerson, 0);
+	}
+	
 
 	// If not HIV infected, schedule new screening
 	if (!pPerson->hiv().isInfected()) {
@@ -65,6 +95,11 @@ bool EventPrePScreening::isUseless(const PopulationStateInterface &pop)
 
 	if (pPerson->hiv().isDiagnosed()) {
 		return true;
+	}
+	
+	// also useless if person no longer on PrEP (e.g. if eligibility changed and PrEP was stopped)
+	if (!(pPerson->hiv().isOnPreP())){
+	  return true;
 	}
 
 	return false;

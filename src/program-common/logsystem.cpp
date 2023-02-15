@@ -10,7 +10,7 @@ void LogSystem::processConfig(ConfigSettings &config, GslRandomNumberGenerator *
 {
 	string eventLogFile, personLogFile, relationLogFile, treatmentLogFile, settingsLogFile;
 	string locationLogFile, hivVLLogFile, gonorrheaLogFile, gonorrheatreatLogFile, chlamydiaLogFile, chlamydiatreatLogFile;
-	string syphilisLogFile, syphilistreatLogFile, syphilisstageLogFile;
+	string syphilisLogFile, syphilistreatLogFile, syphilisstageLogFile, prepLogFile;
 	bool_t r;
 
 	if (!(r = config.getKeyValue("logsystem.outfile.logevents", eventLogFile)) ||
@@ -26,7 +26,8 @@ void LogSystem::processConfig(ConfigSettings &config, GslRandomNumberGenerator *
 		!(r = config.getKeyValue("logsystem.outfile.logchlamydiatreat", chlamydiatreatLogFile)) ||
 		!(r = config.getKeyValue("logsystem.outfile.logsyphilis", syphilisLogFile)) ||
 		!(r = config.getKeyValue("logsystem.outfile.logsyphilistreat", syphilistreatLogFile)) ||
-		!(r = config.getKeyValue("logsystem.outfile.logsyphilisstage", syphilisstageLogFile))
+		!(r = config.getKeyValue("logsystem.outfile.logsyphilisstage", syphilisstageLogFile)) ||
+		!(r = config.getKeyValue("logsystem.outfile.logprep", prepLogFile))
 	    )
 		abortWithMessage(r.getErrorString());
 
@@ -113,8 +114,14 @@ void LogSystem::processConfig(ConfigSettings &config, GslRandomNumberGenerator *
 	  if (!(r = logSyphilisStage.open(syphilisstageLogFile)))
 	    abortWithMessage("Unable to open Syphilis stage log file: " + r.getErrorString());
 	}
+	
+	if (prepLogFile.length() > 0)
+	{
+	  if (!(r = logPrep.open(prepLogFile)))
+	    abortWithMessage("Unable to open PrEP log file: " + r.getErrorString());
+	}
 
-	logPersons.print("\"ID\",\"Gender\",\"TOB\",\"TOD\",\"IDF\",\"IDM\",\"TODebut\",\"FormEag\",\"FormEagMSM\",\"SexualRole\",\"InfectTime\",\"InfectOrigID\",\"InfectType\",\"log10SPVL\",\"TreatTime\",\"XCoord\",\"YCoord\",\"AIDSDeath\",\"HSV2InfectTime\",\"HSV2InfectOriginID\",\"CD4atInfection\",\"CD4atDeath\",\"HealthSeekingPropensity\",\"InfectSite\"");
+	logPersons.print("\"ID\",\"Gender\",\"TOB\",\"TOD\",\"IDF\",\"IDM\",\"TODebut\",\"FormEag\",\"FormEagMSM\",\"SexualRole\",\"InfectTime\",\"InfectOrigID\",\"InfectType\",\"log10SPVL\",\"TreatTime\",\"XCoord\",\"YCoord\",\"AIDSDeath\",\"HSV2InfectTime\",\"HSV2InfectOriginID\",\"CD4atInfection\",\"CD4atDeath\",\"HealthSeekingPropensity\",\"InfectSite\",\"NumSTIDiag12m\"");
 	logRelations.print("\"ID1\",\"ID2\",\"FormTime\",\"DisTime\",\"AgeGap\",\"MSM\"");
 	logTreatment.print("\"ID\",\"Gender\",\"TStart\",\"TEnd\",\"DiedNow\",\"CD4atDiagnosis\",\"CD4atARTstart\"");
 	logLocation.print("\"Time\",\"ID\",\"XCoord\",\"YCoord\"");
@@ -127,6 +134,7 @@ void LogSystem::processConfig(ConfigSettings &config, GslRandomNumberGenerator *
 	logSyphilis.print("\"ID\",\"InfectOrigID\",\"Gender\",\"SexualRole\",\"InfectTime\",\"InfectType\",\"InfectSite\",\"DiseaseStage\",\"Diagnosed\"");
 	logSyphilisTreat.print("\"ID\",\"Gender\",\"RecoveryTime\",\"Treated\"");
 	logSyphilisStage.print("\"Time\",\"ID\",\"Stage\"");
+	logPrep.print("\"ID\",\"StartTime\",\"StopTime\",\"StopReason\"");
 }
 
 void LogSystem::obtainConfig(ConfigWriter &config)
@@ -146,7 +154,8 @@ void LogSystem::obtainConfig(ConfigWriter &config)
 		!(r = config.addKey("logsystem.outfile.logchlamydiatreat", logChlamydiaTreat.getFileName())) ||
 		!(r = config.addKey("logsystem.outfile.logsyphilis", logSyphilis.getFileName())) ||
 		!(r = config.addKey("logsystem.outfile.logsyphilistreat", logSyphilisTreat.getFileName())) ||
-		!(r = config.addKey("logsystem.outfile.logsyphilisstage", logSyphilisStage.getFileName())) 
+		!(r = config.addKey("logsystem.outfile.logsyphilisstage", logSyphilisStage.getFileName())) ||
+		!(r = config.addKey("logsystem.outfile.logprep", logPrep.getFileName()))
 	    )
 		abortWithMessage(r.getErrorString());
 }
@@ -165,6 +174,7 @@ LogFile LogSystem::logChlamydiaTreat;
 LogFile LogSystem::logSyphilis;
 LogFile LogSystem::logSyphilisTreat;
 LogFile LogSystem::logSyphilisStage;
+LogFile LogSystem::logPrep;
 
 
 ConfigFunctions logSystemConfigFunctions(LogSystem::processConfig, LogSystem::obtainConfig, "00_LogSystem", "__first__");
@@ -186,8 +196,9 @@ JSONConfig logSystemJSONConfig(R"JSON(
     ["logsystem.outfile.logchlamydiatreat", "${SIMPACT_OUTPUT_PREFIX}chlamydiatreatlog.csv" ],
     ["logsystem.outfile.logsyphilis", "${SIMPACT_OUTPUT_PREFIX}syphilislog.csv" ],
     ["logsystem.outfile.logsyphilistreat", "${SIMPACT_OUTPUT_PREFIX}syphilistreatlog.csv" ],
-    ["logsystem.outfile.logsyphilisstage", "${SIMPACT_OUTPUT_PREFIX}syphilisstagelog.csv" ]
-                ],
+    ["logsystem.outfile.logsyphilisstage", "${SIMPACT_OUTPUT_PREFIX}syphilisstagelog.csv" ],
+    ["logsystem.outfile.logprep", "${SIMPACT_OUTPUT_PREFIX}preplog.csv" ]
+                  ],
             "info": null                          
         })JSON");
 

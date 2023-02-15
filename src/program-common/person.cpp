@@ -46,8 +46,11 @@ m_health_seeking_propensity(0), m_sexual_role_preference(SexualRolePreference::V
     m_sexual_role_preference = static_cast<SexualRolePreference>(sexrole);	  
   }// for Women this is 0 (Variable) by default then?
   
-  
   m_pPersonImpl = new PersonImpl(*this);
+  
+  m_STIdiagnoseCount = 0;
+  m_timeLastDiagnosis = -10;
+  
 }
 
 Person::~Person()
@@ -69,6 +72,20 @@ double Person::m_artCondomUseFactor = 1;
 double Person::m_prepCondomUseFactor = 1;
 
 ProbabilityDistribution *Person::m_pSexualRoleDist = 0;
+
+void Person::increaseSTIDiagnoseCount(double tNow, double lastSTItime){
+  
+  // if last STI more than one year ago
+  if(lastSTItime < (tNow - 1)){
+    m_STIdiagnoseCount = 1;
+    m_timeLastDiagnosis = tNow;
+  }else{
+    m_STIdiagnoseCount++;
+    // m_STIdiagnoseCount++;
+    m_timeLastDiagnosis = tNow;
+  }
+    
+}
 
 
 bool Person::usesCondom(bool isPartnerDiagnosed, GslRandomNumberGenerator *pRndGen) const
@@ -181,6 +198,8 @@ void Person::writeToPersonLog()
   Person *pOrigin = (m_hiv.isInfected())? m_hiv.getInfectionOrigin() : 0;
   int origin = (pOrigin != 0) ? (int)pOrigin->getPersonID() : (-1); // TODO: cast should be ok
   
+  int STIdiagnoses = m_STIdiagnoseCount;
+  
   int infectionType = 0;
   switch(m_hiv.getInfectionType())
   {
@@ -234,12 +253,12 @@ void Person::writeToPersonLog()
   double cd4AtInfection = (m_hiv.isInfected())?m_hiv.getCD4CountAtInfectionStart() : (-1);
   double cd4AtDeath = (m_hiv.isInfected())?m_hiv.getCD4CountAtDeath() : (-1);
 
-  LogPerson.print("%d,%d,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%10.10f,%10.10f,%10.10f,%d",
+  LogPerson.print("%d,%d,%10.10f,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%d,%10.10f,%10.10f,%10.10f,%10.10f,%d,%10.10f,%d,%10.10f,%10.10f,%10.10f,%d,%d",
                   id, gender, timeOfBirth, timeOfDeath, fatherID, motherID, debutTime,
                   formationEagerness,formationEagernessMSM, SexualRole,
                   infectionTime, origin, infectionType, log10SPVLoriginal, treatmentTime,
                   m_location.x, m_location.y, aidsDeath,
-                  hsv2InfectionTime, hsv2origin, cd4AtInfection, cd4AtDeath, m_health_seeking_propensity, infectionSite);
+                  hsv2InfectionTime, hsv2origin, cd4AtInfection, cd4AtDeath, m_health_seeking_propensity, infectionSite, STIdiagnoses);
 }
 
 void Person::writeToGonorrheaTreatLog()
@@ -253,6 +272,8 @@ void Person::writeToGonorrheaTreatLog()
   
   // Recovery time
   double recoveredTime = (m_gonorrhea.isInfected())? infinity : m_gonorrhea.getRecoveryTime();
+  // Diagnosis time
+  // double diagTime = (m_gonorrhea.isInfected())? infinity : m_gonorrhea.getDiagnosisTime();
   // Treated?
   bool Treated = (m_gonorrhea.isTreated())? 1 : 0;
 
@@ -547,6 +568,16 @@ void Person::writeToTreatmentLog(double dropoutTime, bool justDied)
   
   LogTreatment.print("%d,%d,%10.10f,%10.10f,%d,%10.10f,%10.10f", id, gender, lastTreatmentStartTime, 
                      dropoutTime, justDiedInt, lastCD4AtDiagnosis, lastCD4AtTreatmentStart);
+}
+
+void Person::writeToPrepLog(double tDropout, const std::string &description) const
+{
+  int id = (int)getPersonID();
+  
+  double lastPrepStartTime = m_hiv.getStartTimePreP();
+  
+  LogPrep.print("%d,%10.10f,%10.10f,%s", id, lastPrepStartTime, tDropout, description.c_str());
+  
 }
 
 Man::Man(double dateOfBirth) : Person(dateOfBirth, Male)

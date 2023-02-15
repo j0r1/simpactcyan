@@ -75,17 +75,38 @@ void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// If on PreP, stop PreP
 	if (pPerson->hiv().isOnPreP()) {
 		pPerson->hiv().stopPreP();
+	  writeEventLogStart(true, "prepstopped", t, pPerson, 0);
+	  pPerson->writeToPrepLog(t, "HIV diagnosis");
 	}
 
-	// Update PreP eligibility
-	bool schedulePrePOfferedEvent = pPerson->hiv().updatePrePEligibility(t);
-
-	// Check if either person has become eligible for PreP
-	if (schedulePrePOfferedEvent) {
-		// Schedule PreP being offered to this person
-		EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson);
-		population.onNewEvent(pEvtPreP);
+	// Update PreP eligibility of partners
+	int numRelations = pPerson->getNumberOfRelationships();
+	pPerson->startRelationshipIteration();
+	
+	for (int i = 0 ; i < numRelations ; i++)
+	{
+	  double formationTime = -1;
+	  Person *pPartner = pPerson->getNextRelationshipPartner(t);
+	  
+	  if (!pPartner->hiv().isInfected())
+	  {
+	    bool schedulePrePOfferedEvent = pPartner->hiv().updatePrePEligibility(t);
+	    if(schedulePrePOfferedEvent){
+	      EventPrePOffered *pEvtPreP = new EventPrePOffered(pPartner, true);
+	      population.onNewEvent(pEvtPreP);
+	    }
+	    
+	  }
 	}
+	
+	// bool schedulePrePOfferedEvent = pPerson->hiv().updatePrePEligibility(t);
+
+	// // Check if either person has become eligible for PreP
+	// if (schedulePrePOfferedEvent) {
+	// 	// Schedule PreP being offered to this person
+	// 	EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson);
+	// 	population.onNewEvent(pEvtPreP);
+	// }
 
 	// Schedule an initial monitoring event right away! (the 'true' is for 'right away')
 	EventMonitoring *pEvtMonitor = new EventMonitoring(pPerson, true);

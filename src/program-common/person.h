@@ -113,13 +113,16 @@ public:
 	const Person_Syphilis &syphilis() const											{ return m_syphilis; }
 
 	bool isInfectedWithSTI() const;
+	double getTimeLastSTI()                          { return m_timeLastDiagnosis;}
+	void increaseSTIDiagnoseCount(double tNow, double lastSTItime); 
+	int getSTIDiagnoseCount() const													{ return m_STIdiagnoseCount; }
 
 	// Health-seeking behavior
 	double getHealthSeekingPropensity() const 										{ return m_health_seeking_propensity; }
 	void setHealthSeekingPropensity(double healthSeekingPropensity) 				{ m_health_seeking_propensity = healthSeekingPropensity; }
 
 	SexualRolePreference getPreferredSexualRole() const 							{ return m_sexual_role_preference; }
-	
+
 	// STI treatment acceptance
 	double getTreatAcceptanceThreshold() const        {return m_treatAcceptanceThreshold;}
 	
@@ -139,7 +142,8 @@ public:
 	void writeToSyphilisTreatLog();
 	void writeToTreatmentLog(double dropoutTime, bool justDied);
 	void writeToLocationLog(double tNow);
-
+	void writeToPrepLog(double t, const std::string &description) const;
+	
 	Point2D getLocation() const														{ return m_location; }
 	void setLocation(Point2D loc, double tNow)										{ m_location = loc; m_locationTime = tNow; }
 	double getLocationTime() const													{ return m_locationTime; }
@@ -147,7 +151,6 @@ public:
 	double getDistanceTo(Person *pPerson);
 	static ProbabilityDistribution2D *getPopulationDistribution()					{ return m_pPopDist; }
 // private:
-
 protected:
 	Person_Family m_family;
 	Person_Relations m_relations;
@@ -157,6 +160,9 @@ protected:
 	Person_Gonorrhea m_gonorrhea;
 	Person_HSV2 m_hsv2;
 	Person_Syphilis m_syphilis;
+	
+	int m_STIdiagnoseCount;
+	double m_timeLastDiagnosis;
 
 	Point2D m_location;
 	double m_locationTime;

@@ -14,7 +14,7 @@ public:
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
 	static void obtainConfig(ConfigWriter &config);
 	static LogFile logEvents, logPersons, logRelations, logTreatment, logSettings, logLocation, logViralLoadHIV, logGonorrhea, logGonorrheaTreat, logChlamydia,
-	              logChlamydiaTreat, logSyphilis, logSyphilisTreat, logSyphilisStage;
+	              logChlamydiaTreat, logSyphilis, logSyphilisTreat, logSyphilisStage, logPrep;
 };
 
 #define LogEvent LogSystem::logEvents
@@ -31,5 +31,6 @@ public:
 #define LogSyphilis LogSystem::logSyphilis
 #define LogSyphilisTreat LogSystem::logSyphilisTreat
 #define LogSyphilisStage LogSystem::logSyphilisStage
+#define LogPrep LogSystem::logPrep
 
 #endif // LOGSYSTEM_H
