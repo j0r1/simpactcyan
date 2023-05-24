@@ -202,6 +202,8 @@ bool_t SimpactPopulation::scheduleInitialEvents()
 	{
 		EventHIVSeed *pEvt = new EventHIVSeed(); // this is a global event
 		onNewEvent(pEvt);
+		
+		
 	}
 
 	if (EventHSV2Seed::getSeedTime() >= 0)

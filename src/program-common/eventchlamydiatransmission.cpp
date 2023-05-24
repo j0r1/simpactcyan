@@ -190,6 +190,8 @@ double EventChlamydiaTransmission::s_tMax = 200;
 double EventChlamydiaTransmission::HazardFunctionChlamydiaTransmission::s_b = 0;
 double EventChlamydiaTransmission::s_d1 = 0;
 double EventChlamydiaTransmission::s_d2 = 0;
+double EventChlamydiaTransmission::s_e1 = 0;
+double EventChlamydiaTransmission::s_e2 = 0;
 double EventChlamydiaTransmission::s_f = 0;
 double EventChlamydiaTransmission::s_h = 0;
 double EventChlamydiaTransmission::s_w = 0;
@@ -204,6 +206,8 @@ void EventChlamydiaTransmission::processConfig(ConfigSettings &config, GslRandom
       !(r = config.getKeyValue("chlamydiatransmission.hazard.t_max", s_tMax)) ||
       !(r = config.getKeyValue("chlamydiatransmission.hazard.d1", s_d1)) ||
       !(r = config.getKeyValue("chlamydiatransmission.hazard.d2", s_d2)) ||
+      !(r = config.getKeyValue("chlamydiatransmission.hazard.e1", s_e1)) ||
+      !(r = config.getKeyValue("chlamydiatransmission.hazard.e2", s_e2)) ||
       !(r = config.getKeyValue("chlamydiatransmission.hazard.f", s_f)) ||
       !(r = config.getKeyValue("chlamydiatransmission.hazard.h", s_h)) ||
       !(r = config.getKeyValue("chlamydiatransmission.hazard.w", s_w))
@@ -220,6 +224,8 @@ void EventChlamydiaTransmission::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("chlamydiatransmission.hazard.t_max", s_tMax)) ||
       !(r = config.addKey("chlamydiatransmission.hazard.d1", s_d1)) ||
       !(r = config.addKey("chlamydiatransmission.hazard.d2", s_d2)) ||
+      !(r = config.addKey("chlamydiatransmission.hazard.e1", s_e1)) ||
+      !(r = config.addKey("chlamydiatransmission.hazard.e2", s_e2)) ||
       !(r = config.addKey("chlamydiatransmission.hazard.f", s_f)) ||
       !(r = config.addKey("chlamydiatransmission.hazard.h", s_h)) ||
       !(r = config.addKey("chlamydiatransmission.hazard.w", s_w))
@@ -302,8 +308,12 @@ double EventChlamydiaTransmission::HazardFunctionChlamydiaTransmission::getA(con
   bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
                     (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
   
+  double Pi = pOrigin->getNumberOfRelationships();
+  double Pj = pTarget->getNumberOfRelationships();
+  
   return s_a - s_b * pOrigin->chlamydia().getInfectionTime() + 
-    s_d1*EventChlamydiaTransmission::getH(pOrigin) + s_d2*EventChlamydiaTransmission::getH(pTarget) + 
+    s_d1*Pi + s_d2*Pj +
+    s_e1*EventChlamydiaTransmission::getH(pOrigin) + s_e2*EventChlamydiaTransmission::getH(pTarget) + 
     s_f*EventChlamydiaTransmission::getR(pTarget, pOrigin) + s_w*EventChlamydiaTransmission::getW(pTarget) +
     s_h*CondomUse;
 }
@@ -319,8 +329,10 @@ JSONConfig chlamydiaTransmissionJSONConfig(R"JSON(
   [ "chlamydiatransmission.hazard.a", 0 ],
   [ "chlamydiatransmission.hazard.b", 0 ],
   [ "chlamydiatransmission.hazard.t_max", 200 ],
-  [ "chlamydiatransmission.hazard.d1", 0 ],
-  [ "chlamydiatransmission.hazard.d2", 0 ],
+  [ "chlamydiatransmission.hazard.d1", 0],
+  [ "chlamydiatransmission.hazard.d2", 0],
+  [ "chlamydiatransmission.hazard.e1", 0 ],
+  [ "chlamydiatransmission.hazard.e2", 0 ],
   [ "chlamydiatransmission.hazard.f", 0 ],
   [ "chlamydiatransmission.hazard.h", 0 ],
   [ "chlamydiatransmission.hazard.w", 0]

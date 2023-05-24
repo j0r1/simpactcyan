@@ -50,6 +50,8 @@ protected:
 	static double s_tMax;
 	static double s_d1; // increase if infectious partner is HIV+
 	static double s_d2; // increase if susceptible partner is HIV+
+	static double s_g1; 	/// Weight of number of partners of infectious person
+	static double s_g2; 	/// Weight of number of partners of susceptible person
 	static double s_f; // increase when susceptible is receptive partner
 	static double s_h; // condom use
 	static double s_w; // female susceptible

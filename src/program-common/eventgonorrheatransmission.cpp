@@ -196,6 +196,8 @@ double EventGonorrheaTransmission::s_tMax = 200;
 double EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::s_b = 0;
 double EventGonorrheaTransmission::s_d1 = 0;
 double EventGonorrheaTransmission::s_d2 = 0;
+double EventGonorrheaTransmission::s_e1 = 0;
+double EventGonorrheaTransmission::s_e2 = 0;
 double EventGonorrheaTransmission::s_f = 0;
 double EventGonorrheaTransmission::s_h = 0;
 double EventGonorrheaTransmission::s_w = 0;
@@ -209,6 +211,8 @@ void EventGonorrheaTransmission::processConfig(ConfigSettings &config, GslRandom
       !(r = config.getKeyValue("gonorrheatransmission.hazard.t_max", s_tMax)) ||
       !(r = config.getKeyValue("gonorrheatransmission.hazard.d1", s_d1)) ||
       !(r = config.getKeyValue("gonorrheatransmission.hazard.d2", s_d2)) ||
+      !(r = config.getKeyValue("gonorrheatransmission.hazard.e1", s_e1)) ||
+      !(r = config.getKeyValue("gonorrheatransmission.hazard.e2", s_e2)) ||
       !(r = config.getKeyValue("gonorrheatransmission.hazard.f", s_f)) ||
       !(r = config.getKeyValue("gonorrheatransmission.hazard.h", s_h)) ||
       !(r = config.getKeyValue("gonorrheatransmission.hazard.w", s_w))
@@ -225,6 +229,8 @@ void EventGonorrheaTransmission::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("gonorrheatransmission.hazard.t_max", s_tMax)) ||
       !(r = config.addKey("gonorrheatransmission.hazard.d1", s_d1)) ||
       !(r = config.addKey("gonorrheatransmission.hazard.d2", s_d2)) ||
+      !(r = config.addKey("gonorrheatransmission.hazard.e1", s_e1)) ||
+      !(r = config.addKey("gonorrheatransmission.hazard.e2", s_e2)) ||
       !(r = config.addKey("gonorrheatransmission.hazard.f", s_f)) ||
       !(r = config.addKey("gonorrheatransmission.hazard.h", s_h)) ||
       !(r = config.addKey("gonorrheatransmission.hazard.w", s_w))
@@ -260,21 +266,6 @@ int EventGonorrheaTransmission::getH(const Person *pPerson1){
     H = 1;
   return H;
 }
-
-// get condom use: TO DO
-// int EventGonorrheaTransmission::getC(const Person *pPerson1, const Person *pPerson2){
-//   assert(pPerson1 != 0);
-//   assert(pPerson2 != 0);
-//   
-//   int C = 0;
-//   // if one of both persons uses condom
-//   // if((pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
-//   //    (pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()))){
-//   //   C = 1;
-//   // }
-//   
-//   return C;
-// }
 
 // get sexual role (infection site) of susceptible partner: TO DO (how to do without the randomness, get sexRole assigned per relationship?)
 int EventGonorrheaTransmission::getR(const Person *pPerson1, const Person*pPerson2){
@@ -320,8 +311,12 @@ double EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::getA(con
   bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
     (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
   
+  double Pi = pOrigin->getNumberOfRelationships();
+  double Pj = pTarget->getNumberOfRelationships();
+  
   return s_a - s_b*pOrigin->gonorrhea().getInfectionTime() + 
-    s_d1*EventGonorrheaTransmission::getH(pOrigin) + s_d2*EventGonorrheaTransmission::getH(pTarget) + 
+    s_d1*Pi + s_d2*Pj +
+    s_e1*EventGonorrheaTransmission::getH(pOrigin) + s_e2*EventGonorrheaTransmission::getH(pTarget) + 
     s_f*EventGonorrheaTransmission::getR(pTarget, pOrigin) + s_w*EventGonorrheaTransmission::getW(pTarget) +
     s_h*CondomUse;
 }
@@ -337,8 +332,10 @@ JSONConfig gonorrheaTransmissionJSONConfig(R"JSON(
   [ "gonorrheatransmission.hazard.a", 0 ],
   [ "gonorrheatransmission.hazard.b", 0 ],
   [ "gonorrheatransmission.hazard.t_max", 200 ],
-  [ "gonorrheatransmission.hazard.d1", 0 ],
-  [ "gonorrheatransmission.hazard.d2", 0 ],
+  [ "gonorrheatransmission.hazard.d1", 0],
+  [ "gonorrheatransmission.hazard.d2", 0],
+  [ "gonorrheatransmission.hazard.e1", 0 ],
+  [ "gonorrheatransmission.hazard.e2", 0 ],
   [ "gonorrheatransmission.hazard.f", 0 ],
   [ "gonorrheatransmission.hazard.h", 0 ],
   [ "gonorrheatransmission.hazard.w", 0]

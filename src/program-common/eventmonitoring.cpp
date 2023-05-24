@@ -1,4 +1,5 @@
 #include "eventmonitoring.h"
+#include "eventprepoffered.h"
 #include "configsettings.h"
 #include "configwriter.h"
 #include "eventdropout.h"
@@ -78,6 +79,20 @@ void EventMonitoring::fire(Algorithm *pAlgorithm, State *pState, double t)
 
 		// Person is starting treatment, no further HIV test events will follow
 		pPerson->hiv().lowerViralLoad(s_treatmentVLLogFrac, t);
+		
+		// Update PrEP eligibility of partners (in case VLS is attained)
+		int numRelations = pPerson->getNumberOfRelationships();
+		double tDummy = 0;
+		pPerson->startRelationshipIteration();
+		for (int i = 0 ; i < numRelations ; i++)
+		{
+		  Person *pPartner = pPerson->getNextRelationshipPartner(tDummy);
+      bool schedulePrePOfferedEvent = pPartner->hiv().updatePrePEligibility(t);
+      if(schedulePrePOfferedEvent){
+        EventPrePOffered *pEvtPreP = new EventPrePOffered(pPartner, true);
+        population.onNewEvent(pEvtPreP);
+      }
+		}
 
 		// Dropout event becomes possible
 		EventDropout *pEvtDropout = new EventDropout(pPerson, t);

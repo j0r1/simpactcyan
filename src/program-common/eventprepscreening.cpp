@@ -1,5 +1,4 @@
 #include "eventprepscreening.h"
-
 #include "configdistributionhelper.h"
 #include "configfunctions.h"
 #include "configsettings.h"

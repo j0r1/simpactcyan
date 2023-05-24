@@ -195,6 +195,8 @@ double EventHSV2Transmission::solveForRealTimeInterval(const State *pState, doub
 double EventHSV2Transmission::s_tMax = 200;
 double EventHSV2Transmission::s_d1 = 0;
 double EventHSV2Transmission::s_d2 = 0;
+double EventHSV2Transmission::s_g1 = 0;
+double EventHSV2Transmission::s_g2 = 0;
 double EventHSV2Transmission::s_f = 0;
 double EventHSV2Transmission::s_h = 0;
 double EventHSV2Transmission::s_w = 0;
@@ -209,6 +211,8 @@ void EventHSV2Transmission::processConfig(ConfigSettings &config, GslRandomNumbe
   if (!(r = config.getKeyValue("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.d1", s_d1)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.d2", s_d2)) ||
+      !(r = config.getKeyValue("hsv2transmission.hazard.g1", s_g1)) ||
+      !(r = config.getKeyValue("hsv2transmission.hazard.g2", s_g2)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.f", s_f)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.h", s_h)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.w", s_w)) ||
@@ -226,6 +230,8 @@ void EventHSV2Transmission::obtainConfig(ConfigWriter &config)
   if (!(r = config.addKey("hsv2transmission.hazard.b", HazardFunctionHSV2Transmission::s_b)) ||
       !(r = config.addKey("hsv2transmission.hazard.d1", s_d1)) ||
       !(r = config.addKey("hsv2transmission.hazard.d2", s_d2)) ||
+      !(r = config.addKey("hsv2transmission.hazard.g1", s_g1)) ||
+      !(r = config.addKey("hsv2transmission.hazard.g2", s_g2)) ||
       !(r = config.addKey("hsv2transmission.hazard.f", s_f)) ||
       !(r = config.addKey("hsv2transmission.hazard.h", s_h)) ||
       !(r = config.addKey("hsv2transmission.hazard.w", s_w)) ||
@@ -319,8 +325,12 @@ double EventHSV2Transmission::HazardFunctionHSV2Transmission::getA(const Person 
   bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
                     (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
   
+  double Pi = pOrigin->getNumberOfRelationships();
+  double Pj = pTarget->getNumberOfRelationships();
+  
   return pOrigin->hsv2().getHazardAParameter() - s_b * pOrigin->hsv2().getInfectionTime() + 
     s_d1*EventHSV2Transmission::getH(pOrigin) + s_d2*EventHSV2Transmission::getH(pTarget) + 
+    s_d1*Pi + s_d2*Pj +
     s_f*EventHSV2Transmission::getR(pTarget, pOrigin) + s_w*EventHSV2Transmission::getW(pTarget) +
     s_h*CondomUse + 
     s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter();
@@ -336,6 +346,8 @@ JSONConfig hsv2TransmissionJSONConfig(R"JSON(
   [ "hsv2transmission.hazard.b", 0 ],
   [ "hsv2transmission.hazard.d1", 0 ],
   [ "hsv2transmission.hazard.d2", 0 ],
+  [ "hsv2transmission.hazard.g1", 0 ],
+  [ "hsv2transmission.hazard.g2", 0 ],
   [ "hsv2transmission.hazard.f", 0 ],
   [ "hsv2transmission.hazard.h", 0 ],
   [ "hsv2transmission.hazard.w", 0],

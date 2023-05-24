@@ -34,6 +34,7 @@ set(SOURCES_SIMPACT
 	../program-common/eventgonorrheatransmission.cpp
 	../program-common/eventgonorrheaprogression.cpp
 	../program-common/eventgonorrheadiagnosis.cpp
+	../program-common/eventgonorrheaimport.cpp
 	../program-common/eventhsv2seed.cpp
 	../program-common/eventhsv2transmission.cpp
 	../program-common/eventsyphilisseed.cpp
@@ -42,6 +43,7 @@ set(SOURCES_SIMPACT
 	../program-common/eventsyphilisdiagnosis.cpp
 	../program-common/eventtertiarysyphilis.cpp
 	../program-common/eventhivseed.cpp
+	../program-common/eventhivimport.cpp
 	../program-common/eventintervention.cpp
 	../program-common/eventaidsstage.cpp
 	../program-common/eventconception.cpp

@@ -1,5 +1,5 @@
 #include "eventgonorrheaseed.h"
-
+#include "eventgonorrheaimport.h"
 #include "configfunctions.h"
 #include "eventgonorrheatransmission.h"
 
@@ -29,6 +29,12 @@ void EventGonorrheaSeed::writeLogs(const SimpactPopulation &pop, double tNow) co
 void EventGonorrheaSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
 	EventSeedBase::fire(s_settings, t, pState, EventGonorrheaTransmission::infectPerson);
+  
+  SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  
+  // Schedule next importation event
+  EventGonorrheaImport *pEvtImport = new EventGonorrheaImport();
+  population.onNewEvent(pEvtImport);
 }
 
 SeedEventSettings EventGonorrheaSeed::s_settings;

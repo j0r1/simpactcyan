@@ -192,6 +192,8 @@ double EventSyphilisTransmission::s_tMax = 200;
 double EventSyphilisTransmission::HazardFunctionSyphilisTransmission::s_b = 0;
 double EventSyphilisTransmission::s_d1 = 0;
 double EventSyphilisTransmission::s_d2 = 0;
+double EventSyphilisTransmission::s_e1 = 0;
+double EventSyphilisTransmission::s_e2 = 0;
 double EventSyphilisTransmission::s_f = 0;
 double EventSyphilisTransmission::s_h = 0;
 double EventSyphilisTransmission::s_w = 0;
@@ -205,6 +207,8 @@ void EventSyphilisTransmission::processConfig(ConfigSettings &config, GslRandomN
       !(r = config.getKeyValue("syphilistransmission.hazard.t_max", s_tMax)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.d1", s_d1)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.d2", s_d2)) ||
+      !(r = config.getKeyValue("syphilistransmission.hazard.e1", s_e1)) ||
+      !(r = config.getKeyValue("syphilistransmission.hazard.e2", s_e2)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.f", s_f)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.h", s_h)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.w", s_w))
@@ -221,6 +225,8 @@ void EventSyphilisTransmission::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("syphilistransmission.hazard.t_max", s_tMax)) ||
       !(r = config.addKey("syphilistransmission.hazard.d1", s_d1)) ||
       !(r = config.addKey("syphilistransmission.hazard.d2", s_d2)) ||
+      !(r = config.addKey("syphilistransmission.hazard.e1", s_e1)) ||
+      !(r = config.addKey("syphilistransmission.hazard.e2", s_e2)) ||
       !(r = config.addKey("syphilistransmission.hazard.f", s_f)) ||
       !(r = config.addKey("syphilistransmission.hazard.h", s_h)) ||
       !(r = config.addKey("syphilistransmission.hazard.w", s_w))
@@ -299,8 +305,12 @@ double EventSyphilisTransmission::HazardFunctionSyphilisTransmission::getA(const
   bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
                     (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
   
+  double Pi = pOrigin->getNumberOfRelationships();
+  double Pj = pTarget->getNumberOfRelationships();
+  
   return s_a - s_b * pOrigin->syphilis().getInfectionTime() + 
-    s_d1*EventSyphilisTransmission::getH(pOrigin) + s_d2*EventSyphilisTransmission::getH(pTarget) + 
+    s_d1*Pi + s_d2*Pj +
+    s_e1*EventSyphilisTransmission::getH(pOrigin) + s_e2*EventSyphilisTransmission::getH(pTarget) + 
     s_f*EventSyphilisTransmission::getR(pTarget, pOrigin) + s_w*EventSyphilisTransmission::getW(pTarget) +
     s_h*CondomUse;
 }
@@ -316,8 +326,10 @@ JSONConfig syphilisTransmissionJSONConfig(R"JSON(
   [ "syphilistransmission.hazard.a", 0 ],
   [ "syphilistransmission.hazard.b", 0 ],
   [ "syphilistransmission.hazard.t_max", 200 ],
-  [ "syphilistransmission.hazard.d1", 0 ],
-  [ "syphilistransmission.hazard.d2", 0 ],
+  [ "syphilistransmission.hazard.d1", 0],
+  [ "syphilistransmission.hazard.d2", 0],
+  [ "syphilistransmission.hazard.e1", 0 ],
+  [ "syphilistransmission.hazard.e2", 0 ],
   [ "syphilistransmission.hazard.f", 0 ],
   [ "syphilistransmission.hazard.h", 0 ],
   [ "syphilistransmission.hazard.w", 0]

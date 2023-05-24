@@ -62,8 +62,8 @@ bool EventHIVTransmission::isUseless(const PopulationStateInterface &population)
 		return true;
 	
 	// If person1 has undetectable viral load
-	// if (pPerson1->hiv().getViralLoad() < s_undetectableVL)
-	//   return true;
+	if (pPerson1->hiv().getViralLoad() < s_undetectableVL)
+	  return true;
 
 	// Event is useless if the relationship between the two people is over
 	if (!pPerson1->hasRelationshipWith(pPerson2))
