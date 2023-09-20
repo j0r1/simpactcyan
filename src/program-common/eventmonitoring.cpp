@@ -97,9 +97,7 @@ void EventMonitoring::fire(Algorithm *pAlgorithm, State *pState, double t)
 		// Dropout event becomes possible
 		EventDropout *pEvtDropout = new EventDropout(pPerson, t);
 		population.onNewEvent(pEvtDropout);
-	}
-	else
-	{
+	}	else {
 		// Schedule a new monitoring event
 		EventMonitoring *pNewMonitor = new EventMonitoring(pPerson);
 		population.onNewEvent(pNewMonitor);

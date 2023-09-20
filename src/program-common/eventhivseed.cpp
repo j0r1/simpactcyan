@@ -114,7 +114,7 @@ void EventHIVSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 
 		Person *pPerson = possibleSeeders[seedIdx];
 
-		EventHIVTransmission::infectPerson(population, 0, pPerson, t, false); // 0 means seed
+		EventHIVTransmission::infectPerson(population, 0, pPerson, t, false); // 0 means seed, false means that chronic stage and diagnosis are not scheduled in infectPerson
 		countSeeded++;
 
 		// remove the person from the possibleSeeders
@@ -189,7 +189,9 @@ void EventHIVSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 		if (std::find(diagnosedNames.begin(), diagnosedNames.end(), pPerson->getName()) == diagnosedNames.end()) {
 			EventDiagnosis *pEvt = new EventDiagnosis(pPerson, true, true); // Schedule immediately
 			population.onNewEvent(pEvt);
-
+			
+			diagnosedNames.push_back(pPerson->getName());
+			
 			numDiagnosed--;
 		}
 	}
@@ -198,8 +200,8 @@ void EventHIVSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 	for (int i = 0; i < seeded.size(); i++) {
 		Person *pPerson = seeded[i];
 		if (std::find(diagnosedNames.begin(), diagnosedNames.end(), pPerson->getName()) == diagnosedNames.end()) {
-			EventDiagnosis *pEvt = new EventDiagnosis(pPerson);
-			population.onNewEvent(pEvt);
+			EventDiagnosis *pEvtDiag = new EventDiagnosis(pPerson);
+			population.onNewEvent(pEvtDiag);
 		}
 	}
 

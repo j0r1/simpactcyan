@@ -195,6 +195,7 @@ double EventSyphilisTransmission::s_d2 = 0;
 double EventSyphilisTransmission::s_e1 = 0;
 double EventSyphilisTransmission::s_e2 = 0;
 double EventSyphilisTransmission::s_f = 0;
+double EventSyphilisTransmission::s_g = 0;
 double EventSyphilisTransmission::s_h = 0;
 double EventSyphilisTransmission::s_w = 0;
 
@@ -210,6 +211,7 @@ void EventSyphilisTransmission::processConfig(ConfigSettings &config, GslRandomN
       !(r = config.getKeyValue("syphilistransmission.hazard.e1", s_e1)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.e2", s_e2)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.f", s_f)) ||
+      !(r = config.getKeyValue("syphilistransmission.hazard.g", s_g)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.h", s_h)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.w", s_w))
   )
@@ -228,6 +230,7 @@ void EventSyphilisTransmission::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("syphilistransmission.hazard.e1", s_e1)) ||
       !(r = config.addKey("syphilistransmission.hazard.e2", s_e2)) ||
       !(r = config.addKey("syphilistransmission.hazard.f", s_f)) ||
+      !(r = config.addKey("syphilistransmission.hazard.g", s_g)) ||
       !(r = config.addKey("syphilistransmission.hazard.h", s_h)) ||
       !(r = config.addKey("syphilistransmission.hazard.w", s_w))
   )
@@ -261,6 +264,18 @@ int EventSyphilisTransmission::getH(const Person *pPerson1){
   if (H1 == true)
     H = 1;
   return H;
+}
+
+// get TP disease stage partner 
+int EventSyphilisTransmission::getP(const Person *pPerson1){
+  assert(pPerson1 != 0);
+  // Person_Syphilis::SyphilisDiseaseStage diseaseStage = pPerson1->syphilis().getDiseaseStage();
+  // bool P1 = pPerson1->syphilis().getDiseaseStage();
+  int P = 0;
+  // if (P1 == true)
+  if(pPerson1->syphilis().getDiseaseStage() == Person_Syphilis::Primary)
+    P = 1;
+  return P;
 }
 
 // get sexual role (infection site) of susceptible partner: TO DO (how to do without the randomness, get sexRole assigned per relationship?)
@@ -312,6 +327,7 @@ double EventSyphilisTransmission::HazardFunctionSyphilisTransmission::getA(const
     s_d1*Pi + s_d2*Pj +
     s_e1*EventSyphilisTransmission::getH(pOrigin) + s_e2*EventSyphilisTransmission::getH(pTarget) + 
     s_f*EventSyphilisTransmission::getR(pTarget, pOrigin) + s_w*EventSyphilisTransmission::getW(pTarget) +
+    s_g*EventSyphilisTransmission::getP(pOrigin) +
     s_h*CondomUse;
 }
 
@@ -331,6 +347,7 @@ JSONConfig syphilisTransmissionJSONConfig(R"JSON(
   [ "syphilistransmission.hazard.e1", 0 ],
   [ "syphilistransmission.hazard.e2", 0 ],
   [ "syphilistransmission.hazard.f", 0 ],
+  [ "syphilistransmission.hazard.g", 0 ],
   [ "syphilistransmission.hazard.h", 0 ],
   [ "syphilistransmission.hazard.w", 0]
   ],

@@ -45,6 +45,7 @@ protected:
 	static int getR(const Person *pPerson1, const Person *pPerson2);
 	// static int getC(const Person *pPerson1, const Person *pPerson2);
 	static int getW(const Person *pPerson1);
+	static int getP(const Person *pPerson1);
 	
 	static double s_a; // baseline
 	static double s_tMax;
@@ -53,6 +54,7 @@ protected:
 	static double s_e1; // increase if infectious partner is HIV+
 	static double s_e2; // increase if susceptible partner is HIV+
 	static double s_f; // increase when susceptible is receptive partner
+	static double s_g; // increase if partner is in primary stage
 	static double s_h; // condom use
 	static double s_w; // female susceptible
 };

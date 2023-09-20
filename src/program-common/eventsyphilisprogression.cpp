@@ -78,9 +78,10 @@ void EventSyphilisProgression::fire(Algorithm *pAlgorithm, State *pState, double
 
 bool EventSyphilisProgression::isUseless(const PopulationStateInterface&population)
 {
-  // Event becomes useless if person no longer infected due to treatment
+  // Event becomes useless if person no longer infected due to treatment or already in tertiary stage
   Person *pPerson1 = getPerson(0);
-  if(!pPerson1->syphilis().isInfected()){
+  Person_Syphilis::SyphilisDiseaseStage diseaseStage = pPerson1->syphilis().getDiseaseStage();
+  if(!pPerson1->syphilis().isInfected() || diseaseStage == Person_Syphilis::Tertiary){
     return true;
   }
   

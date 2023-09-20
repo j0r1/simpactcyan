@@ -79,7 +79,7 @@ void EventHIVImport::fire(Algorithm *pAlgorithm, State *pState, double t)
     
     Person *pPerson = possibleImports[seedIdx];
     
-    EventHIVTransmission::infectPerson(population, 0, pPerson, t, false);
+    EventHIVTransmission::infectPerson(population, 0, pPerson, t, false); // scheduleAll = false will not schedule chronic stage and diagnosis in infectPerson
     countImported++;
     
     // remove person from possible imports
@@ -94,10 +94,10 @@ void EventHIVImport::fire(Algorithm *pAlgorithm, State *pState, double t)
   for (int i = 0 ; i < imported.size() ; i++)
   {
     Person *pPerson = imported[i];
-    
+
     EventChronicStage *pEvtChronic = new EventChronicStage(pPerson);
     population.onNewEvent(pEvtChronic);
-    
+
     EventDiagnosis *pEvtDiag = new EventDiagnosis(pPerson);
     population.onNewEvent(pEvtDiag);
   }
