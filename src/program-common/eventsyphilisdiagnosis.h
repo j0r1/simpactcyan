@@ -48,12 +48,15 @@ private:
   
   bool m_scheduleImmediately;
   bool isWillingToTreatSTI(double t, GslRandomNumberGenerator *pRndGen);
+  bool partnerWillingToTest(Person *pPerson, GslRandomNumberGenerator *pRndGen);
   
   static double s_baseline;
   static double s_beta;
   static double s_diagPartnersFactor;
   static double s_tMax;
   static double s_healthSeekingPropensityFactor;
+  
+  static bool s_partnerNotificationEnabled;
   
 };
 

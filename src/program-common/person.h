@@ -87,7 +87,12 @@ public:
 	double getPreferredAgeDifferenceMSM() const										{ assert(isMan()); return m_relations.getPreferredAgeDifferenceMSM(); }
 
 	bool usesCondom(bool isPartnerDiagnosed, GslRandomNumberGenerator *pRndGen) const;
-
+	// bool isEligibleForPEP(const Person *pPerson) const;                          
+	// bool isOnPEP() const                                   {return m_isOnPEP;}
+	// void startPEP()                                        {m_isOnPEP = true;}
+	// void stopPEP()                                         {m_isOnPEP = false;}
+	bool usesPEP(const Person *pPerson, GslRandomNumberGenerator *pRndGen) const;
+	
 	// NOTE: this ignores the call if already in the list
 	void addPersonOfInterest(Person *pPerson)										{ m_relations.addPersonOfInterest(pPerson); }
 	void removePersonOfInterest(Person *pPerson)									{ m_relations.removePersonOfInterest(pPerson); }
@@ -112,10 +117,11 @@ public:
 	Person_Syphilis &syphilis() 													{ return m_syphilis; }
 	const Person_Syphilis &syphilis() const											{ return m_syphilis; }
 
-	bool isInfectedWithSTI() const;
+	bool isInfectedWithUlcerativeSTI() const;
+	bool isInfectedWithNonUlcerativeSTI() const;
 	double getTimeLastSTI()                          { return m_timeLastDiagnosis;}
 	void increaseSTIDiagnoseCount(double tNow, double lastSTItime); 
-	int getSTIDiagnoseCount() const													{ return m_STIdiagnoseCount; }
+	bool multSTIDiagnoses() const													{ return m_STIdiagnosesMult; }
 
 	// Health-seeking behavior
 	double getHealthSeekingPropensity() const 										{ return m_health_seeking_propensity; }
@@ -123,8 +129,10 @@ public:
 
 	SexualRolePreference getPreferredSexualRole() const 							{ return m_sexual_role_preference; }
 
-	// STI treatment acceptance
+	// STI treatment and test acceptance
 	double getTreatAcceptanceThreshold() const        {return m_treatAcceptanceThreshold;}
+	double getTestAcceptanceThreshold() const         {return m_testAcceptanceThreshold;}
+	double getRoutineAcceptanceThreshold() const      {return m_routineTestAcceptanceThreshold;}
 	
 
 	// This is a per person value
@@ -140,6 +148,7 @@ public:
 	void writeToChlamydiaTreatLog();
 	void writeToSyphilisLog();
 	void writeToSyphilisTreatLog();
+	void writeToHSV2Log();
 	void writeToTreatmentLog(double dropoutTime, bool justDied);
 	void writeToLocationLog(double tNow);
 	void writeToPrepLog(double t, const std::string &description) const;
@@ -155,22 +164,28 @@ protected:
 	Person_Family m_family;
 	Person_Relations m_relations;
 	Person_HIV m_hiv;
-
+	
+	// Person *m_pSelf;
+	
 	Person_Chlamydia m_chlamydia;
 	Person_Gonorrhea m_gonorrhea;
 	Person_HSV2 m_hsv2;
 	Person_Syphilis m_syphilis;
 	
-	int m_STIdiagnoseCount;
+	bool m_STIdiagnosesMult;
 	double m_timeLastDiagnosis;
 
 	Point2D m_location;
 	double m_locationTime;
 
+	double m_pep_use_threshold;
+	
 	double m_condom_use_threshold;
 	bool m_uses_condom;
 	double m_health_seeking_propensity;
 	double m_treatAcceptanceThreshold;
+	double m_testAcceptanceThreshold;
+	double m_routineTestAcceptanceThreshold;
 	
 	SexualRolePreference m_sexual_role_preference;
 
@@ -182,11 +197,16 @@ protected:
 
 	static ProbabilityDistribution *m_pHealthSeekingPropensityDist;
 	static ProbabilityDistribution *m_pTreatAcceptDist;
+	static ProbabilityDistribution *m_pTestAcceptDist;
+	static ProbabilityDistribution *m_pRoutineTestAcceptDist;
 	
+	static ProbabilityDistribution *m_pPEPUseDist;
 	static ProbabilityDistribution *m_pCondomUseDist;
 	static double m_concordanceCondomUseFactor;
 	static double m_artCondomUseFactor;
 	static double m_prepCondomUseFactor;
+	
+	static int m_numPartnersPEPThreshold;
 
 	static ProbabilityDistribution *m_pSexualRoleDist; // TODO ensure that this is a discrete distribution?
 

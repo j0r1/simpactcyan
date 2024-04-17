@@ -4,6 +4,7 @@
 #include "eventgonorrheaprogression.h"
 #include "eventgonorrheadiagnosis.h"
 #include "gslrandomnumbergenerator.h"
+#include "person.h"
 
 using namespace std;
 
@@ -139,11 +140,11 @@ void EventGonorrheaTransmission::infectPerson(SimpactPopulation &population, Per
   population.onNewEvent(pEvtProgression);
   
   // Schedule diagnosis event for symptomatic individuals
-  int diseaseStage = pTarget->gonorrhea().getDiseaseStage();
-  if(diseaseStage == Person_Gonorrhea::Symptomatic){
-    EventGonorrheaDiagnosis *pEvtDiagnosis = new EventGonorrheaDiagnosis(pTarget, false);
-    population.onNewEvent(pEvtDiagnosis); 
-  }
+  // int diseaseStage = pTarget->gonorrhea().getDiseaseStage();
+  // if(diseaseStage == Person_Gonorrhea::Symptomatic){
+  //   EventGonorrheaDiagnosis *pEvtDiagnosis = new EventGonorrheaDiagnosis(pTarget, false);
+  //   population.onNewEvent(pEvtDiagnosis); 
+  // }
   
 #ifndef NDEBUG
   double tDummy;
@@ -201,6 +202,7 @@ double EventGonorrheaTransmission::s_e2 = 0;
 double EventGonorrheaTransmission::s_f = 0;
 double EventGonorrheaTransmission::s_h = 0;
 double EventGonorrheaTransmission::s_w = 0;
+double EventGonorrheaTransmission::s_p = 0;
 
 void EventGonorrheaTransmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
@@ -215,8 +217,9 @@ void EventGonorrheaTransmission::processConfig(ConfigSettings &config, GslRandom
       !(r = config.getKeyValue("gonorrheatransmission.hazard.e2", s_e2)) ||
       !(r = config.getKeyValue("gonorrheatransmission.hazard.f", s_f)) ||
       !(r = config.getKeyValue("gonorrheatransmission.hazard.h", s_h)) ||
-      !(r = config.getKeyValue("gonorrheatransmission.hazard.w", s_w))
-  )
+      !(r = config.getKeyValue("gonorrheatransmission.hazard.w", s_w)) ||
+      !(r = config.getKeyValue("gonorrheatransmission.hazard.p", s_p))
+    )
     abortWithMessage(r.getErrorString());
 }
 
@@ -233,8 +236,9 @@ void EventGonorrheaTransmission::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("gonorrheatransmission.hazard.e2", s_e2)) ||
       !(r = config.addKey("gonorrheatransmission.hazard.f", s_f)) ||
       !(r = config.addKey("gonorrheatransmission.hazard.h", s_h)) ||
-      !(r = config.addKey("gonorrheatransmission.hazard.w", s_w))
-  )
+      !(r = config.addKey("gonorrheatransmission.hazard.w", s_w)) ||
+      !(r = config.addKey("gonorrheatransmission.hazard.p", s_p))
+    )
     abortWithMessage(r.getErrorString());
 }
 
@@ -311,6 +315,12 @@ double EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::getA(con
   bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
     (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
   
+  bool doxyPEPuse = pTarget->usesPEP(pTarget, population.getRandomNumberGenerator());
+  // doxyPEP only after condomless intercourse
+  if(CondomUse){
+    doxyPEPuse = 0;
+  }
+  
   double Pi = pOrigin->getNumberOfRelationships();
   double Pj = pTarget->getNumberOfRelationships();
   
@@ -318,7 +328,7 @@ double EventGonorrheaTransmission::HazardFunctionGonorrheaTransmission::getA(con
     s_d1*Pi + s_d2*Pj +
     s_e1*EventGonorrheaTransmission::getH(pOrigin) + s_e2*EventGonorrheaTransmission::getH(pTarget) + 
     s_f*EventGonorrheaTransmission::getR(pTarget, pOrigin) + s_w*EventGonorrheaTransmission::getW(pTarget) +
-    s_h*CondomUse;
+    s_h*CondomUse + s_p*doxyPEPuse;
 }
 
 ConfigFunctions gonorrheaTransmissionConfigFunctions(EventGonorrheaTransmission::processConfig,
@@ -338,7 +348,8 @@ JSONConfig gonorrheaTransmissionJSONConfig(R"JSON(
   [ "gonorrheatransmission.hazard.e2", 0 ],
   [ "gonorrheatransmission.hazard.f", 0 ],
   [ "gonorrheatransmission.hazard.h", 0 ],
-  [ "gonorrheatransmission.hazard.w", 0]
+  [ "gonorrheatransmission.hazard.w", 0],
+  [ "gonorrheatransmission.hazard.p", 0]
   
   ],
             "info": [

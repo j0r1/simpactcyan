@@ -29,10 +29,12 @@ void EventDiagnosis::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
 	Person *pPerson = getPerson(0);
 	if (m_seedingEvent) {
-		writeEventLogStart(true, "diagnosis", tNow, pPerson, 0, true);
+		writeEventLogStart(true, "diagnosis", tNow, pPerson, 0, true); // true = seeding event
 	} else {
 		writeEventLogStart(true, "diagnosis", tNow, pPerson, 0);
 	}
+	
+	// writeToViralLoadLog(tNow, "Diagnosis");
 }
 
 void EventDiagnosis::markOtherAffectedPeople(const PopulationStateInterface &population)
@@ -60,6 +62,19 @@ void EventDiagnosis::markOtherAffectedPeople(const PopulationStateInterface &pop
 	assert(pPerson->getNextRelationshipPartner(tDummy) == 0);
 #endif // NDEBUG
 }
+
+bool EventDiagnosis::partnerWillingToTest(Person *pPerson, GslRandomNumberGenerator *pRndGen)
+{
+  // Person *pPerson = getPerson(0);
+  
+  // Coin toss
+  double x = pRndGen->pickRandomDouble();
+  if (x < pPerson->getTestAcceptanceThreshold())
+    return true;
+  
+  return false;
+}
+
 
 void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
@@ -102,6 +117,32 @@ void EventDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// Schedule an initial monitoring event right away! (the 'true' is for 'right away')
 	EventMonitoring *pEvtMonitor = new EventMonitoring(pPerson, true);
 	population.onNewEvent(pEvtMonitor);
+	
+	// Partner notification
+	GslRandomNumberGenerator *pRndGen = population.getRandomNumberGenerator();
+	
+	if(s_partnerNotificationEnabled){
+	  // Check relationships diagnosed person is in, and if partner is also infected, schedule diagnosis event if willing to get tested
+	  int numRelations = pPerson->getNumberOfRelationships();
+	  pPerson->startRelationshipIteration();
+	  
+	  for (int i = 0; i < numRelations; i++)
+	  {
+	    double formationTime = -1;
+	    Person *pPartner = pPerson->getNextRelationshipPartner(formationTime);
+	    // If partner infected and not yet diagnosed
+	    if (pPartner->hiv().isInfected() && !pPartner->hiv().isDiagnosed())
+	    {
+	      if(partnerWillingToTest(pPartner, pRndGen)){
+	        
+	        EventDiagnosis *pEvtDiagP = new EventDiagnosis(pPartner, true);
+	        population.onNewEvent(pEvtDiagP);
+	        
+	      }
+	      
+	    }
+	  }
+	}
 
 }
 
@@ -124,15 +165,15 @@ double EventDiagnosis::calculateInternalTimeInterval(const State *pState, double
 
 	double internalTimeInterval = h.calculateInternalTimeInterval(t0, dt);
 
-	if (s_routineTestingEnabled) {
-		double timeFromInfectionToTest = s_uniformDistribution.pickNumber();
-		double timeOfTest = pPerson->hiv().getInfectionTime() + timeFromInfectionToTest;
-		double timeUntilTest = timeOfTest - t0;
-
-		if (timeUntilTest < internalTimeInterval) {
-			return timeUntilTest;
-		}
-	}
+	// if (s_routineTestingEnabled) {
+	// 	double timeFromInfectionToTest = s_uniformDistribution.pickNumber();
+	// 	double timeOfTest = pPerson->hiv().getInfectionTime() + timeFromInfectionToTest;
+	// 	double timeUntilTest = timeOfTest - t0;
+	// 
+	// 	if (timeUntilTest < internalTimeInterval) {
+	// 		return timeUntilTest;
+	// 	}
+	// }
 
 	return internalTimeInterval;
 }
@@ -156,15 +197,15 @@ double EventDiagnosis::solveForRealTimeInterval(const State *pState, double Tdif
 
 	double realTimeInterval = h.solveForRealTimeInterval(t0, Tdiff);
 
-	if (s_routineTestingEnabled) {
-		double timeFromInfectionToTest = s_uniformDistribution.pickNumber();
-		double timeOfTest = pPerson->hiv().getInfectionTime() + timeFromInfectionToTest;
-		double timeUntilTest = timeOfTest - t0;
-
-		if (timeUntilTest < realTimeInterval) {
-			return timeUntilTest;
-		}
-	}
+	// if (s_routineTestingEnabled) {
+	// 	double timeFromInfectionToTest = s_uniformDistribution.pickNumber();
+	// 	double timeOfTest = pPerson->hiv().getInfectionTime() + timeFromInfectionToTest;
+	// 	double timeUntilTest = timeOfTest - t0;
+	// 
+	// 	if (timeUntilTest < realTimeInterval) {
+	// 		return timeUntilTest;
+	// 	}
+	// }
 
 	return realTimeInterval;
 }
@@ -189,9 +230,11 @@ double EventDiagnosis::s_beta = 0;
 double EventDiagnosis::s_HSV2factor = 0;
 double EventDiagnosis::s_tMax = 0;
 
-bool EventDiagnosis::s_routineTestingEnabled = false;
-double EventDiagnosis::s_routineTestingInterval = 0;
-UniformDistribution EventDiagnosis::s_uniformDistribution = UniformDistribution(0, 1, 0);
+// bool EventDiagnosis::s_routineTestingEnabled = false;
+// double EventDiagnosis::s_routineTestingInterval = 0;
+// UniformDistribution EventDiagnosis::s_uniformDistribution = UniformDistribution(0, 1, 0);
+bool EventDiagnosis::s_partnerNotificationEnabled = false;
+
 
 
 void EventDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
@@ -208,12 +251,13 @@ void EventDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenera
 	    !(r = config.getKeyValue("diagnosis.beta", s_beta)) ||
 	    !(r = config.getKeyValue("diagnosis.t_max", s_tMax))||
 	    !(r = config.getKeyValue("diagnosis.HSV2factor", s_HSV2factor)) ||
-		!(r = config.getKeyValue("diagnosis.routinetesting.enabled", s_routineTestingEnabled)) ||
-		!(r = config.getKeyValue("diagnosis.routinetesting.interval", s_routineTestingInterval))
+		// !(r = config.getKeyValue("diagnosis.routinetesting.enabled", s_routineTestingEnabled)) ||
+		// !(r = config.getKeyValue("diagnosis.routinetesting.interval", s_routineTestingInterval)) ||
+		!(r = config.getKeyValue("diagnosis.partnernotification.enabled", s_partnerNotificationEnabled))
 	   )
 		abortWithMessage(r.getErrorString());
 
-	s_uniformDistribution = UniformDistribution(0, s_routineTestingInterval, pRndGen);
+	// s_uniformDistribution = UniformDistribution(0, s_routineTestingInterval, pRndGen);
 }
 
 void EventDiagnosis::obtainConfig(ConfigWriter &config)
@@ -230,8 +274,9 @@ void EventDiagnosis::obtainConfig(ConfigWriter &config)
 	    !(r = config.addKey("diagnosis.beta", s_beta)) ||
 	    !(r = config.addKey("diagnosis.t_max", s_tMax)) ||
 	    !(r = config.addKey("diagnosis.HSV2factor", s_HSV2factor)) ||
-		!(r = config.addKey("diagnosis.routinetesting.enabled", s_routineTestingEnabled)) ||
-		!(r = config.addKey("diagnosis.routinetesting.interval", s_routineTestingInterval))
+		// !(r = config.addKey("diagnosis.routinetesting.enabled", s_routineTestingEnabled)) ||
+		// !(r = config.addKey("diagnosis.routinetesting.interval", s_routineTestingInterval)) ||
+		!(r = config.addKey("diagnosis.partnernotification.enabled", s_partnerNotificationEnabled))
 	   )
 		abortWithMessage(r.getErrorString());
 }
@@ -304,8 +349,7 @@ JSONConfig diagnosisJSONConfig(R"JSON(
 				[ "diagnosis.healthseekingpropensityfactor", 0 ],
 		     	[ "diagnosis.HSV2factor", 0 ],
                 [ "diagnosis.t_max", 200 ],
-				[ "diagnosis.routinetesting.enabled", "no"],
-				[ "diagnosis.routinetesting.interval", 10]	
+    [ "diagnosis.partnernotification.enabled", "no"]	
             ],
             "info": [
                 "When a person gets infected or drops out of treatment, a diagnosis event is ",

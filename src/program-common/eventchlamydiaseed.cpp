@@ -1,5 +1,5 @@
 #include "eventchlamydiaseed.h"
-
+#include "eventchlamydiaimport.h"
 #include "configfunctions.h"
 #include "eventchlamydiatransmission.h"
 
@@ -24,6 +24,12 @@ void EventChlamydiaSeed::writeLogs(const SimpactPopulation &pop, double tNow) co
 void EventChlamydiaSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
 	EventSeedBase::fire(s_settings, t, pState, EventChlamydiaTransmission::infectPerson);
+  
+  SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  
+  // Schedule next importation event
+  EventChlamydiaImport *pEvtImport = new EventChlamydiaImport();
+  population.onNewEvent(pEvtImport);
 }
 
 SeedEventSettings EventChlamydiaSeed::s_settings;

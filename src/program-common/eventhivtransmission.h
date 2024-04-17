@@ -35,8 +35,10 @@ protected:
 	static double s_c; 		/// Specified influence of current viral load (together with b)
 	static double s_d1; 	/// Weight of number of partners of infectious person
 	static double s_d2; 	/// Weight of number of partners of susceptible person
-	static double s_e1;		/// Influence of co-infection in (HIV-)infectious person
-	static double s_e2;		/// Influence of co-infection in (HIV-)susceptible person
+	static double s_e1;		/// Influence of co-infection ulcerative STI in (HIV-)infectious person
+	static double s_e2;		/// Influence of co-infection ulcerative STI in (HIV-)susceptible person
+	static double s_e3;		/// Influence of co-infection non-ulcerative STI in (HIV-)infectious person
+	static double s_e4;		/// Influence of co-infection non-ulcerative STI in (HIV-)susceptible person
 	static double s_f1;		/// Influence of woman's age on susceptibility
 	static double s_f2;		/// Influence of woman's age on susceptibility
 	static double s_g1;		/// Set to 1 to include influence of individual susceptibility to HIV and HSV2
@@ -47,7 +49,8 @@ protected:
 	static double s_tMaxAgeRefDiff;
 	static double s_undetectableVL;
 
-	static int getH(const Person *pPerson);
+	static int getH1(const Person *pPerson);
+	static int getH2(const Person *pPerson);
 	static int getR(const Person *pPerson1, const Person *pPerson2);
 };
 

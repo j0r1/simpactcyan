@@ -126,6 +126,7 @@ private:
 	static double m_supprViralLoad;
 
 	static int m_numPartnersPrePThreshold;
+	static int m_numMSMPartnersPrePThreshold;
 	static int m_numDiagPartnersPrePThreshold;
 	static int m_diagSTIPrePThreshold;
 

@@ -5,6 +5,7 @@
 #include "jsonconfig.h"
 #include "eventsyphilisdiagnosis.h"
 #include "eventtertiarysyphilis.h"
+#include "person.h"
 
 using namespace std;
 
@@ -198,6 +199,7 @@ double EventSyphilisTransmission::s_f = 0;
 double EventSyphilisTransmission::s_g = 0;
 double EventSyphilisTransmission::s_h = 0;
 double EventSyphilisTransmission::s_w = 0;
+double EventSyphilisTransmission::s_p = 0;
 
 void EventSyphilisTransmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
@@ -213,7 +215,8 @@ void EventSyphilisTransmission::processConfig(ConfigSettings &config, GslRandomN
       !(r = config.getKeyValue("syphilistransmission.hazard.f", s_f)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.g", s_g)) ||
       !(r = config.getKeyValue("syphilistransmission.hazard.h", s_h)) ||
-      !(r = config.getKeyValue("syphilistransmission.hazard.w", s_w))
+      !(r = config.getKeyValue("syphilistransmission.hazard.w", s_w)) ||
+      !(r = config.getKeyValue("syphilistransmission.hazard.p", s_p))
   )
     abortWithMessage(r.getErrorString());
 }
@@ -232,7 +235,8 @@ void EventSyphilisTransmission::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("syphilistransmission.hazard.f", s_f)) ||
       !(r = config.addKey("syphilistransmission.hazard.g", s_g)) ||
       !(r = config.addKey("syphilistransmission.hazard.h", s_h)) ||
-      !(r = config.addKey("syphilistransmission.hazard.w", s_w))
+      !(r = config.addKey("syphilistransmission.hazard.w", s_w)) ||
+      !(r = config.addKey("syphilistransmission.hazard.p", s_p))
   )
     abortWithMessage(r.getErrorString());
 }
@@ -301,7 +305,6 @@ int EventSyphilisTransmission::getW(const Person *pPerson1){
   return W;
 }
 
-
 EventSyphilisTransmission::HazardFunctionSyphilisTransmission::HazardFunctionSyphilisTransmission(const Person *pPerson1,
                                                                                                   const Person *pPerson2,
                                                                                                   const State *pState)
@@ -320,6 +323,12 @@ double EventSyphilisTransmission::HazardFunctionSyphilisTransmission::getA(const
   bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
                     (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
   
+  bool doxyPEPuse = pTarget->usesPEP(pTarget, population.getRandomNumberGenerator());
+  // doxyPEP only after condomless intercourse
+  if(CondomUse){
+    doxyPEPuse = 0;
+  }
+    
   double Pi = pOrigin->getNumberOfRelationships();
   double Pj = pTarget->getNumberOfRelationships();
   
@@ -328,7 +337,7 @@ double EventSyphilisTransmission::HazardFunctionSyphilisTransmission::getA(const
     s_e1*EventSyphilisTransmission::getH(pOrigin) + s_e2*EventSyphilisTransmission::getH(pTarget) + 
     s_f*EventSyphilisTransmission::getR(pTarget, pOrigin) + s_w*EventSyphilisTransmission::getW(pTarget) +
     s_g*EventSyphilisTransmission::getP(pOrigin) +
-    s_h*CondomUse;
+    s_h*CondomUse + s_p*doxyPEPuse;
 }
 
 ConfigFunctions syphilisTransmissionConfigFunctions(EventSyphilisTransmission::processConfig,
@@ -349,7 +358,8 @@ JSONConfig syphilisTransmissionJSONConfig(R"JSON(
   [ "syphilistransmission.hazard.f", 0 ],
   [ "syphilistransmission.hazard.g", 0 ],
   [ "syphilistransmission.hazard.h", 0 ],
-  [ "syphilistransmission.hazard.w", 0]
+  [ "syphilistransmission.hazard.w", 0],
+  [ "syphilistransmission.hazard.p", 0]
   ],
             "info": [
   "These configuration parameters allow you to set the 'a' and 'b' in the hazard",

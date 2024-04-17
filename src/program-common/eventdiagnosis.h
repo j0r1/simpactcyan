@@ -45,7 +45,9 @@ private:
 	double calculateInternalTimeInterval(const State *pState, double t0, double dt);
 	double solveForRealTimeInterval(const State *pState, double Tdiff, double t0);
 	static double getTMax(const Person *pPerson);
-
+	
+	bool partnerWillingToTest(Person *pPerson, GslRandomNumberGenerator *pRndGen);
+	
 	bool m_scheduleImmediately;
 	bool m_seedingEvent;
 
@@ -60,9 +62,11 @@ private:
 	static double s_tMax;
 	static double s_HSV2factor; 
 
-	static bool   s_routineTestingEnabled;
-	static double s_routineTestingInterval;
-	static UniformDistribution s_uniformDistribution;
+	// static bool   s_routineTestingEnabled;
+	// static double s_routineTestingInterval;
+	// static UniformDistribution s_uniformDistribution;
+	static bool s_partnerNotificationEnabled;
+	
 };
 
 #endif // EVENTDIAGNOSIS_H

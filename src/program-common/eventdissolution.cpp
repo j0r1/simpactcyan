@@ -70,7 +70,7 @@ void EventDissolution::fire(Algorithm *pAlgorithm, State *pState, double t)
 	// Update PreP eligibility for both persons
 	bool schedulePrePOfferedEventP1 = pPerson1->hiv().updatePrePEligibility(t);
 	bool schedulePrePOfferedEventP2 = pPerson2->hiv().updatePrePEligibility(t);
-
+	
 	// Check if either person has become eligible for PreP
 	// FIXME this normally shouldn't be necessary here.
 	if (schedulePrePOfferedEventP1) {

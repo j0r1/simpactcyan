@@ -14,15 +14,18 @@
 
 using namespace std;
 
-Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_relations(this), m_hiv(this),
-m_chlamydia(this), m_hsv2(this), m_gonorrhea(this), m_syphilis(this), m_condom_use_threshold(0),
-m_health_seeking_propensity(0), m_sexual_role_preference(SexualRolePreference::Variable), m_treatAcceptanceThreshold(0)
+Person::Person(double dateOfBirth, Gender g) : PersonBase(g, dateOfBirth), m_relations(this), m_hiv(this), 
+m_chlamydia(this), m_hsv2(this), m_gonorrhea(this), m_syphilis(this), m_condom_use_threshold(0), m_pep_use_threshold(0),
+m_health_seeking_propensity(0), m_sexual_role_preference(SexualRolePreference::Variable), m_treatAcceptanceThreshold(0), m_testAcceptanceThreshold(0),
+m_routineTestAcceptanceThreshold(0)
 {
   assert(g == Male || g == Female);
+  // assert(m_pSelf);
   
   assert(m_pPopDist);
   assert(m_pHealthSeekingPropensityDist);
   assert(m_pCondomUseDist);
+  assert(m_pPEPUseDist);
   
   Point2D loc = m_pPopDist->pickPoint();
   assert(loc.x == loc.x && loc.y == loc.y); // check for NaN
@@ -36,10 +39,21 @@ m_health_seeking_propensity(0), m_sexual_role_preference(SexualRolePreference::V
   double trtacc = m_pTreatAcceptDist->pickNumber();
   assert(trtacc == trtacc); // check for NaN
   m_treatAcceptanceThreshold = trtacc;
+  assert(m_pTestAcceptDist);
+  double testacc = m_pTestAcceptDist->pickNumber();
+  assert(testacc == testacc);
+  m_testAcceptanceThreshold = testacc;
+  assert(m_pRoutineTestAcceptDist);
+  double rtestacc = m_pRoutineTestAcceptDist->pickNumber();
+  assert(rtestacc == rtestacc);
+  m_routineTestAcceptanceThreshold = rtestacc;
   
   double cup = m_pCondomUseDist->pickNumber();
   assert(cup == cup); // check for NaN
   m_condom_use_threshold = cup;
+  double pup = m_pPEPUseDist->pickNumber();
+  assert(pup == pup);
+  m_pep_use_threshold = pup;
   
   if(isMan()){
     int sexrole = round(m_pSexualRoleDist->pickNumber());
@@ -48,8 +62,8 @@ m_health_seeking_propensity(0), m_sexual_role_preference(SexualRolePreference::V
   
   m_pPersonImpl = new PersonImpl(*this);
   
-  m_STIdiagnoseCount = 0;
-  m_timeLastDiagnosis = -10;
+  m_STIdiagnosesMult = false;
+  m_timeLastDiagnosis = -1;
   
 }
 
@@ -64,29 +78,54 @@ double Person::m_popDistHeight = 0;
 
 ProbabilityDistribution *Person::m_pHealthSeekingPropensityDist = 0;
 ProbabilityDistribution *Person::m_pTreatAcceptDist = 0;
+ProbabilityDistribution *Person::m_pTestAcceptDist = 0;
+ProbabilityDistribution *Person::m_pRoutineTestAcceptDist = 0;
 
-
+ProbabilityDistribution *Person::m_pPEPUseDist = 0;
 ProbabilityDistribution *Person::m_pCondomUseDist = 0;
 double Person::m_concordanceCondomUseFactor = 1;
 double Person::m_artCondomUseFactor = 1;
 double Person::m_prepCondomUseFactor = 1;
 
+int Person::m_numPartnersPEPThreshold = 0;
+
 ProbabilityDistribution *Person::m_pSexualRoleDist = 0;
 
 void Person::increaseSTIDiagnoseCount(double tNow, double lastSTItime){
   
-  // if last STI more than one year ago
-  if(lastSTItime < (tNow - 1)){
-    m_STIdiagnoseCount = 1;
-    m_timeLastDiagnosis = tNow;
-  }else{
-    m_STIdiagnoseCount++;
-    // m_STIdiagnoseCount++;
-    m_timeLastDiagnosis = tNow;
+  // if last STI not more than one year ago
+  if(lastSTItime > (tNow - 1)){
+    m_STIdiagnosesMult = true;
   }
-    
+    m_timeLastDiagnosis = tNow;
 }
 
+bool Person::usesPEP(const Person *pPerson, GslRandomNumberGenerator *pRndGen) const
+{
+  double PepUseThreshold = m_pep_use_threshold;
+  
+  // check if eligible
+  bool eligible = false;
+  // TODO condom use as eligibility criterium? implemented in transmission hazard
+  if(pPerson->isMan() && ((pPerson->getNumberOfRelationships() >= m_numPartnersPEPThreshold) ||
+     (pPerson->multSTIDiagnoses() == true))){
+    eligible = true;
+  }
+  
+  // if eligible
+  if(eligible){
+    double rn = pRndGen->pickRandomDouble();
+    if(rn < PepUseThreshold)
+    {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    // if not eligible
+    return false;
+  }
+}
 
 bool Person::usesCondom(bool isPartnerDiagnosed, GslRandomNumberGenerator *pRndGen) const
 {
@@ -121,9 +160,14 @@ bool Person::usesCondom(bool isPartnerDiagnosed, GslRandomNumberGenerator *pRndG
   
 }
 
-bool Person::isInfectedWithSTI() const
+bool Person::isInfectedWithUlcerativeSTI() const
 {
-  return (m_chlamydia.isInfected() || m_gonorrhea.isInfected() || m_hsv2.isInfected() || m_syphilis.isInfected());
+  return (m_hsv2.isInfected() || m_syphilis.isInfected());
+}
+
+bool Person::isInfectedWithNonUlcerativeSTI() const
+{
+  return (m_chlamydia.isInfected() || m_gonorrhea.isInfected());
 }
 
 void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
@@ -138,6 +182,11 @@ void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRn
   delete m_pHealthSeekingPropensityDist;
   m_pHealthSeekingPropensityDist = getDistributionFromConfig(config, pRndGen, "person.healthseekingpropensity");
   
+  // PEP use
+  delete m_pPEPUseDist;
+  m_pPEPUseDist = getDistributionFromConfig(config, pRndGen, "person.pepuse");
+  config.getKeyValue("person.pepuse.numpartners", m_numPartnersPEPThreshold);
+  
   // Condom use probability distributions
   delete m_pCondomUseDist;
   m_pCondomUseDist = getDistributionFromConfig(config, pRndGen, "person.condomuse");
@@ -150,6 +199,14 @@ void Person::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRn
   delete m_pTreatAcceptDist;
   m_pTreatAcceptDist = getDistributionFromConfig(config, pRndGen, "person.sti.treat.accept.threshold");
   
+  // STI test acceptance
+  delete m_pTestAcceptDist;
+  m_pTestAcceptDist = getDistributionFromConfig(config, pRndGen, "person.sti.test.accept.threshold");
+  
+  // Routine test acceptance
+  delete m_pRoutineTestAcceptDist;
+  m_pRoutineTestAcceptDist = getDistributionFromConfig(config, pRndGen, "person.routine.test.accept.threshold");
+  
   // Sexual role preference distribution
   delete m_pSexualRoleDist;
   m_pSexualRoleDist = getDistributionFromConfig(config, pRndGen, "person.sexualrole");
@@ -161,6 +218,9 @@ void Person::obtainConfig(ConfigWriter &config)
   addDistribution2DToConfig(m_pPopDist, config, "person.geo");
   assert(m_pHealthSeekingPropensityDist);
   addDistributionToConfig(m_pHealthSeekingPropensityDist, config, "person.healthseekingpropensity");
+  assert(m_pPEPUseDist);
+  config.addKey("person.pepuse.numpartners", m_numPartnersPEPThreshold);
+  addDistributionToConfig(m_pPEPUseDist, config, "person.pepuse");
   assert(m_pCondomUseDist);
   addDistributionToConfig(m_pCondomUseDist, config, "person.condomuse");
   config.addKey("person.condomuse.concordancefactor", m_concordanceCondomUseFactor);
@@ -169,6 +229,10 @@ void Person::obtainConfig(ConfigWriter &config)
   addDistributionToConfig(m_pSexualRoleDist, config, "person.sexualrole");
   assert(m_pTreatAcceptDist);
   addDistributionToConfig(m_pTreatAcceptDist, config, "person.sti.treat.accept.threshold");
+  assert(m_pTestAcceptDist);
+  addDistributionToConfig(m_pTestAcceptDist, config, "person.sti.test.accept.threshold");
+  assert(m_pRoutineTestAcceptDist);
+  addDistributionToConfig(m_pRoutineTestAcceptDist, config, "person.routine.test.accept.threshold");
   
 }
 
@@ -198,7 +262,7 @@ void Person::writeToPersonLog()
   Person *pOrigin = (m_hiv.isInfected())? m_hiv.getInfectionOrigin() : 0;
   int origin = (pOrigin != 0) ? (int)pOrigin->getPersonID() : (-1); // TODO: cast should be ok
   
-  int STIdiagnoses = m_STIdiagnoseCount;
+  bool STIdiagnoses = m_STIdiagnosesMult;
   
   int infectionType = 0;
   switch(m_hiv.getInfectionType())
@@ -333,7 +397,7 @@ void Person::writeToGonorrheaLog()
   
   int gender = (isMan())?0:1;
   int SexualRole = getPreferredSexualRole();
-  int diagnosed = (m_gonorrhea.isDiagnosed())?1:0;
+  // int diagnosed = (m_gonorrhea.isDiagnosed())?1:0;
   
   // Infection time
   double infectionTime = (m_gonorrhea.isInfected())? m_gonorrhea.getInfectionTime() : infinity;
@@ -394,8 +458,8 @@ void Person::writeToGonorrheaLog()
   //   RelType = 1; // MSM
   // }
   
-  LogGonorrhea.print("%d,%d,%d,%d,%10.10f,%d,%d,%d,%d",
-                     id, OrigId, gender, SexualRole, infectionTime, infectionType, infectionSite, diseaseStage, diagnosed);
+  LogGonorrhea.print("%d,%d,%d,%d,%10.10f,%d,%d,%d",
+                     id, OrigId, gender, SexualRole, infectionTime, infectionType, infectionSite, diseaseStage);
 }
 
 void Person::writeToChlamydiaLog() 
@@ -407,7 +471,7 @@ void Person::writeToChlamydiaLog()
   
   int gender = (isMan())?0:1;
   int SexualRole = getPreferredSexualRole();
-  int diagnosed = (m_chlamydia.isDiagnosed())?1:0;
+  // int diagnosed = (m_chlamydia.isDiagnosed())?1:0;
   
   // Infection time
   double infectionTime = (m_chlamydia.isInfected())? m_chlamydia.getInfectionTime() : infinity;
@@ -468,8 +532,8 @@ void Person::writeToChlamydiaLog()
   //   RelType = 1; // MSM
   // }
   
-  LogChlamydia.print("%d,%d,%d,%d,%10.10f,%d,%d,%d,%d",
-                     id, OrigId, gender, SexualRole, infectionTime, infectionType, infectionSite, diseaseStage, diagnosed);
+  LogChlamydia.print("%d,%d,%d,%d,%10.10f,%d,%d,%d",
+                     id, OrigId, gender, SexualRole, infectionTime, infectionType, infectionSite, diseaseStage);
 }
 
 void Person::writeToSyphilisLog() 
@@ -481,7 +545,7 @@ void Person::writeToSyphilisLog()
   
   int gender = (isMan())?0:1;
   int SexualRole = getPreferredSexualRole();
-  int diagnosed = (m_syphilis.isDiagnosed())?1:0;
+  // int diagnosed = (m_syphilis.isDiagnosed())?1:0;
   
   // Infection time
   double infectionTime = (m_syphilis.isInfected())? m_syphilis.getInfectionTime() : infinity;
@@ -545,9 +609,87 @@ void Person::writeToSyphilisLog()
   //   RelType = 1; // MSM
   // }
   
-  LogSyphilis.print("%d,%d,%d,%d,%10.10f,%d,%d,%d,%d",
-                     id, OrigId, gender, SexualRole, infectionTime, infectionType, infectionSite, diseaseStage, diagnosed);
+  LogSyphilis.print("%d,%d,%d,%d,%10.10f,%d,%d,%d",
+                     id, OrigId, gender, SexualRole, infectionTime, infectionType, infectionSite, diseaseStage);
 }
+
+void Person::writeToHSV2Log() 
+{
+  double infinity = std::numeric_limits<double>::infinity();
+  double NaN = std::numeric_limits<double>::quiet_NaN();
+  
+  int id = (int)getPersonID(); // TODO: should fit in an 'int' (easier for output)
+  
+  int gender = (isMan())?0:1;
+  int SexualRole = getPreferredSexualRole();
+  // int diagnosed = (m_hsv2.isDiagnosed())?1:0;
+  
+  // Infection time
+  double infectionTime = (m_hsv2.isInfected())? m_hsv2.getInfectionTime() : infinity;
+  
+  int infectionType = 0;
+  switch(m_hsv2.getInfectionType())
+  {
+  case Person_HSV2::None:
+    infectionType = -1;
+    break;
+  case Person_HSV2::Seed:
+    infectionType = 0;
+    break;
+  case Person_HSV2::Partner:
+    infectionType = 1;
+    break;
+  default: // Unknown, but don't abort the program at this point
+    infectionType = 10000 + (int)m_hsv2.getInfectionType();
+  }
+  
+  int infectionSite = 0;
+  switch(m_hsv2.getInfectionSite())
+  {
+  case Person_HSV2::Vaginal:
+    infectionSite = 0;
+    break;
+  case Person_HSV2::Rectal:
+    infectionSite = 1;
+    break;
+  case Person_HSV2::Urethral:
+    infectionSite = 2;
+    break;
+  default: // Unknown, but don't abort the program at this point
+    infectionSite = 10000 + (int)m_hsv2.getInfectionSite();
+  }
+  
+  int diseaseStage = 0;
+  switch(m_hsv2.getDiseaseStage())
+  {
+  case Person_HSV2::Susceptible:
+    diseaseStage = 0;
+    break;
+  case Person_HSV2::Primary:
+    diseaseStage = 1;
+    break;
+  case Person_HSV2::Asymptomatic:
+    diseaseStage = 2;
+    break;
+  case Person_HSV2::Recurrent:
+    diseaseStage = 3;
+    break;
+  default:
+    diseaseStage = 1000 + (int)m_hsv2.getDiseaseStage();
+  }
+  
+  Person *pNGOrigin = (m_hsv2.isInfected()) ? m_hsv2.getInfectionOrigin() : 0;
+  int OrigId = (pNGOrigin != 0) ? (int)pNGOrigin->getPersonID() : (-1); // TODO: cast should be ok
+  // type of relationship
+  // int RelType = 0; // heterosexual
+  // if(pNGOrigin->isMan() && isMan()){
+  //   RelType = 1; // MSM
+  // }
+  
+  LogHSV2.print("%d,%d,%d,%d,%10.10f,%d,%d,%d",
+                    id, OrigId, gender, SexualRole, infectionTime, infectionType, infectionSite, diseaseStage);
+}
+
 
 void Person::writeToLocationLog(double tNow)
 {

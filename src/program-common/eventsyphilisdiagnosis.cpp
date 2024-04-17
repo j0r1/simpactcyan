@@ -1,6 +1,7 @@
 #include "eventsyphilisdiagnosis.h"
 #include "eventsyphilisprogression.h"
 #include "eventsyphilistransmission.h"
+#include "eventprepoffered.h"
 #include "person_syphilis.h"
 #include "configsettings.h"
 #include "configwriter.h"
@@ -70,6 +71,19 @@ bool EventSyphilisDiagnosis::isWillingToTreatSTI(double t, GslRandomNumberGenera
   return false;  
 }
 
+bool EventSyphilisDiagnosis::partnerWillingToTest(Person *pPerson, GslRandomNumberGenerator *pRndGen)
+{
+  // Person *pPerson = getPerson(0);
+  
+  // Coin toss
+  double x = pRndGen->pickRandomDouble();
+  if (x < pPerson->getTestAcceptanceThreshold())
+    return true;
+  
+  return false;
+}
+
+
 void EventSyphilisDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
   SimpactPopulation &population = SIMPACTPOPULATION(pState);
@@ -82,6 +96,15 @@ void EventSyphilisDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t
   pPerson->syphilis().diagnose(t);
   double tLast = pPerson->getTimeLastSTI();
   pPerson->increaseSTIDiagnoseCount(t, tLast);
+  
+  // Update PrEP eligibility
+  bool schedulePrePOfferedEvent = pPerson->hiv().updatePrePEligibility(t);
+  // Check if  person has become eligible for PreP
+  if (schedulePrePOfferedEvent) {
+    // Schedule PreP being offered to this person
+    EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson, true);
+    population.onNewEvent(pEvtPreP);
+  }
   
   // If accepting treatment --> immediate recovery
   if(isWillingToTreatSTI(t, pRndGen))
@@ -109,13 +132,37 @@ void EventSyphilisDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t
     }
   }
   
+  // Partner notification
+  if(s_partnerNotificationEnabled){
+    // Check relationships diagnosed person is in, and if partner is also infected, schedule diagnosis event if willing to get tested
+    int numRelations = pPerson->getNumberOfRelationships();
+    pPerson->startRelationshipIteration();
+    
+    for (int i = 0; i < numRelations; i++)
+    {
+      double formationTime = -1;
+      Person *pPartner = pPerson->getNextRelationshipPartner(formationTime);
+      
+      if (pPartner->syphilis().isInfected() && !pPartner->syphilis().isDiagnosed())
+      {
+        if(partnerWillingToTest(pPartner, pRndGen)){
+          
+          EventSyphilisDiagnosis *pEvtDiagP = new EventSyphilisDiagnosis(pPartner, true);
+          population.onNewEvent(pEvtDiagP);
+          
+        }
+        
+      }
+    }
+  }
+  
 }
 
 bool EventSyphilisDiagnosis::isUseless(const PopulationStateInterface&population)
 {
-  // Event becomes useless if death (ie no longer infected) occurs before scheduled diagnosis
+  // Event becomes useless if death (ie no longer infected) occurs before scheduled diagnosis or if already diagnosed
   Person *pPerson1 = getPerson(0);
-  if(!pPerson1->syphilis().isInfected()){
+  if(!pPerson1->syphilis().isInfected() || pPerson1->syphilis().isDiagnosed()){
     return true;
   }
   
@@ -138,7 +185,11 @@ double EventSyphilisDiagnosis::calculateInternalTimeInterval(const State *pState
   HazardFunctionSyphilisDiagnosis h0(pPerson, s_baseline, s_diagPartnersFactor, s_healthSeekingPropensityFactor, s_beta);
   TimeLimitedHazardFunction h(h0, tMax);
   
-  return h.calculateInternalTimeInterval(t0, dt);
+  double internalTimeInterval = h.calculateInternalTimeInterval(t0, dt);
+
+  return internalTimeInterval;
+  
+  // return h.calculateInternalTimeInterval(t0, dt);
 }
 
 double EventSyphilisDiagnosis::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
@@ -156,7 +207,11 @@ double EventSyphilisDiagnosis::solveForRealTimeInterval(const State *pState, dou
   HazardFunctionSyphilisDiagnosis h0(pPerson, s_baseline, s_diagPartnersFactor, s_healthSeekingPropensityFactor, s_beta);
   TimeLimitedHazardFunction h(h0, tMax);
   
-  return h.solveForRealTimeInterval(t0, Tdiff);
+  double realTimeInterval = h.solveForRealTimeInterval(t0, Tdiff);
+
+  return realTimeInterval;
+  
+  // return h.solveForRealTimeInterval(t0, Tdiff);
 }
 
 double EventSyphilisDiagnosis::getTMax(const Person *pPerson)
@@ -194,6 +249,9 @@ double EventSyphilisDiagnosis::s_diagPartnersFactor = 0;
 double EventSyphilisDiagnosis::s_healthSeekingPropensityFactor = 0;
 double EventSyphilisDiagnosis::s_tMax = 0;
 
+bool EventSyphilisDiagnosis::s_partnerNotificationEnabled = false;
+
+
 void EventSyphilisDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
   bool_t r;
@@ -202,9 +260,11 @@ void EventSyphilisDiagnosis::processConfig(ConfigSettings &config, GslRandomNumb
       !(r = config.getKeyValue("syphilis.diagnosis.diagpartnersfactor", s_diagPartnersFactor)) ||
       !(r = config.getKeyValue("syphilis.diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
       !(r = config.getKeyValue("syphilis.diagnosis.beta", s_beta)) ||
-      !(r = config.getKeyValue("syphilis.diagnosis.t_max", s_tMax))
+      !(r = config.getKeyValue("syphilis.diagnosis.t_max", s_tMax)) ||
+      !(r = config.getKeyValue("syphilis.diagnosis.partnernotification.enabled", s_partnerNotificationEnabled))
   )
     abortWithMessage(r.getErrorString());
+  
 }
 
 void EventSyphilisDiagnosis::obtainConfig(ConfigWriter &config)
@@ -215,7 +275,8 @@ void EventSyphilisDiagnosis::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("syphilis.diagnosis.diagpartnersfactor", s_diagPartnersFactor)) ||
       !(r = config.addKey("syphilis.diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
       !(r = config.addKey("syphilis.diagnosis.beta", s_beta)) ||
-      !(r = config.addKey("syphilis.diagnosis.t_max", s_tMax)) 
+      !(r = config.addKey("syphilis.diagnosis.t_max", s_tMax)) ||
+      !(r = config.addKey("syphilis.diagnosis.partnernotification.enabled", s_partnerNotificationEnabled))
   )
     abortWithMessage(r.getErrorString());
 }
@@ -256,7 +317,8 @@ JSONConfig syphilisDiagnosisJSONConfig(R"JSON(
   ["syphilis.diagnosis.diagpartnersfactor", 0 ],
   ["syphilis.diagnosis.beta", 0],
   ["syphilis.diagnosis.healthseekingpropensityfactor", 0],
-  ["syphilis.diagnosis.t_max", 200]
+  ["syphilis.diagnosis.t_max", 200],
+  ["syphilis.diagnosis.partnernotification.enabled", "no"]
   ],
             "info": [
   "TO DO"

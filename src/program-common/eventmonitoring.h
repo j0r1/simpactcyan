@@ -27,7 +27,8 @@ private:
 
 	bool m_scheduleImmediately;
 
-	static double s_treatmentVLLogFrac;
+	// static double s_treatmentVLLogFrac;
+	static ProbabilityDistribution *s_treatmentVLLogFrac;
 	static double s_cd4Threshold;
 	static PieceWiseLinearFunction *s_pRecheckInterval;
 };

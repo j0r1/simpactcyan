@@ -116,6 +116,7 @@ void Person_Syphilis::progress(double t, bool treatInd)
     m_pInfectionOrigin = 0;
     m_infectionType = None;
     m_infectionSite = Vaginal;
+    m_diagnosed = false;
     
     writeToSyphilisStageLog(t, "Treatment");
     

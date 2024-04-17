@@ -221,6 +221,8 @@ double EventHIVTransmission::s_d1 = 0;
 double EventHIVTransmission::s_d2 = 0;
 double EventHIVTransmission::s_e1 = 0; 
 double EventHIVTransmission::s_e2 = 0; 
+double EventHIVTransmission::s_e3 = 0; 
+double EventHIVTransmission::s_e4 = 0; 
 double EventHIVTransmission::s_f1 = 0;
 double EventHIVTransmission::s_f2 = 0;
 double EventHIVTransmission::s_g1 = 0;
@@ -246,11 +248,25 @@ double EventHIVTransmission::solveForRealTimeInterval(const State *pState, doubl
   return Tdiff/h;
 }
 
-int EventHIVTransmission::getH(const Person *pPerson)
+// infection with ulcerative STI
+int EventHIVTransmission::getH1(const Person *pPerson)
 {
   assert(pPerson != 0);
   
-  bool H1 = pPerson->isInfectedWithSTI();
+  bool H1 = pPerson->isInfectedWithUlcerativeSTI();
+
+  int H = 0;
+  if (H1 == true)
+    H = 1;
+  return H;
+} 
+
+// infection with non-ulcerative STI
+int EventHIVTransmission::getH2(const Person *pPerson)
+{
+  assert(pPerson != 0);
+  
+  bool H1 = pPerson->isInfectedWithNonUlcerativeSTI();
   
   int H = 0;
   if (H1 == true)
@@ -296,6 +312,7 @@ double EventHIVTransmission::calculateHazardFactor(const SimpactPopulation &popu
 	
 	int PrePj = pPerson2->hiv().isOnPreP();
 
+	// deterimine whether condom is used or not
 	bool CondomUse = (pPerson1->usesCondom(pPerson2->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
 			(pPerson2->usesCondom(pPerson1->hiv().isDiagnosed(), population.getRandomNumberGenerator()));
 
@@ -304,7 +321,7 @@ double EventHIVTransmission::calculateHazardFactor(const SimpactPopulation &popu
 	assert(s_c != 0);
 
 	double logh = s_a + s_b * std::pow(V,-s_c) + s_d1*Pi + s_d2*Pj
-			+ s_e1*getH(pPerson1) + s_e2*getH(pPerson2)
+			+ s_e1*getH1(pPerson1) + s_e2*getH1(pPerson2) + s_e3*getH2(pPerson1) + s_e4*getH2(pPerson2)
 	+ s_g1*pPerson2->hiv().getHazardB0Parameter() + s_g2*pPerson2->hiv().getHazardB1Parameter()
 	+ s_h*CondomUse + s_i*PrePj + s_r*getR(pPerson2, pPerson1);
 
@@ -338,6 +355,8 @@ void EventHIVTransmission::processConfig(ConfigSettings &config, GslRandomNumber
 	    !(r = config.getKeyValue("hivtransmission.param.d2", s_d2)) ||
 	    !(r = config.getKeyValue("hivtransmission.param.e1", s_e1)) || 
 	    !(r = config.getKeyValue("hivtransmission.param.e2", s_e2)) || 
+	    !(r = config.getKeyValue("hivtransmission.param.e3", s_e3)) || 
+	    !(r = config.getKeyValue("hivtransmission.param.e4", s_e4)) || 
 	    !(r = config.getKeyValue("hivtransmission.param.f1", s_f1)) ||
 	    !(r = config.getKeyValue("hivtransmission.param.f2", s_f2)) ||
 	    !(r = config.getKeyValue("hivtransmission.param.g1", s_g1)) ||
@@ -362,6 +381,8 @@ void EventHIVTransmission::obtainConfig(ConfigWriter &config)
 	    !(r = config.addKey("hivtransmission.param.d2", s_d2)) ||
 		!(r = config.addKey("hivtransmission.param.e1", s_e1)) || 
 	    !(r = config.addKey("hivtransmission.param.e2", s_e2)) || 
+	    !(r = config.addKey("hivtransmission.param.e3", s_e3)) || 
+	    !(r = config.addKey("hivtransmission.param.e4", s_e4)) || 
 		!(r = config.addKey("hivtransmission.param.f1", s_f1)) ||
 		!(r = config.addKey("hivtransmission.param.f2", s_f2)) ||
 		!(r = config.addKey("hivtransmission.param.g1", s_g1)) ||
@@ -390,7 +411,9 @@ JSONConfig hivTransmissionJSONConfig(R"JSON(
                 ["hivtransmission.param.d2", 0], 
 		     ["hivtransmission.param.e1", 0],
              	["hivtransmission.param.e2", 0],
-                ["hivtransmission.param.f1", 0], 
+              ["hivtransmission.param.e3", 0],
+              ["hivtransmission.param.e4", 0],
+              ["hivtransmission.param.f1", 0], 
                 ["hivtransmission.param.f2", 0],
 			["hivtransmission.param.g1", 0],
 			["hivtransmission.param.g2", 0],

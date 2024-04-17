@@ -28,6 +28,8 @@ private:
 	static ProbabilityDistribution *s_pInfectionDurationDistributionRectal;
 	static ProbabilityDistribution *s_pInfectionDurationDistributionUrethral;
 	static ProbabilityDistribution *s_pInfectionDurationDistributionVaginal; 
+	
+	static ProbabilityDistribution *s_pTimeToSymptoms;
 };
 
 #endif // EVENTGONORRHEAPROGRESSION_H

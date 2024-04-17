@@ -16,6 +16,8 @@ public:
 	void writeLogs(const SimpactPopulation &pop, double tNow) const;
 
 	void fire(Algorithm *pAlgorithm, State *pState, double t);
+	
+	bool isWillingToRoutineTest(GslRandomNumberGenerator *pRndGen);
 
 	static double getDebutAge()								{ return m_debutAge; }
 	static void processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen);
@@ -24,6 +26,7 @@ private:
 	double getNewInternalTimeDifference(GslRandomNumberGenerator *pRndGen, const State *pState);
 
 	static double m_debutAge;
+	static bool m_routineTestingEnabled;
 };
 
 #endif // EVENTDEBUT_H

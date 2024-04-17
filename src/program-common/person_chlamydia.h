@@ -17,7 +17,7 @@ class Person_Chlamydia : public Person_STI
 public:
 	enum ChlamydiaDiseaseStage {
 		Susceptible,
-		// Exposed,
+		Exposed,
 		Asymptomatic,
 		Symptomatic
 		// Immune

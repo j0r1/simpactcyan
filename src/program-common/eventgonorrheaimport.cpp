@@ -1,5 +1,4 @@
 #include "eventgonorrheaimport.h"
-#include "eventchronicstage.h"
 #include "eventgonorrheadiagnosis.h"
 #include "eventgonorrheatransmission.h"
 #include "gslrandomnumbergenerator.h"
@@ -90,15 +89,15 @@ void EventGonorrheaImport::fire(Algorithm *pAlgorithm, State *pState, double t)
     imported.push_back(pPerson);
   }
   
-  // Schedule diagnosis event
-  for (int i = 0 ; i < imported.size() ; i++)
-  {
-    Person *pPerson = imported[i];
-    
-    EventGonorrheaDiagnosis *pEvtDiag = new EventGonorrheaDiagnosis(pPerson);
-    population.onNewEvent(pEvtDiag);
-
-  }
+  // Schedule diagnosis event if symptomatic --> already done in infectPerson 
+  // for (int i = 0 ; i < imported.size() ; i++)
+  // {
+  //   Person *pPerson = imported[i];
+  //   
+  //   EventGonorrheaDiagnosis *pEvtDiag = new EventGonorrheaDiagnosis(pPerson);
+  //   population.onNewEvent(pEvtDiag);
+  // 
+  // }
   
   // Schedule next importation event
   EventGonorrheaImport *pEvtImport = new EventGonorrheaImport();

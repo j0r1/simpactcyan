@@ -1,5 +1,5 @@
-#ifndef EVENTGONORRHEADIAGNOSIS_H
-#define EVENTGONORRHEADIAGNOSIS_H
+#ifndef EVENTHSV2DIAGNOSIS_H
+#define EVENTHSV2DIAGNOSIS_H
 
 #include "simpactevent.h"
 #include "hazardfunctionexp.h"
@@ -8,10 +8,10 @@ class ConfigSettings;
 class ConfigWriter;
 class ProbabilityDistribution;
 
-class HazardFunctionGonorrheaDiagnosis : public HazardFunctionExp
+class HazardFunctionHSV2Diagnosis : public HazardFunctionExp
 {
 public:
-  HazardFunctionGonorrheaDiagnosis(Person *pPerson, double baseline, double diagPartnersFactor, double healthSeekingPropensityFactor, double beta);
+  HazardFunctionHSV2Diagnosis(Person *pPerson, double baseline, double diagPartnersFactor, double healthSeekingPropensityFactor, double beta);
   
   double evaluate(double t);
   
@@ -21,11 +21,11 @@ private:
   const double m_beta;
 };
 
-class EventGonorrheaDiagnosis : public SimpactEvent
+class EventHSV2Diagnosis : public SimpactEvent
 {
 public:
-  EventGonorrheaDiagnosis(Person *pPerson, bool scheduleImmediately = false);
-  ~EventGonorrheaDiagnosis();
+  EventHSV2Diagnosis(Person *pPerson, bool scheduleImmediately = false);
+  ~EventHSV2Diagnosis();
   
   std::string getDescription(double tNow) const;
   void writeLogs(const SimpactPopulation &pop, double tNow) const;
@@ -58,6 +58,7 @@ private:
   
   static bool s_partnerNotificationEnabled;
   
+  
 };
 
-#endif // EVENTGONORRHEADIAGNOSIS_H
+#endif // EVENTHSV2DIAGNOSIS_H

@@ -1,5 +1,6 @@
 #include "eventgonorrheaprogression.h"
 #include "eventgonorrheatransmission.h"
+#include "eventgonorrheadiagnosis.h"
 #include "configsettings.h"
 #include "configwriter.h"
 #include "configdistributionhelper.h"
@@ -15,13 +16,13 @@ EventGonorrheaProgression::~EventGonorrheaProgression() {}
 
 string EventGonorrheaProgression::getDescription(double tNow) const
 {
-	return strprintf("Gonorrhea progression (recovery) event for %s", getPerson(0)->getName().c_str());
+	return strprintf("Gonorrhea progression event for %s", getPerson(0)->getName().c_str());
 }
 
 void EventGonorrheaProgression::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
 	Person *pPerson = getPerson(0);
-	writeEventLogStart(true, "gonorrhea natural clearance", tNow, pPerson, 0);
+	writeEventLogStart(true, "gonorrhea progression", tNow, pPerson, 0);
 }
 
 void EventGonorrheaProgression::fire(Algorithm *pAlgorithm, State *pState, double t)
@@ -32,8 +33,22 @@ void EventGonorrheaProgression::fire(Algorithm *pAlgorithm, State *pState, doubl
 	pPerson->gonorrhea().progress(t, false); // 0 = natural clearance
 	pPerson->writeToGonorrheaTreatLog();
 	
-	// Schedule new transmission event from infectious partners if person becomes susceptible again
+	// Schedule new progression event if necessary.
+	// I.e. schedule recovery event if person just progressed to symptomatic or asymptomatic
 	Person_Gonorrhea::GonorrheaDiseaseStage diseaseStage = pPerson->gonorrhea().getDiseaseStage();
+	if (diseaseStage == Person_Gonorrhea::Symptomatic || diseaseStage == Person_Gonorrhea::Asymptomatic)// || diseaseStage == Person_Chlamydia::Immune)
+	{
+	  EventGonorrheaProgression *pEvtProgression = new EventGonorrheaProgression(pPerson);
+	  population.onNewEvent(pEvtProgression);
+	  
+	  // also schedule diagnosis for symptomatic persons
+	  if(diseaseStage == Person_Gonorrhea::Symptomatic){
+	    EventGonorrheaDiagnosis *pEvtDiag = new EventGonorrheaDiagnosis(pPerson, false);
+	    population.onNewEvent(pEvtDiag);
+	  }
+	}
+	
+	// Schedule new transmission event from infectious partners if person becomes susceptible again
 	if (diseaseStage == Person_Gonorrhea::Susceptible) {
 	  int numRelations = pPerson->getNumberOfRelationships();
 	  pPerson->startRelationshipIteration();
@@ -78,6 +93,10 @@ void EventGonorrheaProgression::processConfig(ConfigSettings &config, GslRandomN
 	// vaginal
 	delete s_pInfectionDurationDistributionVaginal;
 	s_pInfectionDurationDistributionVaginal = getDistributionFromConfig(config, pRndGen, "gonorrheaprogression.infectionduration.vaginal");
+	
+	// time to sypmtoms
+	delete s_pTimeToSymptoms;
+	s_pTimeToSymptoms = getDistributionFromConfig(config, pRndGen, "gonorrheaprogression.timetosymptoms");
 
 }
 
@@ -91,6 +110,9 @@ void EventGonorrheaProgression::obtainConfig(ConfigWriter &config)
 	
 	assert(s_pInfectionDurationDistributionVaginal);
 	addDistributionToConfig(s_pInfectionDurationDistributionVaginal, config, "gonorrheaprogression.infectionduration.vaginal");
+	
+	assert(s_pTimeToSymptoms);
+	addDistributionToConfig(s_pTimeToSymptoms, config, "gonorrheaprogression.timetosymptoms");
 
 }
 
@@ -105,29 +127,25 @@ double EventGonorrheaProgression::getNewInternalTimeDifference(GslRandomNumberGe
 	assert(pPerson->gonorrhea().isInfected());
 
 	Person_Gonorrhea::InfectionSite infectionSite = pPerson->gonorrhea().getInfectionSite();
+	Person_Gonorrhea::GonorrheaDiseaseStage diseaseStage = pPerson->gonorrhea().getDiseaseStage();
+	
 	double dt = 0;
 
-	if (infectionSite == Person_Gonorrhea::Rectal) {
-		dt = s_pInfectionDurationDistributionRectal->pickNumber();
+	if (diseaseStage == Person_Gonorrhea::Symptomatic || diseaseStage == Person_Gonorrhea::Asymptomatic){
+	  if (infectionSite == Person_Gonorrhea::Rectal) {
+	    dt = s_pInfectionDurationDistributionRectal->pickNumber();
+	  }
+	  else if (infectionSite == Person_Gonorrhea::Urethral) {
+	    dt = s_pInfectionDurationDistributionUrethral->pickNumber();
+	  }
+	  else if (infectionSite == Person_Gonorrhea::Vaginal) {
+	    dt = s_pInfectionDurationDistributionVaginal->pickNumber();
+	  }
+	}else if (diseaseStage == Person_Gonorrhea::Exposed){
+	  dt = s_pTimeToSymptoms->pickNumber();
 	}
-	else if (infectionSite == Person_Gonorrhea::Urethral) {
-	  dt = s_pInfectionDurationDistributionUrethral->pickNumber();
-	}
-	else if (infectionSite == Person_Gonorrhea::Vaginal) {
-	  dt = s_pInfectionDurationDistributionVaginal->pickNumber();
-	}
-	// if (infectionSite == Person_Gonorrhea::Rectal){
-	//   double tEvt = pPerson->gonorrhea().getInfectionTime() + s_pInfectionDurationDistributionRectal->pickNumber();
-	//   double dt = tEvt - population.getTime();
-	// }
-	// else if (infectionSite == Person_Gonorrhea::Urethral){
-	//   double tEvt = pPerson->gonorrhea().getInfectionTime() + s_pInfectionDurationDistributionUrethral->pickNumber();
-	//   double dt = tEvt - population.getTime();
-	// }
-	// else if (infectionSite == Person_Gonorrhea::Vaginal){
-	//   double tEvt = pPerson->gonorrhea().getInfectionTime() + s_pInfectionDurationDistributionVaginal->pickNumber();
-	//   double dt = tEvt - population.getTime();
-	// }
+
+
 	
 	assert(dt >= 0); // should not be in the past!
 	
@@ -139,6 +157,7 @@ double EventGonorrheaProgression::getNewInternalTimeDifference(GslRandomNumberGe
 ProbabilityDistribution *EventGonorrheaProgression::s_pInfectionDurationDistributionRectal = 0;
 ProbabilityDistribution *EventGonorrheaProgression::s_pInfectionDurationDistributionUrethral = 0;
 ProbabilityDistribution *EventGonorrheaProgression::s_pInfectionDurationDistributionVaginal = 0;
+ProbabilityDistribution *EventGonorrheaProgression::s_pTimeToSymptoms = 0;
 
 
 ConfigFunctions gonorrheaProgressionConfigFunctions(EventGonorrheaProgression::processConfig, EventGonorrheaProgression::obtainConfig, "EventGonorrheaProgression");
@@ -149,7 +168,8 @@ JSONConfig gonorrheaProgressionJSONConfig(R"JSON(
             "params": [
                 [ "gonorrheaprogression.infectionduration.rectal.dist", "distTypes", [ "fixed", [ [ "value", 0.7 ] ] ] ],
                 [ "gonorrheaprogression.infectionduration.urethral.dist", "distTypes", [ "fixed", [ [ "value", 0.4 ] ] ] ],
-                [ "gonorrheaprogression.infectionduration.vaginal.dist", "distTypes", [ "fixed", [ [ "value", 0.5 ] ] ] ]
+                [ "gonorrheaprogression.infectionduration.vaginal.dist", "distTypes", [ "fixed", [ [ "value", 0.5 ] ] ] ],
+                [ "gonorrheaprogression.timetosymptoms.dist", "distTypes", [ "fixed", [ [ "value", 0.002 ] ] ] ]
               ],
             "info": [
                 "TODO"

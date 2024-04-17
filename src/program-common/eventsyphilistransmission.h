@@ -57,6 +57,7 @@ protected:
 	static double s_g; // increase if partner is in primary stage
 	static double s_h; // condom use
 	static double s_w; // female susceptible
+	static double s_p; // doxyPEP use
 };
 
 #endif // EVENTSYPHILISTRANSMISSION_H

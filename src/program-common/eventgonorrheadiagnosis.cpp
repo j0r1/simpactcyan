@@ -1,6 +1,7 @@
 #include "eventgonorrheadiagnosis.h"
 #include "eventgonorrheaprogression.h"
 #include "eventgonorrheatransmission.h"
+#include "eventprepoffered.h"
 #include "person_gonorrhea.h"
 #include "configsettings.h"
 #include "configwriter.h"
@@ -70,6 +71,19 @@ bool EventGonorrheaDiagnosis::isWillingToTreatSTI(double t, GslRandomNumberGener
   return false;  
 }
 
+bool EventGonorrheaDiagnosis::partnerWillingToTest(Person *pPerson, GslRandomNumberGenerator *pRndGen)
+{
+  // Person *pPerson = getPerson(0);
+  
+  // Coin toss
+  double x = pRndGen->pickRandomDouble();
+  if (x < pPerson->getTestAcceptanceThreshold())
+    return true;
+  
+  return false;
+}
+
+
 void EventGonorrheaDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
   SimpactPopulation &population = SIMPACTPOPULATION(pState);
@@ -82,9 +96,18 @@ void EventGonorrheaDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double 
   pPerson->gonorrhea().diagnose(t);
   double tLast = pPerson->getTimeLastSTI();
   pPerson->increaseSTIDiagnoseCount(t, tLast);
+  
+  // Update PrEP eligibility
+  bool schedulePrePOfferedEvent = pPerson->hiv().updatePrePEligibility(t);
+  // Check if  person has become eligible for PreP
+  if (schedulePrePOfferedEvent) {
+    // Schedule PreP being offered to this person
+    EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson, true);
+    population.onNewEvent(pEvtPreP);
+  }
 
-  // If accepting treatment or on PrEP --> immediate recovery
-  if(isWillingToTreatSTI(t, pRndGen) || pPerson->hiv().isOnPreP())
+  // If accepting treatment --> immediate recovery
+  if(isWillingToTreatSTI(t, pRndGen))
   {
     pPerson->gonorrhea().progress(t, true);
     pPerson->writeToGonorrheaTreatLog();
@@ -110,13 +133,37 @@ void EventGonorrheaDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double 
     
   }
   
+  // Partner notification
+  if(s_partnerNotificationEnabled){
+    // Check relationships diagnosed person is in, and if partner is also infected, schedule diagnosis event if willing to get tested
+    int numRelations = pPerson->getNumberOfRelationships();
+    pPerson->startRelationshipIteration();
+    
+    for (int i = 0; i < numRelations; i++)
+    {
+      double formationTime = -1;
+      Person *pPartner = pPerson->getNextRelationshipPartner(formationTime);
+      
+      if (pPartner->gonorrhea().isInfected() && !pPartner->gonorrhea().isDiagnosed())
+      {
+        if(partnerWillingToTest(pPartner, pRndGen)){
+          
+          EventGonorrheaDiagnosis *pEvtDiagP = new EventGonorrheaDiagnosis(pPartner, true);
+          population.onNewEvent(pEvtDiagP);
+          
+        }
+        
+      }
+    }
+  }
+  
 }
 
 bool EventGonorrheaDiagnosis::isUseless(const PopulationStateInterface&population)
 {
-  // Event becomes useless if natural clearance occurs before scheduled diagnosis
+  // Event becomes useless if natural clearance occurs before scheduled diagnosis or if already diagnosed
   Person *pPerson1 = getPerson(0);
-  if(!pPerson1->gonorrhea().isInfected()){
+  if(!pPerson1->gonorrhea().isInfected() || pPerson1->gonorrhea().isDiagnosed()){
     return true;
   }
   
@@ -139,7 +186,11 @@ double EventGonorrheaDiagnosis::calculateInternalTimeInterval(const State *pStat
   HazardFunctionGonorrheaDiagnosis h0(pPerson, s_baseline, s_diagPartnersFactor, s_healthSeekingPropensityFactor, s_beta);
   TimeLimitedHazardFunction h(h0, tMax);
   
-  return h.calculateInternalTimeInterval(t0, dt);
+  double internalTimeInterval = h.calculateInternalTimeInterval(t0, dt);
+
+  return internalTimeInterval;
+  
+  // return h.calculateInternalTimeInterval(t0, dt);
 }
 
 double EventGonorrheaDiagnosis::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
@@ -157,7 +208,10 @@ double EventGonorrheaDiagnosis::solveForRealTimeInterval(const State *pState, do
   HazardFunctionGonorrheaDiagnosis h0(pPerson, s_baseline, s_diagPartnersFactor, s_healthSeekingPropensityFactor, s_beta);
   TimeLimitedHazardFunction h(h0, tMax);
   
-  return h.solveForRealTimeInterval(t0, Tdiff);
+  double realTimeInterval = h.solveForRealTimeInterval(t0, Tdiff);
+ 
+  return realTimeInterval;
+  // return h.solveForRealTimeInterval(t0, Tdiff);
 }
 
 double EventGonorrheaDiagnosis::getTMax(const Person *pPerson)
@@ -195,6 +249,9 @@ double EventGonorrheaDiagnosis::s_healthSeekingPropensityFactor = 0;
 double EventGonorrheaDiagnosis::s_beta = 0;
 double EventGonorrheaDiagnosis::s_tMax = 0;
 
+bool EventGonorrheaDiagnosis::s_partnerNotificationEnabled = false;
+
+
 void EventGonorrheaDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
   bool_t r;
@@ -203,9 +260,11 @@ void EventGonorrheaDiagnosis::processConfig(ConfigSettings &config, GslRandomNum
       !(r = config.getKeyValue("gonorrhea.diagnosis.diagpartnersfactor", s_diagPartnersFactor)) ||
       !(r = config.getKeyValue("gonorrhea.diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
       !(r = config.getKeyValue("gonorrhea.diagnosis.beta", s_beta)) ||
-      !(r = config.getKeyValue("gonorrhea.diagnosis.t_max", s_tMax))
+      !(r = config.getKeyValue("gonorrhea.diagnosis.t_max", s_tMax)) ||
+      !(r = config.getKeyValue("gonorrhea.diagnosis.partnernotification.enabled", s_partnerNotificationEnabled))
   )
     abortWithMessage(r.getErrorString());
+  
 }
 
 void EventGonorrheaDiagnosis::obtainConfig(ConfigWriter &config)
@@ -216,7 +275,8 @@ void EventGonorrheaDiagnosis::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("gonorrhea.diagnosis.diagpartnersfactor", s_diagPartnersFactor)) ||
       !(r = config.addKey("gonorrhea.diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
       !(r = config.addKey("gonorrhea.diagnosis.beta", s_beta)) ||
-      !(r = config.addKey("gonorrhea.diagnosis.t_max", s_tMax)) 
+      !(r = config.addKey("gonorrhea.diagnosis.t_max", s_tMax)) ||
+      !(r = config.addKey("gonorrhea.diagnosis.partnernotification.enabled", s_partnerNotificationEnabled))
   )
     abortWithMessage(r.getErrorString());
 }
@@ -257,7 +317,8 @@ JSONConfig gonorrheaDiagnosisJSONConfig(R"JSON(
       ["gonorrhea.diagnosis.diagpartnersfactor", 0 ],
       ["gonorrhea.diagnosis.beta", 0],
       ["gonorrhea.diagnosis.healthseekingpropensityfactor", 0],
-      ["gonorrhea.diagnosis.t_max", 200]
+      ["gonorrhea.diagnosis.t_max", 200],
+      ["gonorrhea.diagnosis.partnernotification.enabled", "no"]
     ],
               "info": [
                 "TO DO"

@@ -1,4 +1,6 @@
 #include "eventhsv2transmission.h"
+#include "eventhsv2progression.h"
+#include "eventhsv2diagnosis.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
 #include "gslrandomnumbergenerator.h"
@@ -130,6 +132,7 @@ void EventHSV2Transmission::infectPerson(SimpactPopulation &population, Person *
     }
   }
   
+  pTarget->writeToHSV2Log();
   
   // Check relationships pTarget is in, and if the partner is not yet infected, schedule
   // a transmission event.
@@ -147,6 +150,18 @@ void EventHSV2Transmission::infectPerson(SimpactPopulation &population, Person *
       population.onNewEvent(pEvtTrans);
     }
   }
+  
+  // Schedule progression event for newly infected person
+  EventHSV2Progression *pEvtProgression = new EventHSV2Progression(pTarget);
+  population.onNewEvent(pEvtProgression);
+  
+  // Schedule diagnosis event for symptomatic individuals
+  int symptomState = pTarget->hsv2().getSymptoms();
+  if(symptomState == Person_HSV2::Symptoms){
+    EventHSV2Diagnosis *pEvtDiag = new EventHSV2Diagnosis(pTarget, false);
+    population.onNewEvent(pEvtDiag);
+  }
+  
   
 #ifndef NDEBUG
   double tDummy;
@@ -202,6 +217,8 @@ double EventHSV2Transmission::s_h = 0;
 double EventHSV2Transmission::s_w = 0;
 double EventHSV2Transmission::s_e1 = 0;
 double EventHSV2Transmission::s_e2 = 0;
+double EventHSV2Transmission::s_k1 = 0;
+double EventHSV2Transmission::s_k2 = 0;
 double EventHSV2Transmission::HazardFunctionHSV2Transmission::s_b = 0;
 
 void EventHSV2Transmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
@@ -218,6 +235,8 @@ void EventHSV2Transmission::processConfig(ConfigSettings &config, GslRandomNumbe
       !(r = config.getKeyValue("hsv2transmission.hazard.w", s_w)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.e1", s_e1)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.e2", s_e2)) ||
+      !(r = config.getKeyValue("hsv2transmission.hazard.k1", s_k1)) ||
+      !(r = config.getKeyValue("hsv2transmission.hazard.k2", s_k2)) ||
       !(r = config.getKeyValue("hsv2transmission.hazard.t_max", s_tMax))
   )
     abortWithMessage(r.getErrorString());
@@ -237,6 +256,8 @@ void EventHSV2Transmission::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("hsv2transmission.hazard.w", s_w)) ||
       !(r = config.addKey("hsv2transmission.hazard.e1", s_e1))||
       !(r = config.addKey("hsv2transmission.hazard.e2", s_e2))||
+      !(r = config.addKey("hsv2transmission.hazard.k1", s_k1))||
+      !(r = config.addKey("hsv2transmission.hazard.k2", s_k2))||
       !(r = config.addKey("hsv2transmission.hazard.t_max", s_tMax))
   )
     abortWithMessage(r.getErrorString());
@@ -303,6 +324,24 @@ int EventHSV2Transmission::getW(const Person *pPerson1){
   return W;
 }
 
+int EventHSV2Transmission::getD1(const Person *pPerson1){
+  assert(pPerson1 != 0);
+  int D1 = 0;
+  if(pPerson1->hsv2().getDiseaseStage() == Person_HSV2::Primary)
+    D1 = 1;
+  
+  return D1;
+}
+
+int EventHSV2Transmission::getD2(const Person *pPerson1){
+  assert(pPerson1 != 0);
+  int D2 = 0;
+  if(pPerson1->hsv2().getDiseaseStage() == Person_HSV2::Asymptomatic)
+    D2 = 1;
+  
+  return D2;
+}
+
 
 EventHSV2Transmission::HazardFunctionHSV2Transmission::HazardFunctionHSV2Transmission(const Person *pPerson1, 
                                                                                       const Person *pPerson2,
@@ -330,10 +369,11 @@ double EventHSV2Transmission::HazardFunctionHSV2Transmission::getA(const Person 
   
   return pOrigin->hsv2().getHazardAParameter() - s_b * pOrigin->hsv2().getInfectionTime() + 
     s_d1*EventHSV2Transmission::getH(pOrigin) + s_d2*EventHSV2Transmission::getH(pTarget) + 
-    s_d1*Pi + s_d2*Pj +
+    s_g1*Pi + s_g2*Pj +
     s_f*EventHSV2Transmission::getR(pTarget, pOrigin) + s_w*EventHSV2Transmission::getW(pTarget) +
     s_h*CondomUse + 
-    s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter();
+    s_e1*pTarget->hiv().getHazardB0Parameter() + s_e2*pTarget->hsv2().getHazardB2Parameter() +
+    s_k1*getD1(pOrigin) + s_k2*getD2(pOrigin) ;
 }
 
 ConfigFunctions hsv2TransmissionConfigFunctions(EventHSV2Transmission::processConfig, EventHSV2Transmission::obtainConfig, 
@@ -353,7 +393,9 @@ JSONConfig hsv2TransmissionJSONConfig(R"JSON(
   [ "hsv2transmission.hazard.w", 0],
   [ "hsv2transmission.hazard.e1", 0 ],
   [ "hsv2transmission.hazard.e2", 0 ],
-  [ "hsv2transmission.hazard.t_max", 200 ]
+  [ "hsv2transmission.hazard.k1", 0 ],
+  [ "hsv2transmission.hazard.k2", 0 ],
+    [ "hsv2transmission.hazard.t_max", 200 ]
   ],
             "info": [ 
   "These configuration parameters allow you to set the 'b', 'c' and 'd' values in the hazard",

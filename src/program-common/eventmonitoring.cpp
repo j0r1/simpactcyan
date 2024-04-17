@@ -71,14 +71,18 @@ void EventMonitoring::fire(Algorithm *pAlgorithm, State *pState, double t)
 
 	assert(pPerson->hiv().isInfected());
 	assert(!pPerson->hiv().hasLoweredViralLoad());
-	assert(s_treatmentVLLogFrac >= 0 && s_treatmentVLLogFrac <= 1.0);
+	double vlfrac = s_treatmentVLLogFrac->pickNumber();
+	// assert(s_treatmentVLLogFrac >= 0 && s_treatmentVLLogFrac <= 1.0);
+	assert(vlfrac >= 0 && vlfrac <= 1.0);
+	
 
 	if (isEligibleForTreatment(t) && isWillingToStartTreatment(t, pRndGen))
 	{
 		SimpactEvent::writeEventLogStart(true, "(treatment)", t, pPerson, 0);
 
 		// Person is starting treatment, no further HIV test events will follow
-		pPerson->hiv().lowerViralLoad(s_treatmentVLLogFrac, t);
+		// pPerson->hiv().lowerViralLoad(s_treatmentVLLogFrac, t);
+		pPerson->hiv().lowerViralLoad(vlfrac, t);
 		
 		// Update PrEP eligibility of partners (in case VLS is attained)
 		int numRelations = pPerson->getNumberOfRelationships();
@@ -126,7 +130,8 @@ double EventMonitoring::getNewInternalTimeDifference(GslRandomNumberGenerator *p
 	return dt;
 }
 
-double EventMonitoring::s_treatmentVLLogFrac = -1;
+// double EventMonitoring::s_treatmentVLLogFrac = -1;
+ProbabilityDistribution *EventMonitoring::s_treatmentVLLogFrac = 0;
 double EventMonitoring::s_cd4Threshold = -1;
 PieceWiseLinearFunction *EventMonitoring::s_pRecheckInterval = 0;
 
@@ -134,9 +139,11 @@ void EventMonitoring::processConfig(ConfigSettings &config, GslRandomNumberGener
 {
 	bool_t r;
 
-	if (!(r = config.getKeyValue("monitoring.cd4.threshold", s_cd4Threshold, 0)) ||
-	    !(r = config.getKeyValue("monitoring.fraction.log_viralload", s_treatmentVLLogFrac, 0, 1)))
+	if (!(r = config.getKeyValue("monitoring.cd4.threshold", s_cd4Threshold, 0)))
 		abortWithMessage(r.getErrorString());
+	
+	delete s_treatmentVLLogFrac;
+	s_treatmentVLLogFrac = getDistributionFromConfig(config, pRndGen, "monitoring.fraction.log_viralload");
 
 	vector<double> intervalX, intervalY;
 	double leftValue, rightValue;
@@ -180,11 +187,13 @@ void EventMonitoring::obtainConfig(ConfigWriter &config)
 		intervalX.push_back(points[i].x);
 		intervalY.push_back(points[i].y);
 	}
+	
+	assert(s_treatmentVLLogFrac);
+	addDistributionToConfig(s_treatmentVLLogFrac, config, "monitoring.fraction.log_viralload");
 
 	bool_t r;
 
 	if (!(r = config.addKey("monitoring.cd4.threshold", s_cd4Threshold)) ||
-	    !(r = config.addKey("monitoring.fraction.log_viralload", s_treatmentVLLogFrac)) ||
 	    !(r = config.addKey("monitoring.interval.piecewise.cd4s", intervalX)) ||
 	    !(r = config.addKey("monitoring.interval.piecewise.times", intervalY)) ||
 	    !(r = config.addKey("monitoring.interval.piecewise.left", s_pRecheckInterval->getLeftValue())) ||
@@ -199,7 +208,7 @@ JSONConfig monitoringJSONConfig(R"JSON(
             "depends": null,
             "params": [
                 [ "monitoring.cd4.threshold", 350.0 ],
-                [ "monitoring.fraction.log_viralload", 0.7 ]
+                [ "monitoring.fraction.log_viralload.dist", "distTypes", ["fixed", [ [ "value", 0.296 ] ] ] ]
             ],
             "info": [
                 "When a person is diagnosed (or 're-diagnosed' after a dropout), monitoring",

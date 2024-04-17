@@ -1,6 +1,7 @@
 #include "eventchlamydiadiagnosis.h"
 #include "eventchlamydiaprogression.h"
 #include "eventchlamydiatransmission.h"
+#include "eventprepoffered.h"
 #include "person_chlamydia.h"
 #include "person.h"
 #include "configsettings.h"
@@ -71,6 +72,19 @@ bool EventChlamydiaDiagnosis::isWillingToTreatSTI(double t, GslRandomNumberGener
   return false;  
 }
 
+bool EventChlamydiaDiagnosis::partnerWillingToTest(Person *pPerson, GslRandomNumberGenerator *pRndGen)
+{
+  // Person *pPerson = getPerson(0);
+  
+  // Coin toss
+  double x = pRndGen->pickRandomDouble();
+  if (x < pPerson->getTestAcceptanceThreshold())
+    return true;
+  
+  return false;
+}
+
+
 void EventChlamydiaDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
   SimpactPopulation &population = SIMPACTPOPULATION(pState);
@@ -84,6 +98,15 @@ void EventChlamydiaDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double 
   // pPerson->writeToChlamydiaTreatLog();
   double tLast = pPerson->getTimeLastSTI();
   pPerson->increaseSTIDiagnoseCount(t, tLast);
+  
+  // Update PrEP eligibility
+  bool schedulePrePOfferedEvent = pPerson->hiv().updatePrePEligibility(t);
+  // Check if  person has become eligible for PreP
+  if (schedulePrePOfferedEvent) {
+    // Schedule PreP being offered to this person
+    EventPrePOffered *pEvtPreP = new EventPrePOffered(pPerson, true);
+    population.onNewEvent(pEvtPreP);
+  }
   
   // If accepting treatment --> immediate recovery
   if(isWillingToTreatSTI(t, pRndGen))
@@ -112,13 +135,37 @@ void EventChlamydiaDiagnosis::fire(Algorithm *pAlgorithm, State *pState, double 
     
   }
   
+  // Partner notification
+  if(s_partnerNotificationEnabled){
+    // Check relationships diagnosed person is in, and if partner is also infected, schedule diagnosis event if willing to get tested
+    int numRelations = pPerson->getNumberOfRelationships();
+    pPerson->startRelationshipIteration();
+    
+    for (int i = 0; i < numRelations; i++)
+    {
+      double formationTime = -1;
+      Person *pPartner = pPerson->getNextRelationshipPartner(formationTime);
+      
+      if (pPartner->chlamydia().isInfected() && !pPartner->chlamydia().isDiagnosed())
+      {
+        if(partnerWillingToTest(pPartner, pRndGen)){
+          
+          EventChlamydiaDiagnosis *pEvtDiagP = new EventChlamydiaDiagnosis(pPartner, true);
+          population.onNewEvent(pEvtDiagP);
+          
+        }
+        
+      }
+    }
+  }
+  
 }
 
 bool EventChlamydiaDiagnosis::isUseless(const PopulationStateInterface &population)
 {
-  // Event becomes useless if natural clearance occurs before scheduled diagnosis
+  // Event becomes useless if natural clearance occurs before scheduled diagnosis or if already diagnosed
   Person *pPerson1 = getPerson(0);
-  if(!pPerson1->chlamydia().isInfected()){
+  if(!pPerson1->chlamydia().isInfected() || pPerson1->chlamydia().isDiagnosed()){
     return true;
   }
   
@@ -141,7 +188,10 @@ double EventChlamydiaDiagnosis::calculateInternalTimeInterval(const State *pStat
   HazardFunctionChlamydiaDiagnosis h0(pPerson, s_baseline, s_diagPartnersFactor, s_healthSeekingPropensityFactor, s_beta);
   TimeLimitedHazardFunction h(h0, tMax);
   
-  return h.calculateInternalTimeInterval(t0, dt);
+  double internalTimeInterval = h.calculateInternalTimeInterval(t0, dt);
+
+  return internalTimeInterval;
+  // return h.calculateInternalTimeInterval(t0, dt);
 }
 
 double EventChlamydiaDiagnosis::solveForRealTimeInterval(const State *pState, double Tdiff, double t0)
@@ -159,7 +209,11 @@ double EventChlamydiaDiagnosis::solveForRealTimeInterval(const State *pState, do
   HazardFunctionChlamydiaDiagnosis h0(pPerson, s_baseline, s_diagPartnersFactor, s_healthSeekingPropensityFactor, s_beta);
   TimeLimitedHazardFunction h(h0, tMax);
   
-  return h.solveForRealTimeInterval(t0, Tdiff);
+  double realTimeInterval = h.solveForRealTimeInterval(t0, Tdiff);
+
+  return realTimeInterval;
+  
+  // return h.solveForRealTimeInterval(t0, Tdiff);
 }
 
 double EventChlamydiaDiagnosis::getTMax(const Person *pPerson)
@@ -198,6 +252,9 @@ double EventChlamydiaDiagnosis::s_healthSeekingPropensityFactor = 0;
 double EventChlamydiaDiagnosis::s_beta = 0;
 double EventChlamydiaDiagnosis::s_tMax = 0;
 
+bool EventChlamydiaDiagnosis::s_partnerNotificationEnabled = false;
+
+
 void EventChlamydiaDiagnosis::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
   bool_t r;
@@ -206,9 +263,12 @@ void EventChlamydiaDiagnosis::processConfig(ConfigSettings &config, GslRandomNum
       !(r = config.getKeyValue("chlamydia.diagnosis.diagpartnersfactor", s_diagPartnersFactor)) ||
       !(r = config.getKeyValue("chlamydia.diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
       !(r = config.getKeyValue("chlamydia.diagnosis.beta", s_beta)) ||
-      !(r = config.getKeyValue("chlamydia.diagnosis.t_max", s_tMax))
+      !(r = config.getKeyValue("chlamydia.diagnosis.t_max", s_tMax)) ||
+      !(r = config.getKeyValue("chlamydia.diagnosis.partnernotification.enabled", s_partnerNotificationEnabled))
   )
     abortWithMessage(r.getErrorString());
+  
+
 }
 
 void EventChlamydiaDiagnosis::obtainConfig(ConfigWriter &config)
@@ -219,7 +279,8 @@ void EventChlamydiaDiagnosis::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("chlamydia.diagnosis.diagpartnersfactor", s_diagPartnersFactor)) ||
       !(r = config.addKey("chlamydia.diagnosis.healthseekingpropensityfactor", s_healthSeekingPropensityFactor)) ||
       !(r = config.addKey("chlamydia.diagnosis.beta", s_beta)) ||
-      !(r = config.addKey("chlamydia.diagnosis.t_max", s_tMax)) 
+      !(r = config.addKey("chlamydia.diagnosis.t_max", s_tMax)) ||
+      !(r = config.addKey("chlamydia.diagnosis.partnernotification.enabled", s_partnerNotificationEnabled))   
   )
     abortWithMessage(r.getErrorString());
 }
@@ -260,7 +321,8 @@ JSONConfig chlamydiaDiagnosisJSONConfig(R"JSON(
   ["chlamydia.diagnosis.diagpartnersfactor", 0 ],
   ["chlamydia.diagnosis.beta", 0],
   ["chlamydia.diagnosis.healthseekingpropensityfactor", 0],
-  ["chlamydia.diagnosis.t_max", 200]
+  ["chlamydia.diagnosis.t_max", 200],
+  ["chlamydia.diagnosis.partnernotification.enabled", "no"]
   ],
             "info": [
   "TO DO"

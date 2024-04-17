@@ -19,6 +19,7 @@ class Person_Gonorrhea : public Person_STI
 public:
   enum GonorrheaDiseaseStage {
     Susceptible,
+    Exposed,
     Asymptomatic,
     Symptomatic
   };

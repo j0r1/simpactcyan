@@ -30,6 +30,7 @@ set(SOURCES_SIMPACT
 	../program-common/eventchlamydiatransmission.cpp
 	../program-common/eventchlamydiaprogression.cpp
 	../program-common/eventchlamydiadiagnosis.cpp
+	../program-common/eventchlamydiaimport.cpp
 	../program-common/eventgonorrheaseed.cpp
 	../program-common/eventgonorrheatransmission.cpp
 	../program-common/eventgonorrheaprogression.cpp
@@ -37,11 +38,16 @@ set(SOURCES_SIMPACT
 	../program-common/eventgonorrheaimport.cpp
 	../program-common/eventhsv2seed.cpp
 	../program-common/eventhsv2transmission.cpp
+	../program-common/eventhsv2progression.cpp
+	../program-common/eventhsv2recurrence.cpp
+	../program-common/eventhsv2diagnosis.cpp
+	../program-common/eventhsv2import.cpp
 	../program-common/eventsyphilisseed.cpp
 	../program-common/eventsyphilistransmission.cpp
 	../program-common/eventsyphilisprogression.cpp
 	../program-common/eventsyphilisdiagnosis.cpp
 	../program-common/eventtertiarysyphilis.cpp
+	../program-common/eventsyphilisimport.cpp
 	../program-common/eventhivseed.cpp
 	../program-common/eventhivimport.cpp
 	../program-common/eventintervention.cpp
@@ -54,6 +60,7 @@ set(SOURCES_SIMPACT
 	../program-common/eventprepoffered.cpp
 	../program-common/eventprepscreening.cpp
 	../program-common/eventprepdropout.cpp
+	../program-common/eventroutinetesting.cpp
 	../program-common/eventsyncpopstats.cpp
 	../program-common/eventsyncrefyear.cpp
 	../program-common/eventcheckstopalgorithm.cpp

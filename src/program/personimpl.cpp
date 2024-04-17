@@ -29,6 +29,16 @@ JSONConfig personImplJSONConfig(R"JSON(
 			"info": [
 				"The distribution used to assign a health-seeking propensity to a person."
 			]
+		},        "PersonPEPUse": {
+		  "depends": null,
+		  "params": [
+		  [ "person.pepuse.dist", "distTypes", [ "fixed", [ [ "value", 0 ] ] ] ],
+      [ "person.pepuse.numpartners", 0]
+		  ],
+              "info": [ 
+		  "The distribution specified by 'person.pepuse.dist' is used to assign",
+		  "a doxyPEP use probability to a person. "
+              ]
 		},
         "PersonCondomUse": {
             "depends": null,
@@ -68,4 +78,15 @@ JSONConfig personImplJSONConfig(R"JSON(
 		  "there's little chance of accepting treatment; if the value is higher (close to",
 		  "one), treatment will almost always be accepted."
               ]
+		},
+		  "PersonTestAcceptance": {
+                "depends": null,
+                "params": [
+                [ "person.sti.test.accept.threshold.dist", "distTypes", ["fixed", [ ["value", 0.5 ] ] ] ],
+                [ "person.routine.test.accept.threshold.dist", "distTypes", ["fixed", [ ["value", 0.5 ] ] ] ]
+                ],
+                          "info": [
+                "This parameter specifies a distribution from which a number will be chosen",
+                "for each person, and which serves as the threshold to take STI test."
+                ]
 		})JSON");

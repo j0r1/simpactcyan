@@ -7,6 +7,7 @@
 #include "eventchlamydiadiagnosis.h"
 #include "eventgonorrheadiagnosis.h"
 #include "eventsyphilisdiagnosis.h"
+#include "eventhsv2diagnosis.h"
 #include "gslrandomnumbergenerator.h"
 #include "jsonconfig.h"
 #include "probabilitydistribution.h"
@@ -67,6 +68,10 @@ void EventPrePScreening::fire(Algorithm *pAlgorithm, State *pState, double t)
 	  // writeEventLogStart(true, "(syphilis treatment)", t, pPerson, 0);
 	}
 	
+	if(pPerson->hsv2().isInfected()){
+	  EventHSV2Diagnosis *pEvtHSV2Diagnosis = new EventHSV2Diagnosis(pPerson, true);
+	  population.onNewEvent(pEvtHSV2Diagnosis);
+	}
 
 	// If not HIV infected, schedule new screening
 	if (!pPerson->hiv().isInfected()) {

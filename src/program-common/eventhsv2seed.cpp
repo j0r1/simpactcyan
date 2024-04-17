@@ -1,5 +1,6 @@
 #include "eventhsv2seed.h"
 #include "eventhsv2transmission.h"
+#include "eventhsv2import.h"
 #include "gslrandomnumbergenerator.h"
 #include "jsonconfig.h"
 #include "configfunctions.h"
@@ -35,6 +36,12 @@ void EventHSV2Seed::writeLogs(const SimpactPopulation &pop, double tNow) const
 void EventHSV2Seed::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
 	EventSeedBase::fire(s_settings, t, pState, EventHSV2Transmission::infectPerson);
+  
+  SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  
+  // Schedule next importation event
+  EventHSV2Import *pEvtImport = new EventHSV2Import();
+  population.onNewEvent(pEvtImport);
 }
 
 SeedEventSettings EventHSV2Seed::s_settings;

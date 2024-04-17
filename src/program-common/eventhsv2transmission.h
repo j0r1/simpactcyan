@@ -45,7 +45,9 @@ protected:
 	static int getR(const Person *pPerson1, const Person *pPerson2);
 	// static int getC(const Person *pPerson1, const Person *pPerson2);
 	static int getW(const Person *pPerson1);
-	
+	static int getD1(const Person *pPerson1); // primary infection?
+	static int getD2(const Person *pPerson1); // asymptomatic stage?
+
 	// static double s_a; // baseline
 	static double s_tMax;
 	static double s_d1; // increase if infectious partner is HIV+
@@ -57,6 +59,8 @@ protected:
 	static double s_w; // female susceptible
 	static double s_e1;
 	static double s_e2;
+	static double s_k1;
+	static double s_k2;
 };
 
 #endif // EVENTHSV2TRANSMISSION_H

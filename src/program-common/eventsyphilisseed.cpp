@@ -1,5 +1,5 @@
 #include "eventsyphilisseed.h"
-
+#include "eventsyphilisimport.h"
 #include "configfunctions.h"
 #include "eventsyphilistransmission.h"
 #include "jsonconfig.h"
@@ -23,6 +23,12 @@ void EventSyphilisSeed::writeLogs(const SimpactPopulation &pop, double tNow) con
 void EventSyphilisSeed::fire(Algorithm *pAlgorithm, State *pState, double t)
 {
 	EventSeedBase::fire(s_settings, t, pState, EventSyphilisTransmission::infectPerson);
+  
+  SimpactPopulation &population = SIMPACTPOPULATION(pState);
+  
+  // Schedule next importation event
+  EventSyphilisImport *pEvtImport = new EventSyphilisImport();
+  population.onNewEvent(pEvtImport);
 }
 
 SeedEventSettings EventSyphilisSeed::s_settings;

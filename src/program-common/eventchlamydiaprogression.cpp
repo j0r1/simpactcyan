@@ -1,5 +1,6 @@
 #include "eventchlamydiaprogression.h"
 #include "eventchlamydiatransmission.h"
+#include "eventchlamydiadiagnosis.h"
 #include "configsettings.h"
 #include "configwriter.h"
 #include "configdistributionhelper.h"
@@ -15,13 +16,13 @@ EventChlamydiaProgression::~EventChlamydiaProgression() {}
 
 string EventChlamydiaProgression::getDescription(double tNow) const
 {
-	return strprintf("Chlamydia progression (recovery) event for %s", getPerson(0)->getName().c_str());
+	return strprintf("Chlamydia progression event for %s", getPerson(0)->getName().c_str());
 }
 
 void EventChlamydiaProgression::writeLogs(const SimpactPopulation &pop, double tNow) const
 {
 	Person *pPerson = getPerson(0);
-	writeEventLogStart(true, "chlamydia natural clearance", tNow, pPerson, 0);
+	writeEventLogStart(true, "chlamydia progression", tNow, pPerson, 0);
 }
 
 void EventChlamydiaProgression::fire(Algorithm *pAlgorithm, State *pState, double t)
@@ -29,21 +30,25 @@ void EventChlamydiaProgression::fire(Algorithm *pAlgorithm, State *pState, doubl
 	SimpactPopulation &population = SIMPACTPOPULATION(pState);
 	Person *pPerson = getPerson(0);
 
-	pPerson->chlamydia().progress(t, false); // natural clearance 
+	pPerson->chlamydia().progress(t, false); // natural clearance or progression from exposed to symptomatic/asymptomatic stage
 	pPerson->writeToChlamydiaTreatLog();
 
 	// Schedule new progression event if necessary.
-	// I.e. schedule recovery event if person just progressed to symptomatic or asymptomatic,
-	// or schedule end of immunity if progressed to immune.
-	// Person_Chlamydia::ChlamydiaDiseaseStage diseaseStage = pPerson->chlamydia().getDiseaseStage();
-	// if (diseaseStage == Person_Chlamydia::Symptomatic || diseaseStage == Person_Chlamydia::Asymptomatic)// || diseaseStage == Person_Chlamydia::Immune)
-	// {
-	// 	EventChlamydiaProgression *pEvtProgression = new EventChlamydiaProgression(pPerson);
-	// 	population.onNewEvent(pEvtProgression);
-	// }
+	// I.e. schedule recovery event if person just progressed to symptomatic or asymptomatic
+	Person_Chlamydia::ChlamydiaDiseaseStage diseaseStage = pPerson->chlamydia().getDiseaseStage();
+	if (diseaseStage == Person_Chlamydia::Symptomatic || diseaseStage == Person_Chlamydia::Asymptomatic)// || diseaseStage == Person_Chlamydia::Immune)
+	{
+		EventChlamydiaProgression *pEvtProgression = new EventChlamydiaProgression(pPerson);
+		population.onNewEvent(pEvtProgression);
+		
+		// also schedule diagnosis for symptomatic persons
+		if(diseaseStage == Person_Chlamydia::Symptomatic){
+		  EventChlamydiaDiagnosis *pEvtDiag = new EventChlamydiaDiagnosis(pPerson, false);
+		  population.onNewEvent(pEvtDiag);
+		}
+	}
 
 	// Schedule new transmission event from infectious partners if person becomes susceptible again
-	Person_Chlamydia::ChlamydiaDiseaseStage diseaseStage = pPerson->chlamydia().getDiseaseStage();
 	if (diseaseStage == Person_Chlamydia::Susceptible) {
 		int numRelations = pPerson->getNumberOfRelationships();
 		pPerson->startRelationshipIteration();
@@ -101,6 +106,10 @@ void EventChlamydiaProgression::processConfig(ConfigSettings &config, GslRandomN
 	delete s_pInfectionDurationDistributionVaginal;
 	s_pInfectionDurationDistributionVaginal = getDistributionFromConfig(config, pRndGen, "chlamydiaprogression.infectionduration.vaginal");
 	
+	// time to sypmtoms
+	delete s_pTimeToSymptoms;
+	s_pTimeToSymptoms = getDistributionFromConfig(config, pRndGen, "chlamydiaprogression.timetosymptoms");
+	
 }
 
 void EventChlamydiaProgression::obtainConfig(ConfigWriter &config)
@@ -125,6 +134,9 @@ void EventChlamydiaProgression::obtainConfig(ConfigWriter &config)
   
   assert(s_pInfectionDurationDistributionVaginal);
   addDistributionToConfig(s_pInfectionDurationDistributionVaginal, config, "chlamydiaprogression.infectionduration.vaginal");
+  
+  assert(s_pTimeToSymptoms);
+  addDistributionToConfig(s_pTimeToSymptoms, config, "chlamydiaprogression.timetosymptoms");
 
 }
 
@@ -138,17 +150,26 @@ double EventChlamydiaProgression::getNewInternalTimeDifference(GslRandomNumberGe
 	assert(pPerson->chlamydia().isInfected());
 	
 	Person_Chlamydia::InfectionSite infectionSite = pPerson->chlamydia().getInfectionSite();
+	Person_Chlamydia::ChlamydiaDiseaseStage diseaseStage = pPerson->chlamydia().getDiseaseStage();
 	double dt = 0;
 	
-	if (infectionSite == Person_Chlamydia::Rectal) {
-	  dt = s_pInfectionDurationDistributionRectal->pickNumber();
+	// Natural clearance rates
+	if (diseaseStage == Person_Chlamydia::Symptomatic || diseaseStage == Person_Chlamydia::Asymptomatic){
+	  if (infectionSite == Person_Chlamydia::Rectal) {
+	    dt = s_pInfectionDurationDistributionRectal->pickNumber();
+	  }
+	  else if (infectionSite == Person_Chlamydia::Urethral) {
+	    dt = s_pInfectionDurationDistributionUrethral->pickNumber();
+	  }
+	  else if (infectionSite == Person_Chlamydia::Vaginal) {
+	    dt = s_pInfectionDurationDistributionVaginal->pickNumber();
+	  }	  
+	// Time to symptoms for exposed individuals
+	} else if (diseaseStage == Person_Chlamydia::Exposed){
+	  dt = s_pTimeToSymptoms->pickNumber();
 	}
-	else if (infectionSite == Person_Chlamydia::Urethral) {
-	  dt = s_pInfectionDurationDistributionUrethral->pickNumber();
-	}
-	else if (infectionSite == Person_Chlamydia::Vaginal) {
-	  dt = s_pInfectionDurationDistributionVaginal->pickNumber();
-	}
+	
+
 
 	// Person_Chlamydia::ChlamydiaDiseaseStage diseaseStage = pPerson->chlamydia().getDiseaseStage();
 	// if (diseaseStage == Person_Chlamydia::Exposed) {
@@ -174,6 +195,7 @@ double EventChlamydiaProgression::getNewInternalTimeDifference(GslRandomNumberGe
 ProbabilityDistribution *EventChlamydiaProgression::s_pInfectionDurationDistributionRectal = 0;
 ProbabilityDistribution *EventChlamydiaProgression::s_pInfectionDurationDistributionUrethral = 0;
 ProbabilityDistribution *EventChlamydiaProgression::s_pInfectionDurationDistributionVaginal = 0;
+ProbabilityDistribution *EventChlamydiaProgression::s_pTimeToSymptoms = 0;
 
 ConfigFunctions chlamydiaProgressionConfigFunctions(EventChlamydiaProgression::processConfig, EventChlamydiaProgression::obtainConfig, "EventChlamydiaProgression");
 
@@ -183,7 +205,8 @@ JSONConfig chlamydiaProgressionJSONConfig(R"JSON(
             "params": [
   [ "chlamydiaprogression.infectionduration.rectal.dist", "distTypes", [ "fixed", [ [ "value", 2.85 ] ] ] ],
   [ "chlamydiaprogression.infectionduration.urethral.dist", "distTypes", [ "fixed", [ [ "value", 2.85 ] ] ] ],
-  [ "chlamydiaprogression.infectionduration.vaginal.dist", "distTypes", [ "fixed", [ [ "value", 1.35 ] ] ] ]
+  [ "chlamydiaprogression.infectionduration.vaginal.dist", "distTypes", [ "fixed", [ [ "value", 1.35 ] ] ] ],
+  [ "chlamydiaprogression.timetosymptoms.dist", "distTypes", [ "fixed", [ [ "value", 0.002 ] ] ] ]
             ],
             "info": [
                 "TODO"

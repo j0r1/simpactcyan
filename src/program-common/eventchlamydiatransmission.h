@@ -54,6 +54,7 @@ protected:
 	static double s_f; // increase when susceptible is receptive partner
 	static double s_h; // condom use
 	static double s_w; // female susceptible
+	static double s_p; // doxyPEP use
 };
 
 #endif // EVENTCHLAMYDIATRANSMISSION_H

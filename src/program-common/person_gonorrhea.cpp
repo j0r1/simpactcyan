@@ -39,6 +39,7 @@ Person_Gonorrhea::~Person_Gonorrhea() {}
 void Person_Gonorrhea::diagnose(double t)
 {
   m_diagnosed = true;
+  // m_timeLastDiagnosis = t;
   // m_diagTime = t;
 }
 
@@ -71,36 +72,64 @@ void Person_Gonorrhea::setInfected(double t, Person *pOrigin, InfectionType iTyp
   m_infectionType = iType;
   m_infectionSite = iSite;
   
-  double rn = s_uniformDistribution.pickNumber();
+  m_diseaseStage = Exposed;
   
-  if (m_pSelf->isMan() && iSite == 1) {
-    if (rn < s_fractionMenSymptomaticRectal) {
-      m_diseaseStage = Symptomatic;
-    } else {
-      m_diseaseStage = Asymptomatic;
-    }
-  }
-  else if (m_pSelf->isMan() && iSite == 2) {
-    if (rn < s_fractionMenSymptomaticUrethral) {
-      m_diseaseStage = Symptomatic;
-    } else {
-      m_diseaseStage = Asymptomatic;
-    }
-  }
-  else {
-    if (rn < s_fractionWomenSymptomatic) {
-      m_diseaseStage = Symptomatic;
-    } else {
-      m_diseaseStage = Asymptomatic;
-    }
-  }
+  // double rn = s_uniformDistribution.pickNumber();
+  // 
+  // if (m_pSelf->isMan() && iSite == 1) {
+  //   if (rn < s_fractionMenSymptomaticRectal) {
+  //     m_diseaseStage = Symptomatic;
+  //   } else {
+  //     m_diseaseStage = Asymptomatic;
+  //   }
+  // }
+  // else if (m_pSelf->isMan() && iSite == 2) {
+  //   if (rn < s_fractionMenSymptomaticUrethral) {
+  //     m_diseaseStage = Symptomatic;
+  //   } else {
+  //     m_diseaseStage = Asymptomatic;
+  //   }
+  // }
+  // else {
+  //   if (rn < s_fractionWomenSymptomatic) {
+  //     m_diseaseStage = Symptomatic;
+  //   } else {
+  //     m_diseaseStage = Asymptomatic;
+  //   }
+  // }
   
   
 }
 
 void Person_Gonorrhea::progress(double t, bool treatInd) // recovery (= progression)
 {
-  if (m_diseaseStage == Asymptomatic || m_diseaseStage == Symptomatic)
+  if (m_diseaseStage == Exposed) {
+    // Go either to symptomatic or asymptomatic stage, based on fraction symptomatic
+    double rn = s_uniformDistribution.pickNumber();
+    
+    if (m_pSelf->isMan() && m_infectionSite == Rectal) {
+      if (rn < s_fractionMenSymptomaticRectal) {
+        m_diseaseStage = Symptomatic;
+      } else {
+        m_diseaseStage = Asymptomatic;
+      }
+    }
+    else if (m_pSelf->isMan() && m_infectionSite == Urethral) {
+      if (rn < s_fractionMenSymptomaticUrethral) {
+        m_diseaseStage = Symptomatic;
+      } else {
+        m_diseaseStage = Asymptomatic;
+      }
+    }
+    else {
+      if (rn < s_fractionWomenSymptomatic) {
+        m_diseaseStage = Symptomatic;
+      } else {
+        m_diseaseStage = Asymptomatic;
+      }
+    }
+    
+  } else if (m_diseaseStage == Asymptomatic || m_diseaseStage == Symptomatic)
   {
     // Recover
     m_diseaseStage = Susceptible;
@@ -113,6 +142,7 @@ void Person_Gonorrhea::progress(double t, bool treatInd) // recovery (= progress
     m_infectionSite = Vaginal;
     m_treated = treatInd;
     // m_diagTime = -1e200;
+    m_diagnosed = false;
     
   }
   

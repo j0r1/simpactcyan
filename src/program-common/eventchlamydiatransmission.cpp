@@ -5,6 +5,7 @@
 #include "eventchlamydiadiagnosis.h"
 #include "gslrandomnumbergenerator.h"
 #include "simpactpopulation.h"
+#include "person.h"
 
 using namespace std;
 
@@ -129,16 +130,16 @@ void EventChlamydiaTransmission::infectPerson(SimpactPopulation &population, Per
     }
   }
   
-  // Schedule progression event (= natural clearance) for newly infected person
+  // Schedule progression event for newly infected person
   EventChlamydiaProgression *pEvtProgression = new EventChlamydiaProgression(pTarget);
   population.onNewEvent(pEvtProgression);
   
   // Schedule diagnosis event for symptomatic individuals
-  int diseaseStage = pTarget->chlamydia().getDiseaseStage();
-  if(diseaseStage == Person_Chlamydia::Symptomatic){
-    EventChlamydiaDiagnosis *pEvtDiagnosis = new EventChlamydiaDiagnosis(pTarget, false);
-    population.onNewEvent(pEvtDiagnosis);
-  }
+  // int diseaseStage = pTarget->chlamydia().getDiseaseStage();
+  // if(diseaseStage == Person_Chlamydia::Symptomatic){
+  //   EventChlamydiaDiagnosis *pEvtDiagnosis = new EventChlamydiaDiagnosis(pTarget, false);
+  //   population.onNewEvent(pEvtDiagnosis);
+  // }
   
 #ifndef NDEBUG
   double tDummy;
@@ -195,7 +196,7 @@ double EventChlamydiaTransmission::s_e2 = 0;
 double EventChlamydiaTransmission::s_f = 0;
 double EventChlamydiaTransmission::s_h = 0;
 double EventChlamydiaTransmission::s_w = 0;
-
+double EventChlamydiaTransmission::s_p = 0;
 
 void EventChlamydiaTransmission::processConfig(ConfigSettings &config, GslRandomNumberGenerator *pRndGen)
 {
@@ -210,8 +211,9 @@ void EventChlamydiaTransmission::processConfig(ConfigSettings &config, GslRandom
       !(r = config.getKeyValue("chlamydiatransmission.hazard.e2", s_e2)) ||
       !(r = config.getKeyValue("chlamydiatransmission.hazard.f", s_f)) ||
       !(r = config.getKeyValue("chlamydiatransmission.hazard.h", s_h)) ||
-      !(r = config.getKeyValue("chlamydiatransmission.hazard.w", s_w))
-  )
+      !(r = config.getKeyValue("chlamydiatransmission.hazard.w", s_w)) ||
+      !(r = config.getKeyValue("chlamydiatransmission.hazard.p", s_p))
+    )
     abortWithMessage(r.getErrorString());
 }
 
@@ -228,8 +230,9 @@ void EventChlamydiaTransmission::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("chlamydiatransmission.hazard.e2", s_e2)) ||
       !(r = config.addKey("chlamydiatransmission.hazard.f", s_f)) ||
       !(r = config.addKey("chlamydiatransmission.hazard.h", s_h)) ||
-      !(r = config.addKey("chlamydiatransmission.hazard.w", s_w))
-  )
+      !(r = config.addKey("chlamydiatransmission.hazard.w", s_w)) ||
+      !(r = config.addKey("chlamydiatransmission.hazard.p", s_p))
+    )
     abortWithMessage(r.getErrorString());
 }
 
@@ -308,6 +311,12 @@ double EventChlamydiaTransmission::HazardFunctionChlamydiaTransmission::getA(con
   bool CondomUse = ((pOrigin->usesCondom(pTarget->hiv().isDiagnosed(), population.getRandomNumberGenerator())) ||
                     (pTarget->usesCondom(pOrigin->hiv().isDiagnosed(), population.getRandomNumberGenerator())));
   
+  bool doxyPEPuse = pTarget->usesPEP(pTarget, population.getRandomNumberGenerator());
+  // doxyPEP only after condomless intercourse
+  if(CondomUse){
+    doxyPEPuse = 0;
+  }
+  
   double Pi = pOrigin->getNumberOfRelationships();
   double Pj = pTarget->getNumberOfRelationships();
   
@@ -315,7 +324,7 @@ double EventChlamydiaTransmission::HazardFunctionChlamydiaTransmission::getA(con
     s_d1*Pi + s_d2*Pj +
     s_e1*EventChlamydiaTransmission::getH(pOrigin) + s_e2*EventChlamydiaTransmission::getH(pTarget) + 
     s_f*EventChlamydiaTransmission::getR(pTarget, pOrigin) + s_w*EventChlamydiaTransmission::getW(pTarget) +
-    s_h*CondomUse;
+    s_h*CondomUse + s_p*doxyPEPuse;
 }
 
 ConfigFunctions chlamydiaTransmissionConfigFunctions(EventChlamydiaTransmission::processConfig,
@@ -335,7 +344,8 @@ JSONConfig chlamydiaTransmissionJSONConfig(R"JSON(
   [ "chlamydiatransmission.hazard.e2", 0 ],
   [ "chlamydiatransmission.hazard.f", 0 ],
   [ "chlamydiatransmission.hazard.h", 0 ],
-  [ "chlamydiatransmission.hazard.w", 0]
+  [ "chlamydiatransmission.hazard.w", 0],
+  [ "chlamydiatransmission.hazard.p", 0]
   ],
             "info": [
   "These configuration parameters allow you to set the 'a' and 'b' in the hazard",

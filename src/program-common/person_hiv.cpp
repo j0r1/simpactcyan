@@ -177,27 +177,47 @@ bool Person_HIV::updatePrePEligibility(double t)
     // Get number of diagnosed HIV+ partners that are not virally suppressed (but also not in final AIDS stage)
     int numRelations = m_pSelf->getNumberOfRelationships();
     int S = 0;
+    int M = 0;
     double tDummy = 0;
     m_pSelf->startRelationshipIteration();
     for (int i = 0 ; i < numRelations ; i++)
     {
       Person *pPartner = m_pSelf->getNextRelationshipPartner(tDummy);
+      // Partner infected and not virally suppressed
       if(pPartner->hiv().isDiagnosed() && !(pPartner->hiv().getInfectionStage() == Person_HIV::AIDSFinal)){
         double vlPartner = pPartner->hiv().getViralLoad();
         if (vlPartner >= m_supprViralLoad){
           S++;
         }        
       }
+      // Number of MSM partners
+      if(pPartner->isMan() && m_pSelf->isMan()){
+        M++;
+      }
     }
     // assert(m_pSelf->getNextRelationshipPartner(tDummy) == 0);
     
     // Check if eligible for PrEP
-    if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
-        (m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold) ||
-        (S > 0)) {//||
-        // (m_pSelf->getSTIDiagnoseCount() >= m_diagSTIPrePThreshold)) {
-      isEligibleNow = true;
+    if(m_diagSTIPrePThreshold == 1){
+      if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
+          // Multiple MSM partners + multiple STIs during the past year
+          ((M >= m_numMSMPartnersPrePThreshold) && (m_pSelf->multSTIDiagnoses() == true)) ||
+          // (m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold) || // not relevant? S = number of non-VLS diagnosed partners
+          (S > 0)
+      ) {
+        isEligibleNow = true;
+      }      
+    } else if (m_diagSTIPrePThreshold == 0){
+      if ((m_pSelf->getNumberOfRelationships() >= m_numPartnersPrePThreshold) ||
+          // Multiple MSM partners 
+          ((M >= m_numMSMPartnersPrePThreshold)) ||
+          // (m_pSelf->getNumberOfDiagnosedPartners() >= m_numDiagPartnersPrePThreshold) || // not relevant? S = number of non-VLS diagnosed partners
+          (S > 0)
+      ) {
+        isEligibleNow = true;
+      }
     }
+
   }
   // TODO condom use?
   
@@ -282,11 +302,12 @@ void Person_HIV::writeToViralLoadLog(double tNow, const string &description) con
   
   int id = (int)m_pSelf->getPersonID();
   double currentVl = getViralLoad();
-  
+  double CD4count = getCD4Count(tNow);
+
   assert(m_Vsp > 0);
   
-  LogViralLoadHIV.print("%10.10f,%d,%s,%10.10f,%10.10f", tNow, id, description.c_str(),
-                        log10(m_Vsp), log10(currentVl));
+  LogViralLoadHIV.print("%10.10f,%d,%s,%10.10f,%10.10f,%10.10f", tNow, id, description.c_str(),
+                        log10(m_Vsp), log10(currentVl), CD4count);
 }
 
 double Person_HIV::m_hivSeedWeibullShape = -1;
@@ -301,6 +322,7 @@ double Person_HIV::m_maxViralLoad = -1; // this one is read from the config file
 double Person_HIV::m_supprViralLoad = -1;
 
 int Person_HIV::m_numPartnersPrePThreshold = 0;
+int Person_HIV::m_numMSMPartnersPrePThreshold = 0;
 int Person_HIV::m_numDiagPartnersPrePThreshold = 0;
 int Person_HIV::m_diagSTIPrePThreshold = 0;
 
@@ -334,7 +356,8 @@ void Person_HIV::processConfig(ConfigSettings &config, GslRandomNumberGenerator 
       !(r = config.getKeyValue("person.vsp.maxvalue", m_maxViralLoad, 0)) ||
       !(r = config.getKeyValue("person.hiv.undetectable.vl", m_supprViralLoad, 0)) ||
       !(r = config.getKeyValue("person.prep.eligibility.threshold.numpartners", m_numPartnersPrePThreshold)) ||
-      !(r = config.getKeyValue("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold))||
+      !(r = config.getKeyValue("person.prep.eligibility.msm.threshold.numpartners", m_numMSMPartnersPrePThreshold)) ||
+      !(r = config.getKeyValue("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold)) ||
       !(r = config.getKeyValue("person.prep.eligibility.threshold.stidiagnoses", m_diagSTIPrePThreshold)))
       abortWithMessage(r.getErrorString());
   
@@ -419,6 +442,7 @@ void Person_HIV::obtainConfig(ConfigWriter &config)
       !(r = config.addKey("person.vsp.maxvalue", m_maxViralLoad)) ||
       !(r = config.addKey("person.hiv.undetectable.vl", m_supprViralLoad)) ||
       !(r = config.addKey("person.prep.eligibility.threshold.numpartners", m_numPartnersPrePThreshold)) ||
+      !(r = config.addKey("person.prep.eligibility.msm.threshold.numpartners", m_numMSMPartnersPrePThreshold)) ||
       !(r = config.addKey("person.prep.eligibility.threshold.numdiagpartners", m_numDiagPartnersPrePThreshold)) ||
       !(r = config.addKey("person.prep.eligibility.threshold.stidiagnoses", m_diagSTIPrePThreshold)) )
       abortWithMessage(r.getErrorString());
@@ -600,6 +624,7 @@ JSONConfig personHIVJSONConfig(R"JSON(
   "depends": null,
   "params": [
   ["person.prep.eligibility.threshold.numpartners", 0],
+  ["person.prep.eligibility.msm.threshold.numpartners", 0],
   ["person.prep.eligibility.threshold.numdiagpartners", 0],
   ["person.prep.eligibility.threshold.stidiagnoses", 10000]
   ],
