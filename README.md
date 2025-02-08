@@ -11,6 +11,8 @@ The main documentation can be found at
 Source code packages and pre-compiled versions can be found 
 [here](http://research.edm.uhasselt.be/jori/simpact/programs/).
 
+Contributed installation instructions can be found here: [PRE-REQUISITES.md](contrib/who-aids-prop/PRE-REQUISITES.md)
+
 Compiling Simpact Cyan on OS X
 ------------------------------
 
@@ -255,26 +257,26 @@ as well, with some obvious changes to the commands.
     10, right click `ALL_BUILD` again and select `Build`.
 
  14. To run the version you're working on from within R, you need to run the
-    following commands **before** loading `RSimpactCyan`:
+     following commands **before** loading `RSimpactCyan`:
 
-        Sys.setenv(PATH=paste("c:\\projects\\simpactcyan\\build\\Debug;c:\\projects\\simpactcyan\\build\\Release",Sys.getenv("PATH"),sep=";"))
-        Sys.setenv(PYTHONPATH="c:\\projects\\simpactcyan\\python")
-        Sys.setenv(SIMPACT_DATA_DIR="c:\\projects\\simpactcyan\\data\\")
+         Sys.setenv(PATH=paste("c:\\projects\\simpactcyan\\build\\Debug;c:\\projects\\simpactcyan\\build\\Release",Sys.getenv("PATH"),sep=";"))
+         Sys.setenv(PYTHONPATH="c:\\projects\\simpactcyan\\python")
+         Sys.setenv(SIMPACT_DATA_DIR="c:\\projects\\simpactcyan\\data\\")
     
-    The first line makes sure that the `RSimpactCyan` will be able to locate the
-    compiled executables. Note that you need to have both the debug and release
-    executables. The second line makes sure that the Python module that's stored
-    in that directory will be found. The last line tells the library where the 
-    data files can be found. Note that double backslashes need to be used (or
-    a single normal slash), and that the data directory needs to end with `\\`
-    (or with a single `/`). 
+     The first line makes sure that the `RSimpactCyan` will be able to locate the
+     compiled executables. Note that you need to have both the debug and release
+     executables. The second line makes sure that the Python module that's stored
+     in that directory will be found. The last line tells the library where the 
+     data files can be found. Note that double backslashes need to be used (or
+     a single normal slash), and that the data directory needs to end with `\\`
+     (or with a single `/`). 
 
-    Only after these lines have been set can you load the library:
+     Only after these lines have been set can you load the library:
 
-        library("RSimpactCyan")
+         library("RSimpactCyan")
 
-    If you then use e.g. the `simpact.run` command, the newly compiled versions
-    are used.
+     If you then use e.g. the `simpact.run` command, the newly compiled versions
+     are used.
 
  15. The previous step allows you to run the new executables from within R, 
     but to debug the code this is not the most convenient way to run the 
@@ -290,15 +292,15 @@ as well, with some obvious changes to the commands.
     which you need to select.
 
  17. In the option on the right that appear then, you'll see an empty input
-    field named `Command Arguments`. There, you'll need to fill in the arguments
-    to the executable, as described in the [manual](http://simpactcyan.readthedocs.io/en/latest/simpact_conf_and_running.html#running-from-command-line). So this would be something like
+     field named `Command Arguments`. There, you'll need to fill in the arguments
+     to the executable, as described in the [manual](http://simpactcyan.readthedocs.io/en/latest/simpact_conf_and_running.html#running-from-command-line). So this would be something like
 
-        c:\path\to\generated\configfile.txt 0 opt
+         c:\path\to\generated\configfile.txt 0 opt
 
-    After pressing `Ok` to store the settings and close the dialog, make sure
-    you set the active version to `Debug` (and not `Release`) in the bar below
-    the menu bar. Pressing F5 then not only starts the program with the specified
-    configuration, but also starts the Visual Studio debugger, allowing you to
-    set breakpoints at various locations.
+     After pressing `Ok` to store the settings and close the dialog, make sure
+     you set the active version to `Debug` (and not `Release`) in the bar below
+     the menu bar. Pressing F5 then not only starts the program with the specified
+     configuration, but also starts the Visual Studio debugger, allowing you to
+     set breakpoints at various locations.
 
 
